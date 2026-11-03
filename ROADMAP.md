@@ -57,6 +57,11 @@ The Ethernet demo includes the beacon advertisement path; BLE uses
 Self-issued ecash, durable nullifier journal, P2PK to the seller, exposure
 caps, batched settlement.
 
+Status: the journal core is implemented (`sidecar/tollgate_fips/journal.py`,
+13 tests, `docs/0009`): RESERVED → SETTLED | SPENT, WAL + `synchronous=FULL`,
+crash recovery treats old reservations as SPENT, and the keyset admission
+predicate uses `final_expiry` as a settlement deadline. No mint or verifier yet.
+
 - **F** — keep paying with the mint stopped.
 - **G** — what happens after keyset `final_expiry`?
 

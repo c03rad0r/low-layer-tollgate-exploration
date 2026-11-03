@@ -68,3 +68,4 @@ replay case.
   may delete its nullifier set (NUT-02) and the journal becomes the only
   surviving record.
 - Settlement is a background job; it never blocks admission.
+- Implemented in `sidecar/tollgate_fips/journal.py`; semantics in `docs/0009`.

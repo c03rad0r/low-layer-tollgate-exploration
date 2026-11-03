@@ -37,8 +37,9 @@ to the bottom with a date.
 
 ## Phase 2 — transports
 
-- [~] `experiments/01-tcp` — cut/re-admit over TCP done
-      (`results/01-tcp-2026-11-03.md`); payment/beacon pending
+- [~] `experiments/01-tcp` — cut/re-admit over TCP done, n=4
+      (`results/01-tcp-2026-11-03.md`); bare reconnect 7.7–7.9 s,
+      re-admit 2.8–3.6 s; payment/beacon pending
 - [ ] `experiments/03-ethernet`
 - [ ] `experiments/04-ble`
 - [ ] `experiments/02-tor`
@@ -47,7 +48,8 @@ to the bottom with a date.
 ## Phase 3 — mint + journal
 
 - [ ] Local test mint in `harness/`
-- [ ] Durable nullifier journal, fsync before credit
+- [x] Durable nullifier journal, fsync before credit
+      (`sidecar/tollgate_fips/journal.py`, 13 journal tests; `docs/0009`)
 - [ ] P2PK-to-seller path
 - [ ] Exposure cap + batch settlement
 - [ ] **Exp F** — mint stopped mid-session

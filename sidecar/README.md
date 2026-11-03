@@ -45,6 +45,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `meter.py` | merge peers+links on `link_id`, per-link delta, reset rule, bytes/msat |
 | `session.py` | `unpaid → paid → grace → evicted`, deadlines, notices |
 | `gate.py` | `admit / deny / meter / pause / evict`, `FileAclStore` |
+| `journal.py` | durable nullifier journal (`RESERVED → SETTLED | SPENT`), keyset admission predicate |
 | `cli.py` | `status`, `meter`, `simulate`, `pause-check`, `admit`, `deny` |
 
 The gate contract is in `docs/0008-gate-interface.md`.
@@ -75,12 +76,15 @@ its failure is the evidence for FIPS patch (b) and spec PR P4.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-29 tests: counter merge/delta/reset/direction, the four-state machine, deadlines,
-notice rate limiting, idempotent ACL writes, and the strict/crude pause split.
+45 tests: counter merge/delta/reset/direction, the four-state machine,
+deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
+split, and the nullifier journal (replay, reopen, stale recovery, keyset
+admission).
 
 ## Not implemented
 
-- Payment verification, mint interaction or a spent journal (Phase 3).
+- Payment verification and mint interaction (Phase 3). The spent journal core
+  is implemented; it is not yet fed by a verifier.
 - A raw control-socket client. The sidecar shells out to `fipsctl`, which is the
   supported interface in 0.5.x. A raw socket client is a possible later change.
 - Per-frame-class counters.

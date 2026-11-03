@@ -1,6 +1,16 @@
 """Phase 1 sidecar: a link gate over the FIPS control socket."""
 
 from .fipsctl import Fipsctl, FipsctlError
+from .journal import (
+    AlreadySettled,
+    AlreadySpent,
+    JournalError,
+    NullifierConflict,
+    NullifierJournal,
+    Reservation,
+    ReservationInFlight,
+    keyset_admissible,
+)
 from .gate import (
     AclError,
     EvictResult,
@@ -26,6 +36,14 @@ from .session import Notice, Session, SessionError, State
 __all__ = [
     "Fipsctl",
     "FipsctlError",
+    "NullifierJournal",
+    "Reservation",
+    "JournalError",
+    "NullifierConflict",
+    "ReservationInFlight",
+    "AlreadySettled",
+    "AlreadySpent",
+    "keyset_admissible",
     "FipsGate",
     "FileAclStore",
     "GateError",

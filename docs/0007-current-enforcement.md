@@ -124,6 +124,11 @@ to do exactly this; see
 **Still missing:** `grace`. Strict pause raises; the crude fallback is a durable
 eviction, not a pause. Patch (b) remains the load-bearing change.
 
+**Transport check:** the same cut/re-admit sequence over TCP gives a bare
+reconnect of 7.7–7.9 s and re-admission of 2.8–3.6 s (n=4), against 6.5–6.9 s
+and 2.7–2.9 s for UDP. The gate sequence is identical; TCP is about a second
+slower to auto-reconnect. See `results/01-tcp-2026-11-03.md`.
+
 ## Exp H — ACL-deny and re-parenting
 
 **Question:** can denying the current parent force a node onto its alternate
@@ -156,7 +161,7 @@ needs an explicit re-evaluation, not just an ACL change. See
 `results/H-2026-11-03-reparent.md`.
 
 **Not tested:** a chain with no alternate peer (expected to split), price-driven
-re-parenting, and TCP/Ethernet.
+re-parenting, and Ethernet.
 
 ## Exp E — the captive portal (blocked)
 
