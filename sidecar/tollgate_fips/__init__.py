@@ -1,5 +1,11 @@
 """Phase 1 sidecar: a link gate over the FIPS control socket."""
 
+from .exposure import (
+    ExposureExceeded,
+    ExposureKey,
+    ExposureLedger,
+    UnknownExposure,
+)
 from .fipsctl import Fipsctl, FipsctlError
 from .journal import (
     AlreadySettled,
@@ -36,6 +42,10 @@ from .session import Notice, Session, SessionError, State
 __all__ = [
     "Fipsctl",
     "FipsctlError",
+    "ExposureLedger",
+    "ExposureKey",
+    "ExposureExceeded",
+    "UnknownExposure",
     "NullifierJournal",
     "Reservation",
     "JournalError",

@@ -60,7 +60,10 @@ caps, batched settlement.
 Status: the journal core is implemented (`sidecar/tollgate_fips/journal.py`,
 13 tests, `docs/0009`): RESERVED → SETTLED | SPENT, WAL + `synchronous=FULL`,
 crash recovery treats old reservations as SPENT, and the keyset admission
-predicate uses `final_expiry` as a settlement deadline. No mint or verifier yet.
+predicate uses `final_expiry` as a settlement deadline. The exposure cap is
+implemented (`sidecar/tollgate_fips/exposure.py`, 10 tests, `docs/0010`): per
+payer/mint/unit, reserved before the journal row so a crash overstates rather
+than understates. No mint or verifier yet.
 
 - **F** — keep paying with the mint stopped.
 - **G** — what happens after keyset `final_expiry`?

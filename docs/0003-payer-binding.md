@@ -56,7 +56,7 @@ replay case.
 | Path observer reads the token | encryption to seller key |
 | Path observer redeems first | P2PK to seller |
 | Payer replays the same token to the same seller | local journal |
-| Payer gives one token to two sellers | **not caught**; capped by exposure |
+| Payer gives one token to two sellers | **not caught**; capped by exposure (`docs/0010`) |
 | Payer claws back via `refund` after `locktime` | journal must track locktime and refund keys |
 | Seller restarts and forgets | fsync before credit; journal is correctness, not cache |
 
@@ -69,3 +69,5 @@ replay case.
   surviving record.
 - Settlement is a background job; it never blocks admission.
 - Implemented in `sidecar/tollgate_fips/journal.py`; semantics in `docs/0009`.
+- Exposure cap implemented in `sidecar/tollgate_fips/exposure.py`; semantics in
+  `docs/0010`.

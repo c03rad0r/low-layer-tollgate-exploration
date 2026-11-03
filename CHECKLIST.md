@@ -51,7 +51,8 @@ to the bottom with a date.
 - [x] Durable nullifier journal, fsync before credit
       (`sidecar/tollgate_fips/journal.py`, 13 journal tests; `docs/0009`)
 - [ ] P2PK-to-seller path
-- [ ] Exposure cap + batch settlement
+- [x] Exposure cap core (`sidecar/tollgate_fips/exposure.py`, 10 tests; `docs/0010`)
+- [ ] Batch settlement
 - [ ] **Exp F** — mint stopped mid-session
 - [ ] **Exp G** — post-`final_expiry` behaviour
 - [ ] Draft `spec-drafts/05-payer-binding.md`

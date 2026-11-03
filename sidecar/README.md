@@ -46,6 +46,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `session.py` | `unpaid → paid → grace → evicted`, deadlines, notices |
 | `gate.py` | `admit / deny / meter / pause / evict`, `FileAclStore` |
 | `journal.py` | durable nullifier journal (`RESERVED → SETTLED | SPENT`), keyset admission predicate |
+| `exposure.py` | per-payer/mint/unit exposure cap, reserved before the journal row |
 | `cli.py` | `status`, `meter`, `simulate`, `pause-check`, `admit`, `deny` |
 
 The gate contract is in `docs/0008-gate-interface.md`.
@@ -76,10 +77,10 @@ its failure is the evidence for FIPS patch (b) and spec PR P4.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-45 tests: counter merge/delta/reset/direction, the four-state machine,
+55 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
-admission).
+admission), and exposure cap enforcement.
 
 ## Not implemented
 
