@@ -71,10 +71,10 @@ the state is `evicted`.
 Exp C measured the difference on a passive seller with an `auto_connect`
 buyer:
 
-- a bare `disconnect` was undone by `auto_connect` in **6.6–6.8 s**, with a new
+- a bare `disconnect` was undone by `auto_connect` in **6.5–6.9 s**, with a new
   `link_id` and no new payment;
 - deny → wait → disconnect held for the full 3 s test, and re-admission cost
-  **2.7 s** (0.83 s ACL + 1.87 s link).
+  **2.7–2.9 s** (0.75–0.83 s ACL + 1.87–2.08 s link, n=4).
 
 `FipsGate.evict()` implements the durable sequence. It raises if no ACL store is
 configured rather than silently doing a non-durable cut. `pause()` in crude mode

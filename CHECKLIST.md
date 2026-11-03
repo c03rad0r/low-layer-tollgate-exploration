@@ -27,7 +27,7 @@ to the bottom with a date.
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
-      in-band lane measured, no mint
+      n=4: bare reconnect 6.5–6.9 s, durable re-admit 2.7–2.9 s; no mint
 - [ ] **Exp H** — ACL-deny re-parenting
 - [x] Durable eviction: deny → wait for ACL → disconnect (Exp C)
 - [ ] Buyer-exhausts demo (documented failure of pause)

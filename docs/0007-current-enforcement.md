@@ -113,11 +113,12 @@ the ACL → disconnect.
 | Re-admit | 3,950 ms | **2,701 ms** (829 ms ACL + 1,873 ms link) |
 
 **Interpretation:** `fipsctl disconnect` alone is **not** eviction. With
-`auto_connect` the peer re-establishes the link in ~6.6 s, with a new `link_id`
-and no new payment. The in-band path (and any payment that rides it) dies for
+`auto_connect` the peer re-establishes the link in 6.5–6.9 s (n=4), with a new
+`link_id` and no new payment. The in-band path (and any payment that rides it) dies for
 that window and then returns for free. A durable cut requires denying the npub,
 waiting until `fipsctl acl show` reports the deny effective, and only then
-disconnecting. The sidecar was changed to do exactly this; see
+disconnecting. Re-admission then costs 2.7–2.9 s (n=4). The sidecar was changed
+to do exactly this; see
 `results/C-2026-11-03-cut-readmit.md`.
 
 **Still missing:** `grace`. Strict pause raises; the crude fallback is a durable

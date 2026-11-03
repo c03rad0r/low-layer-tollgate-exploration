@@ -18,13 +18,15 @@ tree. The topology is a single UDP peer link. No mint, no funds.
 ## Run
 
 ```sh
-harness/exp-c/run-exp-c.sh
+harness/exp-c/run-exp-c.sh            # leave containers up
+harness/exp-c/run-exp-c.sh --down     # tear down afterwards
+harness/exp-c/repeat.sh 3             # clean run, repeat, summarise
 ```
 
-The script brings the compose project up, runs `exp_c.py` on the host (it talks
-to each container with `docker exec`), writes the raw log to
-`results/C-<date>.md`, and leaves the containers up for inspection unless
-`--down` is passed.
+The script brings the compose project up and runs `exp_c.py` on the host (it
+talks to each container with `docker exec`). `repeat.sh` tears the project down
+between runs, saves each log under `/tmp/opencode/`, and prints ranges plus a
+`summary.json`. The recorded run is `results/C-2026-11-03-cut-readmit.md`.
 
 ## Identities
 
@@ -32,10 +34,15 @@ Both nsecs are derived from the test mesh name `low-layer-tollgate-exp-c` with
 the upstream `derive_keys.py`. They are test keys, not secrets. See
 `configs/`.
 
-## Expected failure
+## Expected result
 
-On FIPS 0.6.0-dev there is no per-peer forwarding role, so `pause()` raises.
-The crude fallback disconnects: the link, the FIPS IPv6 path and any payment
-traffic that rode it all die. Re-admission needs a new handshake and, with ACL
-strict mode, a file write that lands on the next 1 s tick. The numbers are the
-evidence for patch (b) and P4.
+On FIPS 0.6.0-dev there is no per-peer forwarding role, so strict `pause()`
+raises. The crude fallback is a **durable eviction**: deny the npub, wait for
+the ACL, then disconnect.
+
+- A bare `disconnect` is undone by `auto_connect` in 6.5–6.9 s, with a new
+  `link_id` and no new payment.
+- Deny → wait → disconnect holds (3 s test, no link).
+- Re-admission costs 2.7–2.9 s (0.75–0.83 s ACL + 1.87–2.08 s link, n=4).
+
+That is the evidence for patch (b) and P4.

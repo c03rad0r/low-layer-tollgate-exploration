@@ -70,7 +70,7 @@ grace  --grace deadline--> evicted
 - A renewal in `grace` returns to `paid` without a new link.
 - `evicted` MUST be durable: deny the npub, wait until the ACL reports the
   deny effective, then disconnect. A bare `disconnect` is re-established by
-  `auto_connect` in ~6.6 s with a new `link_id` and no new payment (Exp C).
+  `auto_connect` in 6.5–6.9 s with a new `link_id` and no new payment (Exp C).
 
 ### 3. Notices
 
@@ -163,10 +163,10 @@ buyer, strict ACL.
 
 | Path | Result |
 |---|---|
-| Bare `disconnect` | link back in **6.6–6.8 s**, new `link_id`, no payment |
+| Bare `disconnect` | link back in **6.5–6.9 s**, new `link_id`, no payment |
 | Deny → wait → disconnect | held for 3 s, no link on either side |
 | ACL effective | 0.8–1.0 s (Exp B: 756–984 ms, tick-bound) |
-| Re-admission | **2.7 s** total (0.83 s ACL + 1.87 s link) |
+| Re-admission | **2.7–2.9 s** total (n=4) |
 | In-band path during cut | fails; returns on reconnect, without payment |
 
 This is why the TIP separates `grace` from `evicted`: the only lever today is
@@ -181,5 +181,5 @@ make `grace` implementable. The full raw output is in
 - MONAD: four-state shape, paused-by-default sessions, advisory eviction.
 - Exp B: ACL changes take 756–984 ms, tick-bound; relevant to both the `unpaid`
   admission and the `evicted` teardown.
-- Exp C: a bare `disconnect` is undone by `auto_connect` in ~6.6 s; durable
-  eviction holds, and re-admission costs ~2.7 s.
+- Exp C: a bare `disconnect` is undone by `auto_connect` in 6.5–6.9 s; durable
+  eviction holds, and re-admission costs 2.7–2.9 s (n=4).

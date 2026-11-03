@@ -140,10 +140,39 @@ ACL allow: effective in 829 ms; link re-admitted mode=auto in 1873 ms (total 270
 | Re-admit link | 3,131 ms | 1,873 ms |
 | **Total re-admit** | **3,950 ms** | **2,701 ms** |
 
+## Repeatability (current code)
+
+Three more runs after the durable-evict change. Each run starts from a fresh
+compose project, so the ACL files and `link_id` start clean. All four current-code
+runs (the main Run 2 plus these three) agree:
+
+| Run | ACL allow | Bare down | Bare reconnect | Durable ACL wait | Durable down | Re-admit ACL | Re-admit link | **Total re-admit** | Held | link ids |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Run 2 | 925 | 764 | 6,616 | 978 | 2,142 | 829 | 1,873 | **2,701** | 3 s | 1→2→3 |
+| Rep 1 | 704 | 824 | 6,792 | 856 | 1,972 | 806 | 2,075 | **2,881** | 3 s | 1→2→3 |
+| Rep 2 | 700 | 848 | 6,919 | 762 | 1,908 | 749 | 1,995 | **2,744** | 3 s | 1→2→3 |
+| Rep 3 | 788 | 625 | 6,496 | 835 | 2,048 | 813 | 1,914 | **2,727** | 3 s | 1→2→3 |
+
+| Metric | Range (n=4, current code) |
+|---|---|
+| ACL allow effective | 700–925 ms |
+| Bare disconnect → down | 625–848 ms |
+| Bare disconnect → auto reconnect | **6,496–6,919 ms** |
+| Durable ACL wait | 762–978 ms |
+| Durable evict → down | 1,908–2,142 ms |
+| Re-admit ACL | 749–829 ms |
+| Re-admit link | 1,873–2,075 ms |
+| **Re-admit total** | **2,701–2,881 ms** |
+| Durable hold | 3 s, no link, every run |
+| `link_id` | 1→2 after bare cut, →3 after durable re-admit, every run |
+
+Run 1 used the old bare-disconnect code and is excluded from the range; it is
+kept above because it is the run that showed the cut was not durable.
+
 ## Interpretation
 
 1. **A bare `disconnect` is not eviction.** With `connect_policy: auto_connect`
-   the buyer re-established the link in **6.6–6.8 s**, with a fresh `link_id`
+   the buyer re-established the link in **6.5–6.9 s**, with a fresh `link_id`
    and no new payment. The cut is a blip, not a gate. `evict` MUST deny the
    npub as well as disconnect.
 2. **The in-band path dies during the cut.** Ping over the FIPS link fails
@@ -154,8 +183,8 @@ ACL allow: effective in 829 ms; link re-admitted mode=auto in 1873 ms (total 270
    ~0.8–1.0 s. Disconnecting before that leaves a window in which auto_connect
    can re-admit the peer. After the ACL is effective, the link stays down; a
    3 s hold showed no link on either side.
-4. **Re-admission costs ACL latency plus a handshake.** Run 2: 0.829 s ACL +
-   1.873 s to a usable link = **2.701 s**. Run 1's explicit path was 3.95 s.
+4. **Re-admission costs ACL latency plus a handshake.** **2.701–2.881 s** across four runs (0.75–0.83 s ACL + 1.87–2.08 s link).
+   Run 1's explicit path was 3.95 s.
    That is the number P4 should quote for `evicted → paid`.
 5. **`grace` is still unimplemented.** Strict pause raises. The crude fallback
    is now a durable eviction, which is correct for `evicted` but does not make
@@ -166,8 +195,8 @@ ACL allow: effective in 829 ms; link re-admitted mode=auto in 1873 ms (total 270
 
 ## Caveats
 
-- Two runs, one topology. The ACL numbers are consistent with Exp B's 1 s tick,
-  but repeat 3–5 times before quoting a range.
+- Five runs total, one topology. Run 1 used the old code; the range above is
+  from the four current-code runs. Repeat on TCP and Ethernet before generalising.
 - No mint and no payment. The "payment lane" is the in-band FIPS path; the
   Docker bridge is an out-of-band network but carries no payment service.
 - The seller is passive and the buyer is the only dialer. A symmetric
