@@ -1,0 +1,35 @@
+# FIPS node X — Exp H triangle.
+#
+# TEST IDENTITY ONLY. Derived from "low-layer-tollgate-exp-h" with the
+# upstream derive_keys.py. Not a secret and not for production.
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  udp:
+    bind_addr: "0.0.0.0:2121"
+    mtu: 1472
+
+peers:
+  - npub: "npub1yfe7j2r8nfyqfghcqq2n2zpmwn3de60hv05uwg6jgw82w5ht56csc07la3"
+    alias: "p"
+    addresses:
+      - transport: udp
+        addr: "p:2121"
+    connect_policy: auto_connect
+  - npub: "npub1scf2vfjxmh23atczhfxe48zc7fglcxfep3jl28j64fq2nl9g4c9qt9qjhc"
+    alias: "q"
+    addresses:
+      - transport: udp
+        addr: "q:2121"
+    connect_policy: auto_connect

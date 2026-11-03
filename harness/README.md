@@ -22,7 +22,18 @@ harness/
 │   ├── frame-gate-test.py   # veth + nft netdev correctness test
 │   └── run-frame-gate.sh    # build and run it
 ├── fips-lab/
-│   └── README.md            # using upstream testing/static as the 2-node lab
+│   └── README.md            # using upstream testing/static as a 2-node lab
+├── exp-c/                    # two-node cut/re-admit lab
+│   ├── docker-compose.yaml
+│   ├── configs/              # test identities (not secrets)
+│   ├── exp_c.py
+│   ├── repeat.sh
+│   └── run-exp-c.sh
+├── exp-h/                    # three-node re-parenting triangle
+│   ├── docker-compose.yaml
+│   ├── configs/
+│   ├── exp_h.py
+│   └── run-exp-h.sh
 └── README.md
 ```
 
@@ -122,6 +133,18 @@ Notes on using the upstream FIPS `testing/static` Docker lab as the two-node
 pair for Exp C/H. It gives real `fipsd` processes and control sockets; it does
 not give an Ethernet pair, a captive portal or a mint. See
 `harness/fips-lab/README.md`.
+
+## `exp-c/` and `exp-h/`
+
+Two working labs built on `fips-test:latest`:
+
+- `exp-c` — two nodes, passive seller, durable eviction and re-admission.
+  Results: `results/C-2026-11-03-cut-readmit.md`.
+- `exp-h` — three-node triangle, ACL-deny of the current parent.
+  Results: `results/H-2026-11-03-reparent.md`.
+
+Both use `docker exec` to talk to the node's control socket and mount the
+sidecar read-only. Run `harness/exp-c/repeat.sh 3` for a range.
 
 ## Planned lab topology
 

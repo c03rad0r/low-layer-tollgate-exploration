@@ -1,0 +1,25 @@
+# FIPS node P — Exp H triangle, passive parent candidate.
+#
+# TEST IDENTITY ONLY. Derived from "low-layer-tollgate-exp-h" with the
+# upstream derive_keys.py. Not a secret and not for production.
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  udp:
+    bind_addr: "0.0.0.0:2121"
+    mtu: 1472
+
+# Passive: P accepts inbound links from X and Q and never dials, so its ACL is
+# the effective admission gate for both.
+peers: []

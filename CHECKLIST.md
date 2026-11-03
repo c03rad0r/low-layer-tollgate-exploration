@@ -28,8 +28,10 @@ to the bottom with a date.
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
       n=4: bare reconnect 6.5–6.9 s, durable re-admit 2.7–2.9 s; no mint
-- [ ] **Exp H** — ACL-deny re-parenting
+- [x] **Exp H** — ACL-deny re-parenting (`results/H-2026-11-03-reparent.md`);
+      109 ms re-parent, routing recovered, parent choice sticky
 - [x] Durable eviction: deny → wait for ACL → disconnect (Exp C)
+- [x] Two-node Exp C lab and three-node Exp H triangle (`harness/exp-c`, `harness/exp-h`)
 - [ ] Buyer-exhausts demo (documented failure of pause)
 - [x] `spec-drafts/04-pause-and-renewal.md` cites C's numbers
 

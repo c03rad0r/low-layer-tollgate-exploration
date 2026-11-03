@@ -16,7 +16,7 @@ phase that relies on it is wrong.
 | Per-transport metering | **yes, aggregate** | `show transports`, `transport_type` | chargeable/non-chargeable split missing |
 | Cut an established peer | **yes, but only durably with ACL deny** | `peers.deny` then `fipsctl disconnect` | a bare `disconnect` is undone by `auto_connect` in ~6.6 s |
 | Pause one peer's forwarding, keep the link | **no** | — | the load-bearing gap; patch (b) |
-| Price-aware parent selection | **no** | `link_cost` is MMP-only | patch (c) |
+| Price-aware parent selection | **no policy, but ACL-deny re-parents** | deny parent, disconnect | 109 ms re-parent, 1.6 s re-admit; no price signal (Exp H) |
 | Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
 | Runtime admission without touching a file | **no** | ACL is file-based | patch (a) |
 
@@ -123,6 +123,40 @@ to do exactly this; see
 
 **Still missing:** `grace`. Strict pause raises; the crude fallback is a durable
 eviction, not a pause. Patch (b) remains the load-bearing change.
+
+## Exp H — ACL-deny and re-parenting
+
+**Question:** can denying the current parent force a node onto its alternate
+peer, and what does that cost?
+
+**Method:** three-node triangle (`0.6.0-dev`, `2ba790b`), all directly peered;
+`p` passive, `x` and `q` auto-connect. Strict ACLs on all three. The tree
+settled as `x` root, `p` child of `x`, `q` child of `p`. Deny `q` on `p`, wait
+for the ACL, disconnect, and watch `q`'s `is_parent` peer.
+
+**Raw numbers:**
+
+| Metric | Value |
+|---|---|
+| ACL deny on parent | 163 ms |
+| Disconnect command | 51 ms |
+| **Time to re-parent** | **109 ms** |
+| Parent transitions | 1 (`p` → `x`) |
+| Ping child→old parent before / after | pass / **pass** via `x` |
+| Links before / after | 3 / 2 (`p`–`q` dropped) |
+| Re-admit | 1,619 ms (454 ms ACL + 1,165 ms link) |
+| Topology after re-admit | unchanged (`q` stays child of `x`) |
+
+**Interpretation:** ACL-deny is a usable re-parenting lever when an alternate
+peer is viable. The child moved in 109 ms with one transition, and the old
+parent stayed reachable through the new path. The cost is one link (the tree
+became a star at `x`), and re-admission does not revert the parent: parent
+choice is sticky. That stickiness is the argument for patch (c) — a price change
+needs an explicit re-evaluation, not just an ACL change. See
+`results/H-2026-11-03-reparent.md`.
+
+**Not tested:** a chain with no alternate peer (expected to split), price-driven
+re-parenting, and TCP/Ethernet.
 
 ## Exp E — the captive portal (blocked)
 

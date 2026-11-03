@@ -29,7 +29,10 @@ ACL writes and 32 unit tests are in `sidecar/`. The meter has run read-only
 against `host-b` (`results/S-2026-11-03-sidecar-meter.md`). Exp C is done on
 a two-node lab (`results/C-2026-11-03-cut-readmit.md`): a bare disconnect is
 undone by `auto_connect` in 6.5–6.9 s; deny + wait + disconnect holds, and
-re-admission costs 2.7–2.9 s (n=4). The buyer-exhausts demo with a mint is not done.
+re-admission costs 2.7–2.9 s (n=4). Exp H shows ACL-deny re-parents a
+three-node triangle in 109 ms, with one link of churn and sticky parent choice
+(`results/H-2026-11-03-reparent.md`). The buyer-exhausts demo with a mint is not
+done.
 
 - **C** — cost of cut and re-admit; does the payment lane survive?
 - **H** — can ACL-deny force re-parenting, and how much churn?

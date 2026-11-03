@@ -1,0 +1,63 @@
+name: low-layer-tollgate-exp-h
+
+services:
+  p:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-exp-h-p
+    hostname: p
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - ./configs/p.yaml:/etc/fips/fips.yaml:ro
+      - ../../sidecar:/opt/sidecar:ro
+    networks:
+      - fips-net
+    restart: "no"
+
+  x:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-exp-h-x
+    hostname: x
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - ./configs/x.yaml:/etc/fips/fips.yaml:ro
+      - ../../sidecar:/opt/sidecar:ro
+    networks:
+      - fips-net
+    restart: "no"
+
+  q:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-exp-h-q
+    hostname: q
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - ./configs/q.yaml:/etc/fips/fips.yaml:ro
+      - ../../sidecar:/opt/sidecar:ro
+    networks:
+      - fips-net
+    restart: "no"
+
+networks:
+  fips-net:
+    driver: bridge
