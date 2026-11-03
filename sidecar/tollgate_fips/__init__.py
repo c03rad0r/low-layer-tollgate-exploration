@@ -50,6 +50,7 @@ from .settlement import (
     SettlementResult,
     SettlementWorker,
 )
+from .vault import TokenVault, VaultEntry, vault_key
 from .meter import (
     LABEL_ALL_FRAMES,
     LinkCounters,
@@ -68,6 +69,9 @@ __all__ = [
     "ExposureLedger",
     "SellerController",
     "SettlementWorker",
+    "TokenVault",
+    "VaultEntry",
+    "vault_key",
     "SettlementResult",
     "SettlementError",
     "Redeemer",

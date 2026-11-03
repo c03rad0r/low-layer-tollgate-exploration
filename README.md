@@ -50,6 +50,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 - `docs/0012-runtime-admission.md` — runtime admission (patch a).
 - `docs/0013-seller-controller.md` — the session→gate loop.
 - `docs/0014-settlement.md` — redeem → SETTLED → exposure release.
+- `docs/0015-token-vault.md` — persist the token before credit.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 

@@ -9,6 +9,7 @@ from tollgate_fips.exposure import (
     ExposureLedger,
 )
 from tollgate_fips.journal import NullifierJournal, ReservationInFlight
+from tollgate_fips.vault import TokenVault, vault_key
 from tollgate_fips.payment import (
     PaymentError,
     PaymentGate,
@@ -96,6 +97,38 @@ class PaymentTest(unittest.TestCase):
             self.exposure.outstanding(ExposureKey(PAYER, MINT, UNIT)),
             Decimal("40"),
         )
+
+    def test_vault_persists_the_token_before_the_journal_row(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            self.gate.accept(self.proof(), "eph", vault=vault, token="cashuBx")
+            key = vault_key(MINT, UNIT, KEYSET, NULLIFIER)
+            self.assertEqual(vault.get(key).token, "cashuBx")
+            self.assertEqual(self.journal.state(MINT, UNIT, KEYSET, NULLIFIER),
+                             "RESERVED")
+        finally:
+            vault.close()
+
+    def test_vault_replay_does_not_replace_or_delete_the_first_row(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            self.gate.accept(self.proof(), "eph", vault=vault, token="cashuBfirst")
+            with self.assertRaises(ReservationInFlight):
+                self.gate.accept(self.proof(), "eph", vault=vault,
+                                 token="cashuBsecond")
+            key = vault_key(MINT, UNIT, KEYSET, NULLIFIER)
+            self.assertEqual(vault.get(key).token, "cashuBfirst")
+        finally:
+            vault.close()
+
+    def test_vault_requires_a_token(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            with self.assertRaises(PaymentError):
+                self.gate.accept(self.proof(), "eph", vault=vault, token=None)
+            self.assertIsNone(self.journal.state(MINT, UNIT, KEYSET, NULLIFIER))
+        finally:
+            vault.close()
 
     def test_settle_closes_journal_and_exposure(self):
         receipt = self.gate.accept(self.proof(), "eph")

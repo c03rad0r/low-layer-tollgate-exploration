@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from tollgate_fips.exposure import ExposureKey, ExposureLedger
 from tollgate_fips.journal import NullifierJournal
+from tollgate_fips.vault import TokenVault
 from tollgate_fips.settlement import (
     SettlementError,
     SettlementWorker,
@@ -102,6 +103,44 @@ class SettlementTest(unittest.TestCase):
         worker = SettlementWorker(self.journal, self.exposure, FakeRedeemer())
         with self.assertRaises(SettlementError):
             worker.settle([], "cashuBtoken")
+
+    def test_settle_vault_drains_pending_tokens(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            for receipt in self.receipts:
+                r = receipt.reservation
+                vault.put(token="cashuBtoken", payer_npub=PAYER,
+                          mint_url=MINT, unit=UNIT, keyset_id=KEYSET,
+                          nullifier=r.nullifier,
+                          amount_msat=receipt.proof.amount_msat)
+            worker = SettlementWorker(self.journal, self.exposure,
+                                      FakeRedeemer())
+            result = worker.settle_vault(vault)
+            self.assertEqual(result.settled, 3)
+            self.assertEqual(result.failed, 0)
+            self.assertEqual(vault.pending(), [])
+            self.assertEqual(self.exposure.outstanding(self.key), Decimal(0))
+        finally:
+            vault.close()
+
+    def test_settle_vault_leaves_rows_on_failed_redemption(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            for receipt in self.receipts:
+                r = receipt.reservation
+                vault.put(token="cashuBtoken", payer_npub=PAYER,
+                          mint_url=MINT, unit=UNIT, keyset_id=KEYSET,
+                          nullifier=r.nullifier,
+                          amount_msat=receipt.proof.amount_msat)
+            worker = SettlementWorker(self.journal, self.exposure,
+                                      FakeRedeemer(ok=False))
+            result = worker.settle_vault(vault)
+            self.assertEqual(result.settled, 0)
+            self.assertEqual(result.failed, 3)
+            self.assertEqual(len(vault.pending()), 3)
+            self.assertEqual(self.exposure.outstanding(self.key), Decimal(50000))
+        finally:
+            vault.close()
 
     def test_pending_lists_reserved_rows(self):
         worker = SettlementWorker(self.journal, self.exposure, FakeRedeemer())

@@ -33,6 +33,7 @@ from tollgate_fips.exposure import ExposureLedger
 from tollgate_fips.journal import NullifierJournal
 from tollgate_fips.payment import PaymentGate, PaymentProof
 from tollgate_fips.settlement import SettlementWorker
+from tollgate_fips.vault import TokenVault
 
 
 class LocalCashuRedeemer:
@@ -101,21 +102,38 @@ def main() -> int:
     db_dir.mkdir(parents=True, exist_ok=True)
     journal = NullifierJournal(str(db_dir / "journal.sqlite3"))
     exposure = ExposureLedger(str(db_dir / "exposure.sqlite3"))
+    vault = TokenVault(str(db_dir / "vault.sqlite3"))
     gate = PaymentGate(journal, exposure, VerifiedJSON(), args.seller_npub,
                        cap_msat=args.cap_msat,
                        settlement_window_secs=3600)
     proofs = proofs_from_result(verified, args.buyer_npub)
-    receipts = [gate.accept(proof, "msg1-test") for proof in proofs]
+    receipts = [gate.accept(proof, "msg1-test", vault=vault, token=token_str)
+                for proof in proofs]
     reserved = [journal.state(p.mint_url, p.unit, p.keyset_id, p.nullifier)
                 for p in proofs]
     unique_keys = {r.exposure_key for r in receipts}
     outstanding_before = sum(
         (exposure.outstanding(key) for key in unique_keys), Decimal(0))
 
+    vault_pending_before = len(vault.pending())
+
+    # Simulated crash between acceptance and settlement: close everything, then
+    # recover using only the vault (the in-memory receipts are gone).
+    journal.close()
+    exposure.close()
+    vault.close()
+    journal = NullifierJournal(str(db_dir / "journal.sqlite3"))
+    exposure = ExposureLedger(str(db_dir / "exposure.sqlite3"))
+    vault = TokenVault(str(db_dir / "vault.sqlite3"))
+    # New gate over the reopened files; the old one holds closed connections.
+    gate = PaymentGate(journal, exposure, VerifiedJSON(), args.seller_npub,
+                       cap_msat=args.cap_msat,
+                       settlement_window_secs=3600)
+
     redeemer = LocalCashuRedeemer(args.mint, args.seller_nsec,
                                   args.wallet_dir)
     worker = SettlementWorker(journal, exposure, redeemer)
-    settlement = worker.settle(receipts, token_str)
+    settlement = worker.settle_vault(vault)
 
     settled = [journal.state(p.mint_url, p.unit, p.keyset_id, p.nullifier)
                for p in proofs]
@@ -128,17 +146,22 @@ def main() -> int:
         replay = type(exc).__name__
     states = checkstate(args.mint, token_str)
 
+    vault_pending_after = len(vault.pending())
     journal.close()
     exposure.close()
+    vault.close()
 
     summary = {
         "verify_ok": verified["ok"],
         "proofs": len(proofs),
         "journal_after_accept": reserved,
         "exposure_before_msat": str(outstanding_before),
-        "redemption": settlement.redemption,
+        "redemption": settlement.redemptions,
+        "vault_pending_before": vault_pending_before,
+        "vault_pending_after": vault_pending_after,
         "settled": settlement.settled,
-        "already_settled": settlement.already_settled,
+        "settled_tokens": settlement.tokens,
+        "failed": settlement.failed,
         "journal_after_settle": settled,
         "exposure_after_msat": str(outstanding_after),
         "replay_after_settle": replay,
@@ -147,6 +170,8 @@ def main() -> int:
     print(json.dumps(summary, indent=2))
     expected = (
         reserved == ["RESERVED"] * len(proofs)
+        and vault_pending_before == len(proofs)
+        and vault_pending_after == 0
         and settlement.settled == len(proofs)
         and settled == ["SETTLED"] * len(proofs)
         and outstanding_after == Decimal(0)

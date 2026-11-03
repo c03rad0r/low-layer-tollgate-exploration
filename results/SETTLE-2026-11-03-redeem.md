@@ -42,9 +42,12 @@ The seller nsec is a test identity; no real funds.
   "proofs": 3,
   "journal_after_accept": ["RESERVED", "RESERVED", "RESERVED"],
   "exposure_before_msat": "50000",
-  "redemption": {"ok": true, "balance": "196 sat", "unit": "sat"},
+  "redemption": [{"ok": true, "balance": "343 sat", "unit": "sat"}],
+  "vault_pending_before": 3,
+  "vault_pending_after": 0,
   "settled": 3,
-  "already_settled": 0,
+  "settled_tokens": 1,
+  "failed": 0,
   "journal_after_settle": ["SETTLED", "SETTLED", "SETTLED"],
   "exposure_after_msat": "0",
   "replay_after_settle": "AlreadySettled",
@@ -61,6 +64,8 @@ The seller nsec is a test identity; no real funds.
 | Offline verify | pass (3 proofs) |
 | Journal after accept | RESERVED ×3 |
 | Exposure after accept | **50,000 msat** |
+| Vault rows before recovery | 3 (token persisted before the journal row) |
+| Vault rows after recovery | **0** |
 | Redemption | pass; mint received 49 sat net of the 1 sat input fee |
 | Journal after settle | **SETTLED ×3** |
 | Exposure after settle | **0** |
@@ -77,19 +82,23 @@ The seller nsec is a test identity; no real funds.
    returns `AlreadySettled`. The journal is authoritative locally; the mint's
    SPENT state is the cross-check.
 3. **Exposure release is exact.** 50,000 msat before, 0 after, no rounding.
-4. **The redeemer belongs outside the sidecar.** It needs the `cashu` library
+4. **Recovery does not need the in-memory receipts.** The demo closes all three
+   databases after acceptance, then reopens and settles purely from the token
+   vault (`vault_pending 3 → 0`). The journal, exposure and replay checks all
+   still pass, so the accept→settle crash window is closed.
+5. **The redeemer belongs outside the sidecar.** It needs the `cashu` library
    and the seller's key; keeping it behind a `Redeemer` protocol keeps the gate
    dependency-free and lets a production seller choose its own redemption
    client.
-5. **Input fees are real.** 50 sat in, 49 sat received: `input_fee_ppk=100`.
+6. **Input fees are real.** 50 sat in, 49 sat received: `input_fee_ppk=100`.
    Batching tokens into one swap would reduce this, which is the next
    optimisation.
 
 ## Caveats
 
 - One token, one run, `FakeWallet`.
-- Settlement happened immediately; the crash window between redeem and settle
-  is not exercised (documented in `docs/0014`).
+- The crash is simulated by closing the databases, not by killing a process.
+  The redeem→settle window inside the drain is still untested.
 - The redeemer runs in the Nutshell image as lab code, not in the seller.
 - No batching and no background settlement worker.
 

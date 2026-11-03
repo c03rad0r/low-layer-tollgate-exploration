@@ -22,8 +22,8 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Dict, Iterable, List, Protocol
 
-from .exposure import ExposureLedger
-from .journal import AlreadySettled, NullifierJournal
+from .exposure import ExposureKey, ExposureLedger
+from .journal import AlreadySettled, NullifierJournal, Reservation
 
 
 class SettlementError(RuntimeError):
@@ -34,6 +34,21 @@ class Redeemer(Protocol):
     def redeem(self, token: str) -> Dict[str, Any]:
         """Spend `token` at the mint. Return `{"ok": bool, ...}`."""
         ...
+
+
+@dataclass
+class VaultSettlementResult:
+    settled: int = 0
+    failed: int = 0
+    tokens: int = 0
+    errors: List[str] = None
+    redemptions: List[Dict[str, Any]] = None
+
+    def __post_init__(self):
+        if self.errors is None:
+            self.errors = []
+        if self.redemptions is None:
+            self.redemptions = []
 
 
 @dataclass
@@ -99,3 +114,41 @@ class SettlementWorker:
     def pending(self, limit: int = 100) -> List[Any]:
         """Journal rows still waiting for settlement."""
         return self.journal.pending(limit=limit)
+
+    def settle_vault(self, vault) -> VaultSettlementResult:
+        """Drain pending vault rows: redeem each token, settle its journal rows.
+
+        A failed redemption leaves that token's rows pending and reports the
+        error; `reconcile_spent` is the manual path for a token the mint says
+        was already used. Rows that are already SETTLED are counted, not raised.
+        """
+        entries = vault.pending()
+        grouped = vault.by_token(entries)
+        result = VaultSettlementResult(tokens=len(grouped))
+        for token, rows in grouped.items():
+            redemption = self.redeemer.redeem(token)
+            result.redemptions.append(redemption)
+            if not redemption.get("ok"):
+                result.failed += len(rows)
+                result.errors.append(
+                    f"{token[:16]}…: {redemption.get('error') or 'redeem failed'}")
+                continue
+            for row in rows:
+                reservation = Reservation(
+                    mint_url=row.mint_url, unit=row.unit,
+                    keyset_id=row.keyset_id, nullifier=row.nullifier,
+                    amount_msat=row.amount_msat,
+                    final_expiry=row.final_expiry,
+                    reserved_at=row.created_at,
+                )
+                try:
+                    self.journal.settle(reservation)
+                except AlreadySettled:
+                    pass
+                self.exposure.release(
+                    ExposureKey(row.payer_npub, row.mint_url, row.unit),
+                    row.amount_msat,
+                )
+                vault.mark_settled(row.vault_key)
+                result.settled += 1
+        return result

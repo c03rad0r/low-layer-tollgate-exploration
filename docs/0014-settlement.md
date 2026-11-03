@@ -71,6 +71,10 @@ Settlement is idempotent: an already-SETTLED row is counted in
   says RESERVED. Recovery must not re-credit. `recover_stale_reservations`
   remains the conservative fallback; a production worker should record the
   redemption result before settling.
+- **Crash between accept and settle is covered by the vault.** The bearer token
+  is written before the journal row commits (`TokenVault`), so a recovery worker
+  can drain `vault.pending()` with `settle_vault()`. The demo closes all
+  databases after acceptance and settles from the vault alone.
 - **No NUT-07 polling worker.** This is settle-on-demand; a background poller
   for pending rows is still open.
 - **The redeemer is lab code.** It runs in the Nutshell image, not in the seller.
