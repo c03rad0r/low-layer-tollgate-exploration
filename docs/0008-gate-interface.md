@@ -103,6 +103,11 @@ The per-link counters are FMP frame bytes at the transport API (Exp A). They are
 aggregate and include control frames; the reading MUST be labelled `all_frames`
 until a per-class counter exists.
 
+They also include frames the forwarding policy drops: a paused peer's transit
+still reaches the link and increments the receiver's counter. A gate MUST freeze
+its meter when it pauses, or subtract a policy-drop counter, or it bills for
+bytes it refused to forward.
+
 ## Failure policy
 
 | Failure | Policy |

@@ -24,6 +24,13 @@ summed over **chargeable frames only**, in the directions the session covers.
 A customer does not pay for the seller's routing chatter, and does not pay
 twice for a retransmitted frame that consumed wire twice.
 
+**Policy-dropped frames are not chargeable.** A frame the seller refuses to
+forward because the peer is paused consumed link bytes but delivered no
+transit. The link counter still includes it (the drop is after the counter), so
+a gate MUST freeze its meter at the policy change or subtract a
+`drop_policy_blocked_*` counter. Those bytes are rate/abuse control, never
+revenue. The local patch (b) does not yet expose that counter.
+
 ## Why wire bytes and not payload bytes
 
 1. **It is the seller's cost.** Air time, battery, ISP bytes and the AEAD/header

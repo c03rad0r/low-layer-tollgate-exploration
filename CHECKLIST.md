@@ -72,7 +72,8 @@ to the bottom with a date.
       (`patches/0001-per-peer-forwarding.patch`, `PB-2026-11-03-per-peer-forwarding.md`)
 - [ ] (c) price in `link_cost` with hysteresis
 - [ ] **Exp D** — refused-initiator cost
-- [~] Re-run C with (b): PB proves pause; full demo with payment still pending
+- [x] Re-run with (b): pause with real payment, no disconnect
+      (`results/PD-2026-11-03-pause-payment.md`)
 - [x] `patches/README.md` marks every patch unmerged; patch (b) added
 - [ ] Prepare Signal write-up (do not send); PB is reproducible but one run
 

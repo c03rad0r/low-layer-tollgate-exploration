@@ -151,7 +151,9 @@ not give an Ethernet pair, a captive portal or a mint. See
 
 `harness/pause/` runs the patched-FIPS A–B–C chain and blocks A's transit at B
 via `set_forwarding`, while checking A→B and the A–B link survive. Result:
-`results/PB-2026-11-03-per-peer-forwarding.md`.
+`results/PB-2026-11-03-per-peer-forwarding.md`. `run-pay-demo.sh` adds real
+offline ecash and the full unpaid → paid → pause → renew loop
+(`results/PD-2026-11-03-pause-payment.md`).
 
 ## `demo/`
 

@@ -172,6 +172,9 @@ buyer, strict ACL.
 | Deny → wait → disconnect | held for 3 s, no link on either side |
 | ACL effective | 0.8–1.0 s (Exp B: 756–984 ms, tick-bound) |
 | Re-admission | **2.7–2.9 s** total (n=4) |
+| Unpaid with patch (b) | A→C blocked; A→B and link preserved |
+| Pause at exhaustion | A→C blocked; link id preserved; no disconnect |
+| Renewal | second token; resume restores A→C on the same link |
 | In-band path during cut | fails; returns on reconnect, without payment |
 | Unpaid link, Phase 1 demo | **14,274 bytes forwarded for 0 msat** |
 | Prepaid re-admit | **≈1.75 s** (677 ms ACL + 1,077 ms link) |
@@ -181,7 +184,10 @@ a durable cut, and it costs the payment lane. The Phase 1 demo also measured
 the failure directly: with the link up and the session `unpaid`, 14,274 bytes
 were forwarded for 0 msat. Patch (b) is still required to make `grace`
 implementable, and to make `unpaid` enforceable without a cut. The full raw output is in
-`results/C-2026-11-03-cut-readmit.md`.
+`results/C-2026-11-03-cut-readmit.md`. The pause-with-payment capstone is
+`results/PD-2026-11-03-pause-payment.md`: unpaid blocked, real payment restores
+transit, exhaustion pauses with the link id preserved, and a second payment
+resumes.
 
 ## Citation
 

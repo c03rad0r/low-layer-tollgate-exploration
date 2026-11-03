@@ -257,8 +257,7 @@ def main() -> int:
         raise RuntimeError("no link after prepaid renewal")
     link_id_readmit = pair2[0].get("link_id")
     session2 = Session(npub=buyer_npub, rate_bytes_per_msat=Decimal("1"),
-                       allotment_msat=Decimal(gate2["amount"]) * 1000,
-                       grace_seconds=30.0)
+                       allotment_msat=Decimal(0), grace_seconds=30.0)
     session2.pay(Decimal(gate2["amount"]) * 1000)
     after_readmit_ping = exp_c.ping6(BUYER, seller_addr, count=2)
     print(f"re-admitted: acl={acl_ms*1000:.0f} ms mode={readmit_mode} "

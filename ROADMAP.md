@@ -92,7 +92,10 @@ Status: (b) is implemented locally and passes an A–B–C chain test
 a blocked peer is dropped while its link, Noise session and local path stay.
 (a) and (c) are not started. The sidecar's `FipsGate.pause()`/`resume()` use
 `set_forwarding` via `UnixControl` and were validated against the patched
-seller. The patch is unmerged; no public FIPS interaction.
+seller. The capstone (`results/PD-2026-11-03-pause-payment.md`) runs unpaid → paid →
+exhaust → pause → renew on the patched chain with real ecash and no disconnect:
+A→C is blocked while A→B and the link survive; the link id is preserved. The
+patch is unmerged; no public FIPS interaction.
 
 **Exit:** patches that make `grace` implementable; Exp C and H evidence
 attached; a Signal write-up prepared, not sent.

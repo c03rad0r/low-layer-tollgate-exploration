@@ -158,8 +158,8 @@ The sidecar path is covered by 5 unit tests with a fake control client.
 - [ ] Add `fipsctl set-forwarding` so the sidecar does not need a raw socket.
 - [x] Wire `FipsGate.pause`/`resume` to `set_forwarding` via `UnixControl`
       (5 tests); validated against the patched seller container.
-- [ ] Re-run the Phase 1 payment demo on a chain with a service behind the
-      seller, so pause replaces the cut end-to-end.
+- [x] Re-run the payment demo on a chain with a service behind the seller;
+      pause replaces the cut end-to-end (`PD-2026-11-03-pause-payment.md`).
 - [ ] Repeat the pause test with payment traffic and over TCP/Ethernet.
 - [ ] Prepare the out-of-band Signal write-up (do not send until the result is
       reproducible).

@@ -36,6 +36,19 @@ print(g.pause('<A npub>'))
 `pause()` returns `mode='transit-blocked'` without disconnecting; `resume()`
 clears it.
 
+## Capstone: pause with payment
+
+```sh
+harness/pause/run-pay-demo.sh
+```
+
+Chain A (buyer) -- B (seller/transit) -- C (service). B blocks A's transit while
+unpaid; a real 50 sat P2PK+DLEQ token is verified with the mint stopped; allow
+restores A→C; traffic exhausts the allowance; pause blocks A→C while A→B and the
+A–B link id survive; a second payment resumes A→C. No disconnect is issued.
+
+Result: `results/PD-2026-11-03-pause-payment.md`.
+
 ## Notes
 
 - Raw ICMP did not trigger mesh discovery in this lab; the orchestrator warms
