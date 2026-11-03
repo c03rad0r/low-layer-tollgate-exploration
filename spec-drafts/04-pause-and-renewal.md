@@ -120,9 +120,12 @@ a **settlement deadline**:
 
 ### 5. Implementation requirement on FIPS
 
-`grace` requires blocking forwarding for one peer while keeping its link. FIPS
-has no such hook today. This TIP therefore depends on a **per-peer forwarding
-role** consulted on the data path (patch (b) in the exploration repo).
+`grace` requires blocking forwarding for one peer while keeping its link.
+Upstream FIPS 0.6.0-dev has no such hook. This TIP therefore depends on a
+**per-peer forwarding role** consulted on the data path. A local, unmerged
+patch demonstrates the hook (`patches/0001-per-peer-forwarding.patch`, result
+`PB-2026-11-03`): transit from the peer is dropped while local delivery, the
+link and the Noise session stay.
 
 Until that exists, an implementation that claims this TIP MUST either:
 
@@ -131,7 +134,9 @@ Until that exists, an implementation that claims this TIP MUST either:
   wait for the ACL, then disconnect).
 
 It MUST NOT silently disconnect and call the state `grace`. It also MUST NOT
-call a bare `disconnect` `evicted` when `auto_connect` can undo it.
+call a bare `disconnect` `evicted` when `auto_connect` can undo it. With the
+forwarding role, `grace` can be implemented without a cut; without it, the
+implementation is non-conformant and must say so.
 
 ### 6. Reconciliation is a pause trigger
 

@@ -47,20 +47,26 @@ metering brought the overshoot to one packet.
 
 ## Pause is not implemented by FIPS
 
-FIPS 0.5.x and 0.6.x offer only:
+Upstream FIPS 0.5.x and 0.6.x offer only:
 
 - ACL admission at L1, and
 - `fipsctl disconnect` at L2.
 
-There is no per-peer forwarding role, so `pause` cannot be honoured. The
-interface therefore has two modes:
+There is no per-peer forwarding role upstream, so `pause` cannot be honoured
+there. A local patch (b) adds one (`patches/0001-per-peer-forwarding.patch`):
+transit from a blocked peer is dropped, local delivery and the link stay. The
+lab result is `PB-2026-11-03`; the sidecar still needs a control client for the
+new command. The interface therefore has three paths:
 
 - **strict (default):** `pause()` raises `PauseUnsupported`. The caller must
   decide whether to `evict` or to keep serving unpaid.
+- **patched (b):** `pause()` sets the peer's transit policy to blocked. The
+  link, Noise session and local delivery stay; only transit stops. This is the
+  intended `grace` shape; the sidecar integration is the next step.
 - **crude (`--allow-disconnect`):** `pause()` is implemented as a **durable**
   `evict()` (deny, wait, disconnect), and the caller is told that the payment
-  lane died. This is the Phase 1 demo, and its failure is the evidence for FIPS
-  patch (b) and spec PR P4.
+  lane died. This is the Phase 1 fallback on unpatched FIPS, and its failure is
+  the evidence for patch (b) and spec PR P4.
 
 A gate MUST NOT report `grace` while having closed the link. If it disconnects,
 the state is `evicted`.

@@ -1,0 +1,33 @@
+# Exp PAUSE node B — the transit seller. Passive: A and C dial it.
+# TEST IDENTITY ONLY. Derived from "low-layer-tollgate-exp-pause".
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  udp:
+    bind_addr: "0.0.0.0:2121"
+    mtu: 1472
+
+peers:
+  - npub: "npub1hs6dzx86tn2c7mt3wntw2tt7m6seyua78pwfhagkk08v2yur9m0smvtmad"
+    alias: "a"
+    addresses:
+      - transport: udp
+        addr: "a:2121"
+    connect_policy: auto_connect
+  - npub: "npub1pqf3mx4ayr68ldz39l3unrgkn0rhe8ch7437wv6pav6tpj0777lsrznlup"
+    alias: "c"
+    addresses:
+      - transport: udp
+        addr: "c:2121"
+    connect_policy: auto_connect

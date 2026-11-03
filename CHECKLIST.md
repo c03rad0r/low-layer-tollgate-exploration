@@ -66,12 +66,13 @@ to the bottom with a date.
 ## Phase 4 — FIPS patches
 
 - [ ] (a) runtime admission mutation
-- [ ] (b) per-peer forwarding role
+- [x] (b) per-peer forwarding role — local patch + lab pass
+      (`patches/0001-per-peer-forwarding.patch`, `PB-2026-11-03-per-peer-forwarding.md`)
 - [ ] (c) price in `link_cost` with hysteresis
 - [ ] **Exp D** — refused-initiator cost
-- [ ] Re-run C with (b): pause replaces disconnect
-- [ ] `patches/README.md` marks every patch unmerged
-- [ ] Prepare Signal write-up (do not send)
+- [~] Re-run C with (b): PB proves pause; full demo with payment still pending
+- [x] `patches/README.md` marks every patch unmerged; patch (b) added
+- [ ] Prepare Signal write-up (do not send); PB is reproducible but one run
 
 ## Phase 5 — spec PRs
 

@@ -51,9 +51,12 @@ is exactly what the FIPS design refuses to do.
   authorisation.
 - **L1** is binary today: admit or refuse. There is no "admitted but unpaid"
   role.
-- **L2** has the counters but no policy hook. A peer either is a peer, with
-  full transit rights, or is gone.
+- **L2** upstream has the counters but no policy hook. A peer either is a peer,
+  with full transit rights, or is gone. A local patch (b) adds a per-peer transit
+  policy (`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`); it
+  is not upstream.
 
-The missing piece is a **per-peer forwarding role** consulted on the data
-path. Without it, "pause" is not implementable and the only lever is
-`disconnect`, which also kills the payment lane. See `0004`.
+The missing piece was a **per-peer forwarding role** consulted on the data
+path. Patch (b) implements it locally: transit from a blocked peer is dropped
+while local delivery, the link and the Noise session stay. Upstream still has
+only `disconnect`, which also kills the payment lane. See `0004` and `PB-2026-11-03`.

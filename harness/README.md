@@ -29,6 +29,11 @@ harness/
 │   ├── exp_c.py
 │   ├── repeat.sh
 │   └── run-exp-c.sh
+├── pause/                    # patch (b) A-B-C transit-block test
+│   ├── configs/
+│   ├── control.py
+│   ├── pause.py
+│   └── run-pause.sh
 ├── demo/                     # Phase 1 pay/admit/exhaust/re-admit demo
 │   ├── demo.py
 │   └── run-demo.sh
@@ -141,6 +146,12 @@ Notes on using the upstream FIPS `testing/static` Docker lab as the two-node
 pair for Exp C/H. It gives real `fipsd` processes and control sockets; it does
 not give an Ethernet pair, a captive portal or a mint. See
 `harness/fips-lab/README.md`.
+
+## `pause/`
+
+`harness/pause/` runs the patched-FIPS A–B–C chain and blocks A's transit at B
+via `set_forwarding`, while checking A→B and the A–B link survive. Result:
+`results/PB-2026-11-03-per-peer-forwarding.md`.
 
 ## `demo/`
 

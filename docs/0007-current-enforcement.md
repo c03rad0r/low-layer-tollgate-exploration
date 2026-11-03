@@ -15,7 +15,7 @@ phase that relies on it is wrong.
 | Per-npub metering | **yes, aggregate** | `fipsctl show links` / `show peers` | per-frame-class split missing |
 | Per-transport metering | **yes, aggregate** | `show transports`, `transport_type` | chargeable/non-chargeable split missing |
 | Cut an established peer | **yes, but only durably with ACL deny** | `peers.deny` then `fipsctl disconnect` | a bare `disconnect` is undone by `auto_connect` in ~6.6 s |
-| Pause one peer's forwarding, keep the link | **no** | — | the load-bearing gap; patch (b) |
+| Pause one peer's forwarding, keep the link | **no upstream; yes with local patch (b)** | `set_forwarding` drop | patch is unmerged; sidecar integration pending |
 | Price-aware parent selection | **no policy, but ACL-deny re-parents** | deny parent, disconnect | 109 ms re-parent, 1.6 s re-admit; no price signal (Exp H) |
 | Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
 | Runtime admission without touching a file | **no** | ACL is file-based | patch (a) |
@@ -128,6 +128,14 @@ eviction, not a pause. Patch (b) remains the load-bearing change.
 reconnect of 7.7–7.9 s and re-admission of 2.8–3.6 s (n=4), against 6.5–6.9 s
 and 2.7–2.9 s for UDP. The gate sequence is identical; TCP is about a second
 slower to auto-reconnect. See `results/01-tcp-2026-11-03.md`.
+
+## Patch (b) — per-peer transit policy
+
+A local patch adds `Node.forwarding_blocked` and the control command
+`set_forwarding {npub, allow}`. In an A–B–C chain, blocking A at B made A→C
+fail while A→B and the A–B link stayed; allow restored A→C. That is the pause
+shape: transit blocked, link and local path kept. The patch is unmerged and not
+submitted; result `PB-2026-11-03-per-peer-forwarding.md`.
 
 ## Phase 1 demo — unpaid, pay, cut, re-admit
 
