@@ -56,8 +56,8 @@ to the bottom with a date.
 - [x] Payment gate ordering: verifier → exposure → journal
       (`sidecar/tollgate_fips/payment.py`, 8 tests; `docs/0011`)
 - [ ] Batch settlement
-- [~] **Exp F** — offline verification with the mint stopped passes
-      (`results/F-2026-11-03-offline-verify.md`); session continuity/journal wiring pending
+- [~] **Exp F** — offline verification + durable replay refusal pass
+      (`results/F-2026-11-03-offline-verify.md`); FIPS session continuity pending
 - [ ] **Exp G** — post-`final_expiry` behaviour
 - [ ] Draft `spec-drafts/05-payer-binding.md`
 

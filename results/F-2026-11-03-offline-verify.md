@@ -9,8 +9,8 @@
 - **FIPS version / rev:** n/a (verification only)
 - **TollGate commit:** n/a
 - **Repo commit:** mint harness commit
-- **Status:** **partial** — real DLEQ/P2PK verification passes offline; session
-  continuity, journal integration and Exp G are not done
+- **Status:** **partial** — real DLEQ/P2PK verification and durable replay refusal
+  pass offline; FIPS session continuity and Exp G are not done
 
 ## Question
 
@@ -103,6 +103,44 @@ token written to /tmp/opencode/token1.txt (541 chars, 1 sat, P2PK to 03d0...)
 ok: true, dleq_valid: true, p2pk_lock_ok: true, offline: true
 ```
 
+### PaymentGate, journal and exposure (mint stopped)
+
+`gate_token.py` turns the verified proofs into `PaymentProof`s and runs them
+through `PaymentGate.accept()`, reopens the databases to simulate a restart,
+replays, settles, and replays again:
+
+```sh
+docker stop lt-mint
+docker run --rm -e PYTHONPATH=/app:/sidecar:/mint \
+  -v /tmp/opencode:/data -v "$PWD/sidecar:/sidecar:ro" \
+  -v "$PWD/harness/mint:/mint:ro" cashubtc/nutshell:latest \
+  python3 /mint/gate_token.py /data/token.txt --keys-file /data/keys.json \
+    --seller-pubkey REPLACE_WITH_HEX_SEEDa4 \
+    --seller-npub npub16pdakpwe28famj7j392f5xkqxc35zhal4g3k2yna049wcxn58wjqsjm9wu \
+    --mint http://lt-mint:3338 --db-dir /data/f-gate
+docker start lt-mint
+```
+
+```
+{
+  "verify_ok": true,
+  "offline": true,
+  "amount": 50,
+  "proofs": 3,
+  "accepted": 3,
+  "journal_states": ["RESERVED", "RESERVED", "RESERVED"],
+  "exposure_outstanding_msat": "50000",
+  "replay_before_settle": "ReservationInFlight",
+  "settled": 3,
+  "journal_states_after_settle": ["SETTLED", "SETTLED", "SETTLED"],
+  "exposure_after_settle_msat": "0",
+  "replay_after_settle": "AlreadySettled"
+}
+```
+
+Exit code 0. The second process opened the same SQLite files and still refused
+the replay; the refusal is durable, not in-memory.
+
 ## Measurements
 
 | Metric | Value |
@@ -116,14 +154,20 @@ ok: true, dleq_valid: true, p2pk_lock_ok: true, offline: true
 | Online verification | pass |
 | **Offline verification (mint stopped)** | **pass** |
 | Repeat token (1 sat) | pass |
+| Gate: proofs accepted | 3 (2 + 16 + 32 sat) |
+| Journal after accept | RESERVED ×3 |
+| Exposure after accept | 50,000 msat |
+| Replay before settle | **ReservationInFlight** |
+| After settle | SETTLED ×3, exposure 0 |
+| Replay after settle | **AlreadySettled** |
 
 ## Interpretation
 
 1. **Offline verification works on real ecash.** With the mint stopped, the
-   seller can verify DLEQ and the P2PK lock from cached keyset keys. This is the
-   primitive Exp F needs. It is not yet the whole of Exp F: the sidecar does not
-   yet feed this result into `PaymentGate`/`Journal`, and no session was kept
-   alive across the mint outage.
+   seller can verify DLEQ and the P2PK lock from cached keyset keys. The same
+   real proofs then go through `PaymentGate`/journal/exposure, and a restart
+   still refuses the replay. The missing piece is the FIPS session: no link was
+   kept paid across the outage.
 2. **The x-only npub is not enough for NUT-11.** Nutshell rejected an x-only
    lock as "invalid compressed public key". The seller must use the 33-byte
    compressed key, which requires the parity bit. A FIPS identity has the nsec,
@@ -137,7 +181,13 @@ ok: true, dleq_valid: true, p2pk_lock_ok: true, offline: true
    keyset with a short expiry, via the mint's management RPC. The journal's
    `keyset_admissible()` predicate is ready for it; the mint configuration is
    not.
-5. **This is test money.** `FakeWallet` prints a fake invoice and marks it
+5. **A real token survives the gate and the restart.** All three proofs went
+   through `PaymentGate` to `RESERVED`, the exposure was exactly 50,000 msat,
+   and a second process opening the same files refused the replay with
+   `ReservationInFlight`. After settlement the replay became `AlreadySettled`.
+   That is the durable half of Exp F at the payment layer; the link session was
+   not involved.
+6. **This is test money.** `FakeWallet` prints a fake invoice and marks it
    paid. The token is a bearer instrument but worth nothing. No Lightning node,
    no mainnet.
 
@@ -154,10 +204,11 @@ ok: true, dleq_valid: true, p2pk_lock_ok: true, offline: true
 
 ## Follow-ups
 
-- [ ] Implement a `CashuVerifier` adapter that turns this JSON into
-      `PaymentProof` and calls `PaymentGate.accept`.
-- [ ] Run Exp F end-to-end: keep a session paid from the journal while the mint
-      is stopped; restart the seller; confirm no replay.
+- [x] Adapter from verifier JSON to `PaymentProof`/`PaymentGate`
+      (`harness/mint/gate_token.py`); replay refused across a restart.
+- [ ] Run Exp F end-to-end on a FIPS link: keep a session paid from the journal
+      while the mint is stopped; restart the seller; confirm no replay and the
+      session continues.
 - [ ] Exp G: rotate a keyset with `final_expiry` and test the admission
       predicate.
 - [ ] Add NUT-07 settlement and a batched worker.
@@ -169,4 +220,5 @@ ok: true, dleq_valid: true, p2pk_lock_ok: true, offline: true
 - `harness/mint/mint-token.sh`
 - `harness/mint/verify_token.py`
 - `harness/mint/verify-offline.sh`
+- `harness/mint/gate_token.py`
 - volumes `lt-mint-data`, `lt-wallet-data` (test ecash; destroy freely)

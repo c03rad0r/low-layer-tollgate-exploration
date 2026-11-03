@@ -66,6 +66,26 @@ locktime window and the amount sum. It does **not** check spentness; that is the
 journal's job. `final_expiry` for the default keyset is null; Exp G needs a
 rotated keyset with a short expiry (management RPC).
 
+## PaymentGate and replay
+
+`gate_token.py` feeds the verified proofs into `PaymentGate`, the journal and the
+exposure ledger, reopens the databases to simulate a restart, replays, settles
+and replays again:
+
+```sh
+docker stop lt-mint
+docker run --rm -e PYTHONPATH=/app:/sidecar:/mint \
+  -v /tmp/opencode:/data -v "$PWD/sidecar:/sidecar:ro" \
+  -v "$PWD/harness/mint:/mint:ro" cashubtc/nutshell:latest \
+  python3 /mint/gate_token.py /data/token.txt --keys-file /data/keys.json \
+    --seller-pubkey REPLACE_WITH_HEX_SEEDa4 \
+    --seller-npub <npub> --mint http://lt-mint:3338 --db-dir /data/f-gate
+docker start lt-mint
+```
+
+Expected: 3 proofs accepted, exposure 50,000 msat, replay
+`ReservationInFlight`, settle clears exposure, replay `AlreadySettled`.
+
 ## Stop / reset
 
 ```sh
