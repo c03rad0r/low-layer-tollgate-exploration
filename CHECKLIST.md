@@ -65,7 +65,8 @@ to the bottom with a date.
 - [ ] Batch settlement
 - [~] **Exp F** — offline verification + durable replay refusal pass
       (`results/F-2026-11-03-offline-verify.md`); FIPS session continuity pending
-- [ ] **Exp G** — post-`final_expiry` behaviour
+- [x] **Exp G** — keyset `final_expiry` (`results/G-2026-11-03-final-expiry.md`):
+      predicate rejects inside the window; Nutshell still accepts a spend after expiry
 - [ ] Draft `spec-drafts/05-payer-binding.md`
 
 ## Phase 4 — FIPS patches

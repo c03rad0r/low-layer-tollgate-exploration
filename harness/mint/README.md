@@ -86,6 +86,18 @@ docker start lt-mint
 Expected: 3 proofs accepted, exposure 50,000 msat, replay
 `ReservationInFlight`, settle clears exposure, replay `AlreadySettled`.
 
+## Exp G — short `final_expiry`
+
+```sh
+harness/mint/expiry.py
+```
+
+Pins `final_expiry` on the active keyset in the mint's SQLite store, checks the
+receiver predicate, waits past expiry, and tries a spend. Nutshell 0.21.0 keeps
+the keyset active and accepts the spend, so the seller predicate is the only
+guard. The script restores `final_expiry = NULL`. Result:
+`results/G-2026-11-03-final-expiry.md`.
+
 ## Stop / reset
 
 ```sh

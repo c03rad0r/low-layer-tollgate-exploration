@@ -76,7 +76,9 @@ P2PK+DLEQ token verifies offline with the mint stopped
 (`results/F-2026-11-03-offline-verify.md`). The verified proofs also run through
 `PaymentGate`/journal/exposure; a second process refuses the replay and
 settlement clears the exposure. The verifier is still a lab script; FIPS session
-continuity and Exp G remain.
+continuity remains. Exp G is done: Nutshell still accepts a spend after
+`final_expiry`, so the receiver predicate is the only guard
+(`results/G-2026-11-03-final-expiry.md`).
 
 - **F** — keep paying with the mint stopped.
 - **G** — what happens after keyset `final_expiry`?

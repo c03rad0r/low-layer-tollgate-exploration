@@ -75,9 +75,14 @@ keyset_admissible(final_expiry, settlement_window_secs, now)
 ```
 
 Reject a proof whose keyset expires inside the settlement window. Session
-`valid_until` must not exceed `final_expiry − settlement_window`. The session's
+`valid_until` must not exceed `final_expiry - settlement_window`. The session's
 local monotonic deadline remains the authority for `grace`/`evicted`
 (`docs/0004`).
+
+**Exp G:** Nutshell 0.21.0 advertises `final_expiry` but keeps the keyset active
+and **accepts a spend after it**. The receiver predicate is therefore the only
+local guard; do not rely on the mint to refuse expired keysets
+(`results/G-2026-11-03-final-expiry.md`).
 
 ## What it does not solve
 

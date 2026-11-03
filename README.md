@@ -32,7 +32,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 | 0 | Seams: counter boundary (A), ACL latency (B), captive-portal bypass (E) | **A, B done; E nft half done, ndsctl blocked** |
 | 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | **C, H and real-payment demo done; pause still missing** |
 | 2 | TCP, Ethernet, BLE, Tor demos behind one gate interface | TCP + Ethernet done (incl. Ethernet pause); BLE/Tor pending |
-| 3 | Local mint + receiver spent journal (F, G) | mint + offline verify + durable replay; session/Exp G pending |
+| 3 | Local mint + receiver spent journal (F, G) | F and G done; batch settlement pending |
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | all three local patches + lab results |
 | 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P4) | drafts updated with PB/PD evidence; no PRs opened |
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | not started |
