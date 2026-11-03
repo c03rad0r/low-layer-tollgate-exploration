@@ -6,7 +6,7 @@
 - **Node(s):** `host-b`
 - **FIPS version / rev:** 0.5.1
 - **TollGate commit:** n/a
-- **Repo commit:** scaffold (pre-first-commit)
+- **Repo commit:** `8881da6` (scaffold)
 - **Status:** pass
 
 ## Question

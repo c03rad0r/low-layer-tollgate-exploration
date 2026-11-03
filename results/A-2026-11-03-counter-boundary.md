@@ -7,7 +7,7 @@
 - **FIPS version / rev:** 0.5.3 (`f4a5b4a8e6`) on the fleet; local clone of
   `jmcorgan/fips` for source citations
 - **TollGate commit:** n/a
-- **Repo commit:** scaffold (pre-first-commit)
+- **Repo commit:** `8881da6` (scaffold)
 - **Status:** pass (source inspection decisive; packet-capture confirmation not
   run)
 

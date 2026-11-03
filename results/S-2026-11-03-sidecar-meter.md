@@ -7,7 +7,7 @@
 - **Node(s):** `host-b` (remote, read-only); local daemon for `status`
 - **FIPS version / rev:** 0.5.1 on the fleet; local `fipsctl` 0.5.1
 - **TollGate commit:** n/a
-- **Repo commit:** scaffold + harness + sidecar core (pre-commit at run time)
+- **Repo commit:** `e7ba3ed` (sidecar core + this result)
 - **Status:** partial — meter works; no payment, demo or Exp C yet
 
 ## Question

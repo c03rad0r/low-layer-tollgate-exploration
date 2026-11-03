@@ -21,6 +21,8 @@ harness/
 │   ├── Dockerfile           # alpine + iproute2 + nftables + python3
 │   ├── frame-gate-test.py   # veth + nft netdev correctness test
 │   └── run-frame-gate.sh    # build and run it
+├── fips-lab/
+│   └── README.md            # using upstream testing/static as the 2-node lab
 └── README.md
 ```
 
@@ -113,6 +115,13 @@ Result: `results/E-nft-2026-11-03.md`.
 
 It does **not** test `ndsctl`, real air time or throughput. A real AP is still
 needed for the captive-portal half of Exp E.
+
+## `fips-lab/`
+
+Notes on using the upstream FIPS `testing/static` Docker lab as the two-node
+pair for Exp C/H. It gives real `fipsd` processes and control sockets; it does
+not give an Ethernet pair, a captive portal or a mint. See
+`harness/fips-lab/README.md`.
 
 ## Planned lab topology
 
