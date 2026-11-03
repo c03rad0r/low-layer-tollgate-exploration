@@ -107,9 +107,10 @@ payment 2: offline=True accepted=3 amount=50 sat; a->c=True link=4
    the pause, not startup churn.
 5. **Metering must freeze when forwarding is blocked.** B's per-link counter
    still counts frames it refuses to forward. A real gate must not bill those:
-   snapshot at the policy change, or subtract a policy-drop counter. The local
-   patch has no such counter yet; the demo avoids the issue by only metering
-   while A→C works.
+   snapshot at the policy change, or subtract a policy-drop counter. Patch (b)
+   now exposes node-wide `drop_policy_blocked_{packets,bytes}` (16 packets /
+   2,063 bytes in the PB check); per-peer attribution is still missing. The demo
+   avoids the issue by only metering while A→C works.
 6. **The overshoot is one measurement step.** 12.8 % for one ping step; the spec
    must state the step and keep it small.
 7. **This is the design's `grace` shape.** Forwarding blocked, link and payment
@@ -123,7 +124,8 @@ payment 2: offline=True accepted=3 amount=50 sat; a->c=True link=4
 - Local, unmerged patch. Not submitted to `jmcorgan/fips`; no public interaction.
 - Payment is out-of-band; no in-band payment lane over FMP.
 - `FakeWallet`, no Lightning, no mainnet, no real value.
-- No policy-drop counter; metering of blocked frames needs one.
+- Node-wide policy-drop counter only; per-peer attribution is needed for a
+  multi-peer gate.
 - `fipsctl probe` is used to warm discovery; a production gate should not depend
   on a diagnostic command.
 
@@ -131,7 +133,8 @@ payment 2: offline=True accepted=3 amount=50 sat; a->c=True link=4
 
 - [x] Patch (b) and sidecar `pause`/`resume`.
 - [x] End-to-end unpaid → paid → pause → renew without a disconnect.
-- [ ] Add `drop_policy_blocked_{packets,bytes}` and freeze metering on pause.
+- [x] Add `drop_policy_blocked_{packets,bytes}` and `fipsctl set-forwarding`.
+- [ ] Add per-peer policy-drop attribution and freeze metering on pause.
 - [ ] Add `fipsctl set-forwarding` so the sidecar needs no raw socket.
 - [ ] Repeat 3–5 times; try different root orders.
 - [ ] Re-run over TCP and Ethernet.

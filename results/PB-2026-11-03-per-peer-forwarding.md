@@ -18,16 +18,18 @@ This experiment implements and tests that hook.
 
 ## Patch
 
-`patches/0001-per-peer-forwarding.patch` (90 added lines, 4 files):
+`patches/0001-per-peer-forwarding.patch` (146 added lines, 13 files):
 
 - `Node.forwarding_blocked: HashSet<NodeAddr>`;
-- control command `set_forwarding {"npub": ..., "allow": bool}`;
+- control command `set_forwarding {"npub": ..., "allow": bool}` and CLI
+  `fipsctl set-forwarding <peer> allow|block`;
 - in `handle_session_datagram`, a transit datagram from a blocked peer is
   dropped **before** next-hop resolution;
 - local delivery (`dest == my_addr`) is deliberately untouched, so the peer
   keeps its link, Noise session and a path to the seller;
 - the set is independent of the peer table, so the block survives a
-  disconnect/reconnect until an explicit allow.
+  disconnect/reconnect until an explicit allow;
+- `drop_policy_blocked_{packets,bytes}` counters, shown in `show routing`.
 
 The patch is local and unmerged. It is not submitted to `jmcorgan/fips`; any
 upstream conversation goes out of band via Signal after reproducible results.
@@ -82,6 +84,22 @@ allowed: a->c=True a->b=True
 }
 ```
 
+### CLI and policy counter
+
+```
+$ docker exec lt-pause-b fipsctl set-forwarding <A> block
+{"forwarding": "blocked", ...}
+$ docker exec lt-pause-a ping6 -c 5 <C>
+5 packets transmitted, 0 received, 100% packet loss
+$ docker exec lt-pause-b fipsctl show routing   # forwarding section
+drop_policy_blocked_packets = 14
+drop_policy_blocked_bytes   = 2063
+$ docker exec lt-pause-b fipsctl set-forwarding <A> allow
+{"forwarding": "allowed", ...}
+$ docker exec lt-pause-a ping6 -c 2 <C>
+2 packets transmitted, 2 received, 0% packet loss
+```
+
 ### Sidecar validation (patched seller)
 
 The sidecar's own `FipsGate.pause()`/`resume()` were run inside the patched
@@ -115,7 +133,8 @@ The sidecar path is covered by 5 unit tests with a fake control client.
 | A→B after allow | pass |
 | Sidecar `FipsGate.pause()` | `transit-blocked`, no disconnect |
 | Sidecar `FipsGate.resume()` | `forwarding: allowed` |
-| Patch size | 90 lines, 4 files |
+| Policy-blocked counter after 5 blocked pings | **14 packets / 2,063 bytes** |
+| Patch size | 146 lines, 13 files |
 
 ## Interpretation
 
@@ -136,9 +155,11 @@ The sidecar path is covered by 5 unit tests with a fake control client.
    is a lab convergence detail, not a property of the patch, but it matters for
    an automated gate: the sidecar may need to warm a path before the first
    transit packet, or the session layer should initiate lookup on its own.
-5. **No blocked-byte counter.** The patch logs the drop at `debug` but does not
-   add a metric. A production gate needs `drop_policy_blocked_{packets,bytes}`;
-   the local patch is deliberately minimal.
+5. **The blocked-byte counter is node-wide.** The patch now exposes
+   `drop_policy_blocked_{packets,bytes}` (14 packets / 2,063 bytes after five
+   blocked pings) and `fipsctl set-forwarding`. The counter is not per-peer yet;
+   a multi-peer gate needs attribution before it can subtract each peer's
+   blocked bytes.
 
 ## Caveats
 
@@ -146,16 +167,17 @@ The sidecar path is covered by 5 unit tests with a fake control client.
 - One run, one chain, one root order. Repeat with different roots and a longer
   chain.
 - No payment traffic in this run; that integration is the next step.
-- No CLI subcommand: the lab sends the control command over the raw Unix
-  socket. A `fipsctl set-forwarding` command is a follow-up.
+- The CLI `set-forwarding` exists; the sidecar still prefers the raw socket and
+  can switch to the CLI or keep the socket for lower latency.
 - Only transit is blocked. If the seller's own local service is the product,
   the policy needs a separate "local delivery" role.
 
 ## Follow-ups
 
 - [x] Patch (b): per-peer transit forwarding policy.
-- [ ] Add `drop_policy_blocked_{packets,bytes}` metrics.
-- [ ] Add `fipsctl set-forwarding` so the sidecar does not need a raw socket.
+- [x] Add `drop_policy_blocked_{packets,bytes}` metrics.
+- [x] Add `fipsctl set-forwarding` so the sidecar does not need a raw socket.
+- [ ] Per-peer policy-drop attribution.
 - [x] Wire `FipsGate.pause`/`resume` to `set_forwarding` via `UnixControl`
       (5 tests); validated against the patched seller container.
 - [x] Re-run the payment demo on a chain with a service behind the seller;

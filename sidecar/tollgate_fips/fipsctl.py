@@ -48,6 +48,16 @@ class Fipsctl:
     def transports(self) -> List[Dict[str, Any]]:
         return self.show("transports").get("transports", [])
 
+    def routing(self) -> Dict[str, Any]:
+        return self.show("routing")
+
+    def policy_blocked(self) -> Dict[str, int]:
+        forwarding = self.routing().get("forwarding", {})
+        return {
+            "packets": int(forwarding.get("drop_policy_blocked_packets", 0) or 0),
+            "bytes": int(forwarding.get("drop_policy_blocked_bytes", 0) or 0),
+        }
+
     def acl(self) -> Dict[str, Any]:
         try:
             return json.loads(self._call("fipsctl", "acl", "show"))

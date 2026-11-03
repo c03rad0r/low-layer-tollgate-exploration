@@ -29,7 +29,7 @@ forward because the peer is paused consumed link bytes but delivered no
 transit. The link counter still includes it (the drop is after the counter), so
 a gate MUST freeze its meter at the policy change or subtract a
 `drop_policy_blocked_*` counter. Those bytes are rate/abuse control, never
-revenue. The local patch (b) does not yet expose that counter.
+revenue. Patch (b) exposes `drop_policy_blocked_{packets,bytes}` node-wide; per-peer attribution is still needed.
 
 ## Why wire bytes and not payload bytes
 

@@ -157,6 +157,10 @@ class FipsGate:
     def counters(self) -> Dict[Tuple[str, int], LinkCounters]:
         return snapshot(self.fipsctl.peers(), self.fipsctl.links())
 
+    def policy_blocked(self) -> dict:
+        """Node-wide policy-dropped counters (per-peer attribution is future)."""
+        return self.fipsctl.policy_blocked()
+
     def meter(
         self,
         npub: str,

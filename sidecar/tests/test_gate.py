@@ -50,6 +50,9 @@ class FakeFipsctl:
             "deny_all": "ALL" in deny,
         }
 
+    def policy_blocked(self):
+        return {"packets": 14, "bytes": 2063}
+
     def disconnect(self, peer):
         self.disconnected.append(peer)
         return f"disconnected {peer}"
@@ -183,6 +186,11 @@ class GateTest(unittest.TestCase):
         gate = FipsGate(self.fips, self.store)
         with self.assertRaises(GateError):
             gate.resume("npub1aaa")
+
+    def test_policy_blocked_passthrough(self):
+        gate = FipsGate(self.fips, self.store)
+        self.assertEqual(gate.policy_blocked(),
+                         {"packets": 14, "bytes": 2063})
 
     def test_meter_uses_previous_snapshot(self):
         gate = FipsGate(self.fips, self.store)
