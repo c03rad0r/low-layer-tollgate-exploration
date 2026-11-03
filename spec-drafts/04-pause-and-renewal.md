@@ -179,6 +179,7 @@ buyer, strict ACL.
 | Renewal | second token; resume restores A→C on the same link |
 | Repeatability | 3/3 UDP and 3/3 TCP; link id preserved every run |
 | Blocked transit billing | excluded via per-peer `policy_blocked_by_peer` |
+| Ethernet pause | A→C blocked, A→B and link kept, 3/3 (`PE-2026-11-03`) |
 | In-band path during cut | fails; returns on reconnect, without payment |
 | Unpaid link, Phase 1 demo | **14,274 bytes forwarded for 0 msat** |
 | Prepaid re-admit | **≈1.75 s** (677 ms ACL + 1,077 ms link) |

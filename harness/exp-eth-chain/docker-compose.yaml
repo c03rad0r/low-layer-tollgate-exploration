@@ -1,0 +1,44 @@
+name: low-layer-tollgate-exp-eth-chain
+
+services:
+  a:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-ethc-a
+    hostname: a
+    cap_add: [NET_ADMIN, NET_RAW]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/a.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [left]
+    restart: "no"
+
+  b:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-ethc-b
+    hostname: b
+    cap_add: [NET_ADMIN, NET_RAW]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/b.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [left, right]
+    restart: "no"
+
+  c:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-ethc-c
+    hostname: c
+    cap_add: [NET_ADMIN, NET_RAW]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/c.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [right]
+    restart: "no"
+
+networks:
+  left:
+    driver: bridge
+  right:
+    driver: bridge

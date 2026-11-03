@@ -1,0 +1,24 @@
+# FIPS node C — Exp ETH-CHAIN.
+# TEST IDENTITY ONLY. Derived from "low-layer-tollgate-exp-eth-chain".
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  ethernet:
+    eth0:
+      interface: "eth0"
+      ethertype: 0x2121
+      announce: true
+      auto_connect: true
+      accept_connections: true
+      beacon_interval_secs: 10

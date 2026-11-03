@@ -8,7 +8,7 @@ topology, the exact commands, and the pass/fail criterion. Raw results go in
 |---|---|---|---|
 | `01-tcp/` | Can a link session be sold, metered and torn down over TCP? | 2 | cut/re-admit done; payment/beacon pending |
 | `02-tor/` | Does the same gate work when the transport address is `127.0.0.1`? | 2 | not started |
-| `03-ethernet/` | Same over EtherType `0x2121`, with a beacon advertisement? | 2 | harness ready; FIPS pair pending |
+| `03-ethernet/` | Same over EtherType `0x2121`, with a beacon advertisement? | 2 | discovery/metering/admission/pause done |
 | `04-ble/` | Same over BLE, using `mark_verified` as the payer hook? | 2 | not started |
 | `05-buyer-role/` | Can a node buy upstream and resell downstream without double-charging? | 2/6 | not started |
 | `06-local-mint/` | Can a session continue with the mint stopped, and what happens at `final_expiry`? | 3 | not started |

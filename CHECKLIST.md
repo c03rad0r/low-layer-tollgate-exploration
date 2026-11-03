@@ -41,10 +41,11 @@ to the bottom with a date.
 
 ## Phase 2 — transports
 
-- [~] `experiments/01-tcp` — cut/re-admit over TCP done, n=4
+- [x] `experiments/01-tcp` — cut/re-admit over TCP done, n=4
       (`results/01-tcp-2026-11-03.md`); bare reconnect 7.7–7.9 s,
       re-admit 2.8–3.6 s; payment/beacon pending
-- [ ] `experiments/03-ethernet`
+- [x] `experiments/03-ethernet` — discovery, metering, admission and pause
+      (`results/01-ethernet-2026-11-03.md`, `results/PE-2026-11-03-pause-ethernet.md`)
 - [ ] `experiments/04-ble`
 - [ ] `experiments/02-tor`
 - [ ] Shared acceptance test: same log, counters reconcile

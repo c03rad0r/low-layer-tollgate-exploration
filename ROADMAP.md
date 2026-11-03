@@ -49,7 +49,10 @@ as the reason the demo is crude.
 TCP → Ethernet → BLE → Tor, all behind the same gate interface.
 
 Status: the cut/re-admit acceptance test passes over TCP
-(`results/01-tcp-2026-11-03.md`). Ethernet, BLE and Tor are not started.
+(`results/01-tcp-2026-11-03.md`). Ethernet is done too: beacon discovery,
+metering, runtime admission, and pause on a dual-homed A–B–C chain
+(`results/01-ethernet-2026-11-03.md`, `results/PE-2026-11-03-pause-ethernet.md`).
+BLE and Tor are not started.
 
 **Exit:** the same state-machine log and counter reconciliation on all four.
 The Ethernet demo includes the beacon advertisement path; BLE uses

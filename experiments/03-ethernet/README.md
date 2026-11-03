@@ -4,7 +4,9 @@
 beacon advertisement and a frame gate, and does the gate reconcile the same way
 as TCP?
 
-**Status:** not started. Phase 2. **This experiment also unblocks Exp E.**
+**Status:** done. Beacon discovery, metering, runtime admission and pause on a
+dual-homed chain. See `../../results/01-ethernet-2026-11-03.md` and
+`../../results/PE-2026-11-03-pause-ethernet.md`.
 
 ## Topology
 

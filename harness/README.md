@@ -29,6 +29,8 @@ harness/
 │   ├── exp_c.py
 │   ├── repeat.sh
 │   └── run-exp-c.sh
+├── exp-eth/                   # two-node Ethernet discovery/metering
+├── exp-eth-chain/             # dual-homed A-B-C Ethernet pause
 ├── exp-price/                 # diamond: local price vs parent choice
 ├── pause-tcp/                 # same chain and capstone over TCP :443
 ├── pause/                    # patch (b) A-B-C transit-block test
@@ -148,6 +150,13 @@ Notes on using the upstream FIPS `testing/static` Docker lab as the two-node
 pair for Exp C/H. It gives real `fipsd` processes and control sockets; it does
 not give an Ethernet pair, a captive portal or a mint. See
 `harness/fips-lab/README.md`.
+
+## `exp-eth/` and `exp-eth-chain/`
+
+- `exp-eth` — two nodes on one Docker L2 bridge, beacon discovery, metering and
+  runtime admission. Result `01-ethernet-2026-11-03.md`.
+- `exp-eth-chain` — A–B–C with B dual-homed across two bridges, pause over
+  Ethernet. Result `PE-2026-11-03-pause-ethernet.md`.
 
 ## `exp-price/`
 

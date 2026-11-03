@@ -185,8 +185,10 @@ seller MUST NOT claim wire-byte metering.
 - Exp A: `results/A-2026-11-03-counter-boundary.md`; source table in
   `docs/0002-metering-boundary.md` and `docs/0007-current-enforcement.md`.
 - Measurement-step overshoot: `results/PD-2026-11-03-pause-payment.md`.
-- Policy-dropped frames and the node-wide counter:
+- Policy-dropped frames and the per-peer counter:
   `results/PB-2026-11-03-per-peer-forwarding.md`.
+- Ethernet transport uses the same FMP frame boundary:
+  `results/01-ethernet-2026-11-03.md`.
 - Fleet sample: 1.62 GB / 2.49 M pkts ≈ 653 B/pkt on `host-a`, consistent with
   frame bytes.
 - MONAD prior art for `bytes_per_millisat`.

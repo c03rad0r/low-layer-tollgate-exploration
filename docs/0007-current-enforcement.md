@@ -130,6 +130,17 @@ reconnect of 7.7–7.9 s and re-admission of 2.8–3.6 s (n=4), against 6.5–6.
 and 2.7–2.9 s for UDP. The gate sequence is identical; TCP is about a second
 slower to auto-reconnect. See `results/01-tcp-2026-11-03.md`.
 
+## Ethernet — discovery, metering and pause
+
+Two-node Docker L2 bridge, beacon discovery, no peer entries. Discovery was
+863–877 ms (n=3); 10 pings of 1200 B metered 34,429–34,941 FMP bytes; runtime
+deny held a disconnected peer out for 4 s; re-admission was 5,958–6,064 ms
+(beacon-paced). A dual-homed chain A–B–C (B on two bridges) then blocked A's
+transit at B: A→C failed, A→B and the A–B link survived, 12–15 packets per run
+were attributed to A, and `allow` restored A→C (3/3). This closes the Ethernet
+half of Phase 2; BLE and Tor remain. Results `01-ethernet-2026-11-03.md` and
+`PE-2026-11-03-pause-ethernet.md`.
+
 ## Patch (a) — runtime admission
 
 A local patch adds `Node.acl_overrides` and the control command
