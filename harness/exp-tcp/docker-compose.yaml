@@ -1,0 +1,44 @@
+name: low-layer-tollgate-exp-tcp
+
+services:
+  seller:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-exp-tcp-seller
+    hostname: seller
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - ./configs/seller.yaml:/etc/fips/fips.yaml:ro
+      - ../../sidecar:/opt/sidecar:ro
+    networks:
+      - fips-net
+    restart: "no"
+
+  buyer:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-exp-tcp-buyer
+    hostname: buyer
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv6.conf.all.disable_ipv6=0
+    environment:
+      - RUST_LOG=info
+    volumes:
+      - ./configs/buyer.yaml:/etc/fips/fips.yaml:ro
+      - ../../sidecar:/opt/sidecar:ro
+    networks:
+      - fips-net
+    restart: "no"
+
+networks:
+  fips-net:
+    driver: bridge

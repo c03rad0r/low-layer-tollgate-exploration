@@ -155,13 +155,20 @@ def ping6(container: str, addr: str, count: int = 3, size: Optional[int] = None,
 
 
 def main() -> int:
+    global SELLER, BUYER
     parser = argparse.ArgumentParser()
     parser.add_argument("--rate", default="1000", help="bytes per millisat")
     parser.add_argument("--traffic-bytes", type=int, default=48_000,
                         help="payload bytes per ping burst (roughly)")
     parser.add_argument("--deny-hold", type=float, default=3.0)
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--seller-container", default=SELLER)
+    parser.add_argument("--buyer-container", default=BUYER)
+    parser.add_argument("--label", default="udp", help="transport label for the summary")
     args = parser.parse_args()
+
+    SELLER = args.seller_container
+    BUYER = args.buyer_container
 
     seller = Fipsctl(DockerRunner(SELLER))
     buyer = Fipsctl(DockerRunner(BUYER))
@@ -337,6 +344,7 @@ def main() -> int:
     summary = {
         "date": datetime.date.today().isoformat(),
         "fips_version": seller_status.get("version"),
+        "transport": args.label,
         "seller_npub": seller_npub,
         "buyer_npub": buyer_npub,
         "acl": {

@@ -45,6 +45,9 @@ as the reason the demo is crude.
 
 TCP → Ethernet → BLE → Tor, all behind the same gate interface.
 
+Status: the cut/re-admit acceptance test passes over TCP
+(`results/01-tcp-2026-11-03.md`). Ethernet, BLE and Tor are not started.
+
 **Exit:** the same state-machine log and counter reconciliation on all four.
 The Ethernet demo includes the beacon advertisement path; BLE uses
 `mark_verified` as its payer hook.

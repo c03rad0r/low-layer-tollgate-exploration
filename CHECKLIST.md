@@ -37,7 +37,8 @@ to the bottom with a date.
 
 ## Phase 2 — transports
 
-- [ ] `experiments/01-tcp` (lab pair + sidecar ready)
+- [~] `experiments/01-tcp` — cut/re-admit over TCP done
+      (`results/01-tcp-2026-11-03.md`); payment/beacon pending
 - [ ] `experiments/03-ethernet`
 - [ ] `experiments/04-ble`
 - [ ] `experiments/02-tor`

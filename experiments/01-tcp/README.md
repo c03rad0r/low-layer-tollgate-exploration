@@ -3,7 +3,9 @@
 **Question:** can a `scope=link` session be admitted, metered and torn down over
 the TCP transport, with both ends' counters reconciling?
 
-**Status:** not started. Phase 2.
+**Status:** partial. Cut, durable eviction and re-admit pass over TCP
+(`../../results/01-tcp-2026-11-03.md`). Payment, beacon and the full four-state
+demo are still pending.
 
 ## Topology
 
@@ -50,6 +52,10 @@ Two nodes is enough. A third (`relay`) is optional for Exp I.
 - [ ] Renewal in `grace` does not create a new link.
 - [ ] Eviction closes the link and the buyer can re-admit.
 
+## Lab
+
+`harness/exp-tcp/` runs the TCP pair and reuses `harness/exp-c/exp_c.py`.
+
 ## Known failure to document
 
 With FIPS 0.5.x there is no pause hook. Step 3 and step 6 will be implemented
@@ -59,4 +65,4 @@ exhaustion to `disconnect` and whether a re-admit was possible.
 
 ## Result file
 
-`../../results/01-tcp-<date>.md`
+`../../results/01-tcp-2026-11-03.md`
