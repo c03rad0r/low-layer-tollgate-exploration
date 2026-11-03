@@ -23,7 +23,7 @@ to the bottom with a date.
 - [x] Gate interface spec: `admit / deny / meter / pause / evict`
       (`docs/0008-gate-interface.md`)
 - [x] `tollgate-fips` control-socket client (via `fipsctl`; not a raw socket)
-- [x] Metering arithmetic + unit tests (32 tests, `sidecar/tests/`)
+- [x] Metering arithmetic + unit tests (63 tests across meter/session/journal/exposure/payment, `sidecar/tests/`)
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
