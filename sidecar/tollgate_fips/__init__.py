@@ -27,6 +27,15 @@ from .gate import (
     PauseUnsupported,
     PeerNotFound,
 )
+from .payment import (
+    PaymentError,
+    PaymentGate,
+    PaymentProof,
+    ProofRejected,
+    Receipt,
+    VerificationFailed,
+    Verifier,
+)
 from .meter import (
     LABEL_ALL_FRAMES,
     LinkCounters,
@@ -46,6 +55,13 @@ __all__ = [
     "ExposureKey",
     "ExposureExceeded",
     "UnknownExposure",
+    "PaymentGate",
+    "PaymentProof",
+    "Receipt",
+    "PaymentError",
+    "VerificationFailed",
+    "ProofRejected",
+    "Verifier",
     "NullifierJournal",
     "Reservation",
     "JournalError",

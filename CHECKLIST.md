@@ -52,6 +52,8 @@ to the bottom with a date.
       (`sidecar/tollgate_fips/journal.py`, 13 journal tests; `docs/0009`)
 - [ ] P2PK-to-seller path
 - [x] Exposure cap core (`sidecar/tollgate_fips/exposure.py`, 10 tests; `docs/0010`)
+- [x] Payment gate ordering: verifier → exposure → journal
+      (`sidecar/tollgate_fips/payment.py`, 8 tests; `docs/0011`)
 - [ ] Batch settlement
 - [ ] **Exp F** — mint stopped mid-session
 - [ ] **Exp G** — post-`final_expiry` behaviour

@@ -32,7 +32,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 | 0 | Seams: counter boundary (A), ACL latency (B), captive-portal bypass (E) | **A, B done; E nft half done, ndsctl blocked** |
 | 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | **core + live meter + C + H; demo/payment pending** |
 | 2 | TCP, Ethernet, BLE, Tor demos behind one gate interface | TCP cut/re-admit done; others pending |
-| 3 | Local mint + receiver spent journal (F, G) | journal + exposure core; mint/verifier pending |
+| 3 | Local mint + receiver spent journal (F, G) | journal + exposure + payment gate; mint/verifier pending |
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | not started |
 | 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P4) | drafts written, no PRs opened |
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | not started |
@@ -46,6 +46,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 - `docs/0008-gate-interface.md` — the five verbs the sidecar exposes.
 - `docs/0009-nullifier-journal.md` — the durable replay record.
 - `docs/0010-exposure-cap.md` — the bound on cross-seller double spend.
+- `docs/0011-payment-gate.md` — verifier → exposure → journal ordering.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 

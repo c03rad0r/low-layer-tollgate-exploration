@@ -63,7 +63,9 @@ crash recovery treats old reservations as SPENT, and the keyset admission
 predicate uses `final_expiry` as a settlement deadline. The exposure cap is
 implemented (`sidecar/tollgate_fips/exposure.py`, 10 tests, `docs/0010`): per
 payer/mint/unit, reserved before the journal row so a crash overstates rather
-than understates. No mint or verifier yet.
+than understates. `PaymentGate` orders verifier → exposure → journal and
+returns a receipt (`sidecar/tollgate_fips/payment.py`, 8 tests, `docs/0011`).
+No mint or real verifier yet.
 
 - **F** — keep paying with the mint stopped.
 - **G** — what happens after keyset `final_expiry`?
