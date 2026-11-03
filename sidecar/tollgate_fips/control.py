@@ -50,3 +50,8 @@ class UnixControl:
 
     def set_forwarding(self, npub: str, allow: bool) -> Any:
         return self.command("set_forwarding", {"npub": npub, "allow": allow})
+
+    def set_admission(self, npub: str, action: str) -> Any:
+        if action not in ("allow", "deny", "clear"):
+            raise ControlError(f"invalid admission action: {action!r}")
+        return self.command("set_admission", {"npub": npub, "action": action})

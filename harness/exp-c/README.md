@@ -18,6 +18,7 @@ tree. The topology is a single UDP peer link. No mint, no funds.
 ## Run
 
 ```sh
+harness/exp-c/run-admission.sh        # runtime admission vs the ACL tick
 harness/exp-c/run-exp-c.sh            # leave containers up
 harness/exp-c/run-exp-c.sh --down     # tear down afterwards
 harness/exp-c/repeat.sh 3             # clean run, repeat, summarise

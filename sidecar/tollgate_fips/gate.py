@@ -52,8 +52,10 @@ class EvictResult:
 class FileAclStore:
     """The FIPS peer ACL, as two newline-delimited files.
 
-    This is the only runtime admission lever in FIPS 0.5.x. The daemon reloads
-    on its next 1 s tick (Exp B: 756-984 ms).
+    This is the only runtime admission lever in stock FIPS 0.5.x; the daemon
+    reloads on its next 1 s tick (Exp B: 756-984 ms). With local patch (a) the
+    gate also sets a runtime override, which takes effect on the next handshake
+    (Exp A2: 0.86-1.40 s saved per re-admission).
     """
 
     def __init__(self, allow_path: str, deny_path: str):
@@ -142,15 +144,31 @@ class FipsGate:
 
     # -- admission -------------------------------------------------------
 
+    def _runtime_admission(self, npub: str, action: str) -> bool:
+        """Set the patched runtime override; False if the command is absent."""
+        if self.control is None:
+            return False
+        try:
+            self.control.set_admission(npub, action)
+            return True
+        except (ControlError, OSError):
+            return False
+
     def admit(self, npub: str) -> bool:
+        runtime = self._runtime_admission(npub, "allow")
         if self.acl is None:
+            if runtime:
+                return True
             raise AclError("no ACL store configured; cannot admit")
-        return self.acl.allow(npub)
+        return self.acl.allow(npub) or runtime
 
     def deny(self, npub: str) -> bool:
+        runtime = self._runtime_admission(npub, "deny")
         if self.acl is None:
+            if runtime:
+                return True
             raise AclError("no ACL store configured; cannot deny")
-        return self.acl.deny(npub)
+        return self.acl.deny(npub) or runtime
 
     # -- metering --------------------------------------------------------
 
@@ -244,17 +262,23 @@ class FipsGate:
         to take effect, and only then disconnects.
         """
         acl_wait_ms = None
+        runtime = False
         if durable:
             if self.acl is None:
                 raise GateError(
                     "durable eviction requires an ACL store; a bare disconnect "
                     "is re-established by auto_connect"
                 )
+            # Runtime first: it is effective on the next handshake, so the
+            # auto_connect window closes before the file lands.
+            runtime = self._runtime_admission(npub, "deny")
             self.acl.deny(npub)
-            acl_wait_ms = self._wait_denied(npub)
+            if not runtime:
+                acl_wait_ms = self._wait_denied(npub)
         output = self.fipsctl.disconnect(npub)
         return EvictResult(
-            mode="deny+disconnect" if durable else "disconnect",
+            mode=("runtime+deny+disconnect" if runtime
+                  else "deny+disconnect" if durable else "disconnect"),
             acl_wait_ms=acl_wait_ms,
             disconnect_output=output,
         )

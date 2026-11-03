@@ -9,12 +9,12 @@ small, and it is written so that the one missing FIPS hook cannot be hidden.
 
 | Verb | Meaning | Precondition | Postcondition |
 |---|---|---|---|
-| `admit(npub)` | allow this peer to join the link | session is `unpaid` or `evicted` | peer is in the ACL; session `unpaid`; payment lane open |
-| `deny(npub)` | refuse this peer at admission | — | peer is denied; no link is registered |
+| `admit(npub)` | allow this peer to join the link | session is `unpaid` or `evicted` | runtime allow set and file updated; session `unpaid`; payment lane open |
+| `deny(npub)` | refuse this peer at admission | — | runtime deny set and file updated; no new link |
 | `meter(npub)` | read the seller's counters for this peer | link exists | `MeterReading` with in/out/total FMP frame bytes |
 | `pause(npub)` | stop chargeable forwarding, keep link and Noise session | session is `paid` or `grace` | transit blocked; link, local delivery and payment lane open |
 | `resume(npub)` | clear a transit block | session is `paid` | transit restored |
-| `evict(npub)` | deny the npub, wait for the ACL, close the link | session is `grace` and its deadline passed | npub denied; link closed; session `evicted` |
+| `evict(npub)` | runtime-deny, write the file, close the link | session is `grace` and its deadline passed | npub denied; link closed; session `evicted` |
 
 `admit` and `deny` are idempotent. `meter` is read-only and monotonic per link.
 `pause` is the verb FIPS cannot implement today; see below.
@@ -75,8 +75,9 @@ the state is `evicted`.
 
 ## Eviction must be durable
 
-`evict` is **deny → wait for the ACL to be effective → disconnect**, not a bare
-`disconnect`.
+`evict` is **deny → (wait for the ACL only on stock FIPS) → disconnect**, not a
+bare `disconnect`. With patch (a) the denials go to the runtime override first,
+so there is no tick to wait for; the file write still happens for durability.
 
 Exp C measured the difference on a passive seller with an `auto_connect`
 buyer:

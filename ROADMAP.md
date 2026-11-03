@@ -83,14 +83,15 @@ accepted after a receiver restart; exposure never exceeds the cap.
 
 ## Phase 4 — FIPS changes (local patches, out-of-band conversation)
 
-- (a) runtime admission mutation over the control socket
-- (b) per-peer forwarding role — **the pause enabler**
+- (a) runtime admission mutation over the control socket — **implemented**
+- (b) per-peer forwarding role — **the pause enabler**, implemented
 - (c) price input into `link_cost`, with hysteresis
 
 Status: (b) is implemented locally and passes an A–B–C chain test
 (`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`): transit from
 a blocked peer is dropped while its link, Noise session and local path stay.
-(a) and (c) are not started. The sidecar's `FipsGate.pause()`/`resume()` use
+(a) is implemented too: runtime admission saves 0.86–1.40 s per re-admission
+(`results/A2-2026-11-03-runtime-admission.md`). (c) is not started. The sidecar's `FipsGate.pause()`/`resume()` use
 `set_forwarding` via `UnixControl` and were validated against the patched
 seller. The capstone (`results/PD-2026-11-03-pause-payment.md`) runs unpaid → paid →
 exhaust → pause → renew on the patched chain with real ecash and no disconnect:

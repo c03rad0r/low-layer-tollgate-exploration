@@ -18,7 +18,7 @@ phase that relies on it is wrong.
 | Pause one peer's forwarding, keep the link | **no upstream; yes with local patch (b)** | `set_forwarding` drop | patch unmerged; per-peer drop counters + sidecar pause done |
 | Price-aware parent selection | **no policy, but ACL-deny re-parents** | deny parent, disconnect | 109 ms re-parent, 1.6 s re-admit; no price signal (Exp H) |
 | Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
-| Runtime admission without touching a file | **no** | ACL is file-based | patch (a) |
+| Runtime admission without touching a file | **no upstream; yes with local patch (a)** | `set_admission` override | 0.86–1.40 s saved per re-admit (A2) |
 
 ## Exp A — the counter boundary
 
@@ -85,7 +85,8 @@ the worst case is one tick plus work.
    within ~1 s. That is acceptable for admission of a new peer, and it is *not*
    acceptable for eviction of an active peer at exhaustion — a peer can push a
    lot of bytes in one tick.
-2. Runtime admission via the control socket (patch (a)) is worth having for
+2. Runtime admission via the control socket (patch (a)) is implemented locally:
+   it removes 0.86–1.40 s from re-admission and is worth having for
    eviction latency alone, not only for convenience.
 3. Any spec text that assumes sub-second admission MUST NOT be written until
    (a) exists.
@@ -128,6 +129,16 @@ eviction, not a pause. Patch (b) remains the load-bearing change.
 reconnect of 7.7–7.9 s and re-admission of 2.8–3.6 s (n=4), against 6.5–6.9 s
 and 2.7–2.9 s for UDP. The gate sequence is identical; TCP is about a second
 slower to auto-reconnect. See `results/01-tcp-2026-11-03.md`.
+
+## Patch (a) — runtime admission
+
+A local patch adds `Node.acl_overrides` and the control command
+`set_admission {npub, allow|deny|clear}`, checked in `authorize_peer` before
+the file ACL. On the two-node lab, runtime re-admission was 2,735–3,190 ms
+against 3,908–4,594 ms through the file, a saving of **861–1,404 ms** per
+re-admission. Deny held on every forced connect (3/3), and `clear` fell back to
+the file deny (3/3). The override is in memory, so durable eviction still writes
+the files. Result `A2-2026-11-03-runtime-admission.md`.
 
 ## Patch (b) — per-peer transit policy
 

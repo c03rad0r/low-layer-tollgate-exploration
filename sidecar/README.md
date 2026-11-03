@@ -48,7 +48,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `journal.py` | durable nullifier journal (`RESERVED → SETTLED | SPENT`), keyset admission predicate |
 | `exposure.py` | per-payer/mint/unit exposure cap, reserved before the journal row |
 | `payment.py` | `PaymentGate`: verifier → exposure → journal, receipt/settle/reject |
-| `control.py` | Unix control-socket client for the patched `set_forwarding` command |
+| `control.py` | Unix control-socket client for the patched `set_admission` / `set_forwarding` commands |
 | `cli.py` | `status`, `meter`, `simulate`, `pause-check`, `admit`, `deny` |
 
 The gate contract is in `docs/0008-gate-interface.md`.
@@ -81,12 +81,12 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-74 tests: counter merge/delta/reset/direction, the four-state machine,
+79 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
-verifier, pause/resume through a fake forwarding control, and per-peer
-policy-drop attribution in the meter.
+verifier, pause/resume through a fake forwarding control, per-peer policy-drop
+attribution in the meter, and runtime admission over a fake control.
 
 ## Not implemented
 

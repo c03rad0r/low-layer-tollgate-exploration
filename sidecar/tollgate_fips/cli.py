@@ -136,7 +136,9 @@ def _cmd_acl(args) -> int:
               f"{args.peer} via {store.allow_path if args.action == 'admit' else store.deny_path}")
         print("re-run with --yes to write")
         return 0
-    gate = FipsGate(acl=store)
+    control = (UnixControl(args.control_socket)
+               if getattr(args, "control_socket", None) else None)
+    gate = FipsGate(acl=store, control=control)
     changed = gate.admit(args.peer) if args.action == "admit" else gate.deny(args.peer)
     print(f"{'changed' if changed else 'already present'}")
     return 0
@@ -180,11 +182,15 @@ def build_parser() -> argparse.ArgumentParser:
     adm = sub.add_parser("admit", help="append an npub to peers.allow")
     adm.add_argument("peer")
     adm.add_argument("--yes", action="store_true")
+    adm.add_argument("--control-socket", default=None,
+                     help="also set the runtime override at this socket")
     adm.set_defaults(func=_cmd_acl, action="admit")
 
     deny = sub.add_parser("deny", help="append an npub to peers.deny")
     deny.add_argument("peer")
     deny.add_argument("--yes", action="store_true")
+    deny.add_argument("--control-socket", default=None,
+                      help="also set the runtime override at this socket")
     deny.set_defaults(func=_cmd_acl, action="deny")
     return parser
 

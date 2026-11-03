@@ -26,6 +26,12 @@ class FakeControl:
             raise ControlError("unknown command: set_forwarding")
         return {"npub": npub, "forwarding": "allowed" if allow else "blocked"}
 
+    def set_admission(self, npub, action):
+        self.calls.append((npub, action))
+        if self.fail:
+            raise ControlError("unknown command: set_admission")
+        return {"npub": npub, "admission": action}
+
 
 class FakeFipsctl:
     def __init__(self, peers, links, store=None):
@@ -153,6 +159,38 @@ class GateTest(unittest.TestCase):
         self.assertEqual(result.mode, "deny+disconnect")
         self.assertIsNotNone(result.acl_wait_ms)
         self.assertFalse(self.store.allowed("npub1aaa"))
+        self.assertTrue(self.store.denied("npub1aaa"))
+        self.assertEqual(self.fips.disconnected, ["npub1aaa"])
+
+    def test_admit_sets_runtime_override_and_file(self):
+        control = FakeControl()
+        gate = FipsGate(self.fips, self.store, control=control)
+        self.assertTrue(gate.admit("npub1aaa"))
+        self.assertIn(("npub1aaa", "allow"), control.calls)
+        self.assertTrue(self.store.allowed("npub1aaa"))
+
+    def test_deny_sets_runtime_override_and_file(self):
+        control = FakeControl()
+        gate = FipsGate(self.fips, self.store, control=control)
+        self.assertTrue(gate.deny("npub1aaa"))
+        self.assertIn(("npub1aaa", "deny"), control.calls)
+        self.assertTrue(self.store.denied("npub1aaa"))
+
+    def test_evict_with_runtime_override_skips_acl_wait(self):
+        control = FakeControl()
+        gate = FipsGate(self.fips, self.store, control=control)
+        result = gate.evict("npub1aaa")
+        self.assertEqual(result.mode, "runtime+deny+disconnect")
+        self.assertIsNone(result.acl_wait_ms)
+        self.assertIn(("npub1aaa", "deny"), control.calls)
+        self.assertTrue(self.store.denied("npub1aaa"))
+        self.assertEqual(self.fips.disconnected, ["npub1aaa"])
+
+    def test_evict_falls_back_to_acl_wait_without_control_command(self):
+        gate = FipsGate(self.fips, self.store, control=FakeControl(fail=True))
+        result = gate.evict("npub1aaa")
+        self.assertEqual(result.mode, "deny+disconnect")
+        self.assertIsNotNone(result.acl_wait_ms)
         self.assertTrue(self.store.denied("npub1aaa"))
         self.assertEqual(self.fips.disconnected, ["npub1aaa"])
 
