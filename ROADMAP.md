@@ -24,10 +24,12 @@ what a gate can enforce today with zero patches.
 `tollgate-fips`: a control-socket client that admits (ACL files), meters
 (`fipsctl show links` / `show peers`), and evicts (`disconnect`).
 
-Status: the interface (`docs/0008`), the meter/session core, ACL writes and 29
-unit tests are in `sidecar/`. The meter has run read-only against `host-b`
-(`results/S-2026-11-03-sidecar-meter.md`). The buyer-exhausts demo and Exp C are
-not done.
+Status: the interface (`docs/0008`), the meter/session core, durable eviction,
+ACL writes and 32 unit tests are in `sidecar/`. The meter has run read-only
+against `host-b` (`results/S-2026-11-03-sidecar-meter.md`). Exp C is done on
+a two-node lab (`results/C-2026-11-03-cut-readmit.md`): a bare disconnect is
+undone by `auto_connect` in ~6.6 s; deny + wait + disconnect holds, and
+re-admission costs ~2.7 s. The buyer-exhausts demo with a mint is not done.
 
 - **C** — cost of cut and re-admit; does the payment lane survive?
 - **H** — can ACL-deny force re-parenting, and how much churn?

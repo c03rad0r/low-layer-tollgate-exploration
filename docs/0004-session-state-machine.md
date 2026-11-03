@@ -29,10 +29,16 @@ TollGate should adopt the shape, not the implementation.
 | `unpaid` | admitted, chargeable forwarding blocked, payment lane open | `21023 level=info code=payment-required` |
 | `paid` | forwarding allowed, metering | — (session event is the receipt) |
 | `grace` | forwarding blocked, lane open, link and Noise session kept | `21023 level=error code=session-exhausted` |
-| `evicted` | link closed | FIPS `Disconnect`, reason *resource exhaustion* |
+| `evicted` | link closed and npub denied | ACL deny, then FIPS `Disconnect`, reason *resource exhaustion* |
 
 Transitions: `unpaid → paid` on accepted payment; `paid → grace` at allotment
 exhaustion; `grace → paid` on renewal; `grace → evicted` after `grace` expires.
+
+**Eviction must be durable.** A bare `disconnect` is not `evicted`: with
+`auto_connect` the peer re-establishes the link in ~6.6 s, with a new `link_id`
+and no new payment (Exp C). The seller MUST deny the npub, wait until the ACL
+reports the deny effective, and only then disconnect. Re-admission then costs
+ACL latency plus a handshake (~2.7 s in the lab).
 
 ## Notices
 

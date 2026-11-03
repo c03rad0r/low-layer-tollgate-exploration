@@ -48,6 +48,12 @@ class Fipsctl:
     def transports(self) -> List[Dict[str, Any]]:
         return self.show("transports").get("transports", [])
 
+    def acl(self) -> Dict[str, Any]:
+        try:
+            return json.loads(self._call("fipsctl", "acl", "show"))
+        except json.JSONDecodeError as exc:
+            raise FipsctlError(f"fipsctl acl show: invalid JSON: {exc}") from exc
+
     def disconnect(self, peer: str) -> str:
         return self._call("fipsctl", "disconnect", peer)
 

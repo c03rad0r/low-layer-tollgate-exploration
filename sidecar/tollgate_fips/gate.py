@@ -7,12 +7,14 @@ pretending. Crude mode disconnects and says so, which is the Phase 1 demo.
 from __future__ import annotations
 
 import os
+import time
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Dict, Iterable, Optional, Tuple
 
 from .fipsctl import Fipsctl
 from .meter import LinkCounters, MeterReading, delta, snapshot
+from .runner import RunnerError
 
 
 class GateError(RuntimeError):
@@ -36,6 +38,14 @@ class PauseResult:
     paused: bool
     mode: str
     warning: Optional[str] = None
+    acl_wait_ms: Optional[int] = None
+
+
+@dataclass(frozen=True)
+class EvictResult:
+    mode: str
+    acl_wait_ms: Optional[int] = None
+    disconnect_output: str = ""
 
 
 class FileAclStore:
@@ -112,6 +122,9 @@ class FileAclStore:
     def denied(self, npub: str) -> bool:
         return npub in self._read(self.deny_path)
 
+    def entries(self):
+        return self._read(self.allow_path), self._read(self.deny_path)
+
 
 class FipsGate:
     def __init__(
@@ -166,15 +179,54 @@ class FipsGate:
                 "kept (and forwarding continued) or disconnected. Use "
                 "allow_disconnect=True for the crude Phase 1 fallback."
             )
-        self.evict(npub)
+        result = self.evict(npub, durable=True)
         return PauseResult(
             paused=False,
-            mode="disconnect",
+            mode=result.mode,
             warning=(
-                "pause degraded to disconnect: the link and the payment lane "
-                "are gone. This is the evidence for FIPS patch (b) and P4."
+                "pause degraded to eviction: the link and the payment lane are "
+                "gone, and the npub is denied so auto_connect cannot bring the "
+                "link back without a new admission. This is the evidence for "
+                "FIPS patch (b) and P4."
             ),
+            acl_wait_ms=result.acl_wait_ms,
         )
 
-    def evict(self, npub: str) -> str:
-        return self.fipsctl.disconnect(npub)
+    def evict(self, npub: str, durable: bool = True) -> EvictResult:
+        """Close the link, durably by default.
+
+        A bare `disconnect` is not eviction: with auto_connect the peer dials
+        again and is re-admitted without a new payment (Exp C: ~6.8 s, new
+        link_id). Durable eviction therefore denies the npub, waits for the ACL
+        to take effect, and only then disconnects.
+        """
+        acl_wait_ms = None
+        if durable:
+            if self.acl is None:
+                raise GateError(
+                    "durable eviction requires an ACL store; a bare disconnect "
+                    "is re-established by auto_connect"
+                )
+            self.acl.deny(npub)
+            acl_wait_ms = self._wait_denied(npub)
+        output = self.fipsctl.disconnect(npub)
+        return EvictResult(
+            mode="deny+disconnect" if durable else "disconnect",
+            acl_wait_ms=acl_wait_ms,
+            disconnect_output=output,
+        )
+
+    def _wait_denied(self, npub: str, timeout: float = 5.0) -> int:
+        started = time.monotonic()
+        while time.monotonic() - started < timeout:
+            try:
+                state = self.fipsctl.acl()
+            except RunnerError:
+                time.sleep(0.05)
+                continue
+            allow = state.get("allow_entries") or []
+            denied = state.get("deny_entries") or []
+            if npub not in allow and (state.get("deny_all") or npub in denied):
+                return int((time.monotonic() - started) * 1000)
+            time.sleep(0.05)
+        raise GateError(f"ACL deny for {npub} not effective within {timeout}s")

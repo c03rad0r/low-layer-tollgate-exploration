@@ -14,7 +14,7 @@ phase that relies on it is wrong.
 | Admit a peer at runtime | **yes** | same | same |
 | Per-npub metering | **yes, aggregate** | `fipsctl show links` / `show peers` | per-frame-class split missing |
 | Per-transport metering | **yes, aggregate** | `show transports`, `transport_type` | chargeable/non-chargeable split missing |
-| Cut an established peer | **yes** | `fipsctl disconnect` | kills the payment lane |
+| Cut an established peer | **yes, but only durably with ACL deny** | `peers.deny` then `fipsctl disconnect` | a bare `disconnect` is undone by `auto_connect` in ~6.6 s |
 | Pause one peer's forwarding, keep the link | **no** | — | the load-bearing gap; patch (b) |
 | Price-aware parent selection | **no** | `link_cost` is MMP-only | patch (c) |
 | Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
@@ -89,6 +89,39 @@ the worst case is one tick plus work.
    eviction latency alone, not only for convenience.
 3. Any spec text that assumes sub-second admission MUST NOT be written until
    (a) exists.
+
+## Exp C — cut and re-admit
+
+**Question:** what does the only exhaustion lever cost, and does the cut hold?
+
+**Method:** two-node UDP lab (`0.6.0-dev`, `2ba790b`), seller passive, buyer
+`auto_connect`, strict ACL (`ALL` in `peers.deny`, buyer in `peers.allow`).
+Run 1 did a bare `disconnect`; Run 2 did the durable sequence deny → wait for
+the ACL → disconnect.
+
+**Raw numbers:**
+
+| Metric | Run 1 (bare disconnect) | Run 2 (durable) |
+|---|---|---|
+| ACL effective | 613 ms | 925–978 ms |
+| Disconnect command | 46 ms | 49 ms |
+| Link down observed | 777 ms | 764–2,142 ms |
+| Auto reconnect | **6,756 ms**, new `link_id` | **6,616 ms**, new `link_id` |
+| In-band ping after cut | fail | fail |
+| In-band ping after reconnect | pass, no payment | pass, no payment |
+| Durable hold | n/a | 3 s, no link |
+| Re-admit | 3,950 ms | **2,701 ms** (829 ms ACL + 1,873 ms link) |
+
+**Interpretation:** `fipsctl disconnect` alone is **not** eviction. With
+`auto_connect` the peer re-establishes the link in ~6.6 s, with a new `link_id`
+and no new payment. The in-band path (and any payment that rides it) dies for
+that window and then returns for free. A durable cut requires denying the npub,
+waiting until `fipsctl acl show` reports the deny effective, and only then
+disconnecting. The sidecar was changed to do exactly this; see
+`results/C-2026-11-03-cut-readmit.md`.
+
+**Still missing:** `grace`. Strict pause raises; the crude fallback is a durable
+eviction, not a pause. Patch (b) remains the load-bearing change.
 
 ## Exp E — the captive portal (blocked)
 

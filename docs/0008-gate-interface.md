@@ -13,7 +13,7 @@ small, and it is written so that the one missing FIPS hook cannot be hidden.
 | `deny(npub)` | refuse this peer at admission | — | peer is denied; no link is registered |
 | `meter(npub)` | read the seller's counters for this peer | link exists | `MeterReading` with in/out/total FMP frame bytes |
 | `pause(npub)` | stop chargeable forwarding, keep link and Noise session | session is `paid` or `grace` | forwarding blocked; payment lane open |
-| `evict(npub)` | close the link | session is `grace` and its deadline passed | link closed; session `evicted` |
+| `evict(npub)` | deny the npub, wait for the ACL, close the link | session is `grace` and its deadline passed | npub denied; link closed; session `evicted` |
 
 `admit` and `deny` are idempotent. `meter` is read-only and monotonic per link.
 `pause` is the verb FIPS cannot implement today; see below.
@@ -55,12 +55,30 @@ interface therefore has two modes:
 
 - **strict (default):** `pause()` raises `PauseUnsupported`. The caller must
   decide whether to `evict` or to keep serving unpaid.
-- **crude (`--allow-disconnect`):** `pause()` is implemented as `evict()`, and
-  the caller is told that the payment lane died. This is the Phase 1 demo, and
-  its failure is the evidence for FIPS patch (b) and spec PR P4.
+- **crude (`--allow-disconnect`):** `pause()` is implemented as a **durable**
+  `evict()` (deny, wait, disconnect), and the caller is told that the payment
+  lane died. This is the Phase 1 demo, and its failure is the evidence for FIPS
+  patch (b) and spec PR P4.
 
 A gate MUST NOT report `grace` while having closed the link. If it disconnects,
 the state is `evicted`.
+
+## Eviction must be durable
+
+`evict` is **deny → wait for the ACL to be effective → disconnect**, not a bare
+`disconnect`.
+
+Exp C measured the difference on a passive seller with an `auto_connect`
+buyer:
+
+- a bare `disconnect` was undone by `auto_connect` in **6.6–6.8 s**, with a new
+  `link_id` and no new payment;
+- deny → wait → disconnect held for the full 3 s test, and re-admission cost
+  **2.7 s** (0.83 s ACL + 1.87 s link).
+
+`FipsGate.evict()` implements the durable sequence. It raises if no ACL store is
+configured rather than silently doing a non-durable cut. `pause()` in crude mode
+calls it. See `results/C-2026-11-03-cut-readmit.md`.
 
 ## Metering source
 

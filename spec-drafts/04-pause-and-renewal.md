@@ -1,9 +1,10 @@
 # TIP: Pause and renewal — the four-state session
 
 - **Target repo:** `OpenTollGate/tollgate`
-- **Status:** Draft for PR. **Held until Exp C produces numbers.**
+- **Status:** Draft for PR. Exp C produced numbers; PR not opened.
 - **Depends on:** scope (P2), wire-byte metering (P3)
-- **Experiment citations:** Exp C (planned, Phase 1),
+- **Experiment citations:** Exp C (`results/C-2026-11-03-cut-readmit.md`),
+  Exp B (`results/B-2026-11-03-acl-latency.md`),
   `docs/0007-current-enforcement.md`, `docs/0004-session-state-machine.md`
 - **Prior art:** MONAD (Cashu Spilman channels over onion routing)
 
@@ -49,7 +50,7 @@ implementation. Credit: MONAD.
 | `unpaid` | open | **blocked** | open | `21023`, `level=info`, `code=payment-required` |
 | `paid` | open | allowed, metered | open | — (session event is the receipt) |
 | `grace` | open | **blocked** | open | `21023`, `level=error`, `code=session-exhausted` |
-| `evicted` | closed | — | closed | FIPS `Disconnect`, reason *resource exhaustion* |
+| `evicted` | closed, npub denied | — | closed | ACL deny, then FIPS `Disconnect`, reason *resource exhaustion* |
 
 "Chargeable forwarding blocked" means the seller does not forward the
 customer's session-layer traffic. Control traffic needed to keep the link, the
@@ -67,6 +68,9 @@ grace  --grace deadline--> evicted
 - `unpaid → evicted` MAY happen after a stated admission timeout.
 - `paid → evicted` MUST NOT happen on exhaustion; it goes through `grace`.
 - A renewal in `grace` returns to `paid` without a new link.
+- `evicted` MUST be durable: deny the npub, wait until the ACL reports the
+  deny effective, then disconnect. A bare `disconnect` is re-established by
+  `auto_connect` in ~6.6 s with a new `link_id` and no new payment (Exp C).
 
 ### 3. Notices
 
@@ -123,9 +127,11 @@ role** consulted on the data path (patch (b) in the exploration repo).
 Until that exists, an implementation that claims this TIP MUST either:
 
 - implement the role in its own forwarding layer, or
-- declare itself non-conformant and fall back to `disconnect`.
+- declare itself non-conformant and fall back to **durable eviction** (deny,
+  wait for the ACL, then disconnect).
 
-It MUST NOT silently disconnect and call the state `grace`.
+It MUST NOT silently disconnect and call the state `grace`. It also MUST NOT
+call a bare `disconnect` `evicted` when `auto_connect` can undo it.
 
 ### 6. Reconciliation is a pause trigger
 
@@ -150,20 +156,23 @@ reversible; a disputed invoice is not.
 - Pausing is not a settlement guarantee. The seller MUST NOT credit a renewal
   it has not verified to its own satisfaction (see the payer-binding TIP).
 
-## Experiment plan
+## Experiment result (Exp C)
 
-Exp C (Phase 1, before this PR opens):
+Two-node UDP lab, FIPS `0.6.0-dev` (`2ba790b`), passive seller, `auto_connect`
+buyer, strict ACL.
 
-1. Establish a paid link, exhaust it.
-2. Measure, with the current tooling, the time from exhaustion to
-   `fipsctl disconnect` taking effect and to a fresh link being usable
-   (ACL add ~1 tick, per Exp B: 756–979 ms).
-3. Record whether the payment lane survives the cut. It does not; that is the
-   result the TIP cites.
-4. Re-run after patch (b) and show `grace` without a cut.
+| Path | Result |
+|---|---|
+| Bare `disconnect` | link back in **6.6–6.8 s**, new `link_id`, no payment |
+| Deny → wait → disconnect | held for 3 s, no link on either side |
+| ACL effective | 0.8–1.0 s (Exp B: 756–984 ms, tick-bound) |
+| Re-admission | **2.7 s** total (0.83 s ACL + 1.87 s link) |
+| In-band path during cut | fails; returns on reconnect, without payment |
 
-The PR text will cite `results/C-<date>.md` and the Exp B numbers in
-`results/B-2026-11-03-acl-latency.md`.
+This is why the TIP separates `grace` from `evicted`: the only lever today is
+a durable cut, and it costs the payment lane. Patch (b) is still required to
+make `grace` implementable. The full raw output is in
+`results/C-2026-11-03-cut-readmit.md`.
 
 ## Citation
 
@@ -172,3 +181,5 @@ The PR text will cite `results/C-<date>.md` and the Exp B numbers in
 - MONAD: four-state shape, paused-by-default sessions, advisory eviction.
 - Exp B: ACL changes take 756–984 ms, tick-bound; relevant to both the `unpaid`
   admission and the `evicted` teardown.
+- Exp C: a bare `disconnect` is undone by `auto_connect` in ~6.6 s; durable
+  eviction holds, and re-admission costs ~2.7 s.

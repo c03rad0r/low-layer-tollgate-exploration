@@ -3,6 +3,7 @@
 from .fipsctl import Fipsctl, FipsctlError
 from .gate import (
     AclError,
+    EvictResult,
     FipsGate,
     FileAclStore,
     GateError,
@@ -30,6 +31,7 @@ __all__ = [
     "GateError",
     "AclError",
     "PauseResult",
+    "EvictResult",
     "PauseUnsupported",
     "PeerNotFound",
     "LinkCounters",

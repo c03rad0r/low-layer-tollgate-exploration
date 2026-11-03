@@ -7,6 +7,7 @@ from tollgate_fips.gate import (
     AclError,
     FipsGate,
     FileAclStore,
+    GateError,
     PauseUnsupported,
     PeerNotFound,
 )
@@ -14,9 +15,10 @@ from tollgate_fips.meter import snapshot
 
 
 class FakeFipsctl:
-    def __init__(self, peers, links):
+    def __init__(self, peers, links, store=None):
         self._peers = peers
         self._links = links
+        self.store = store
         self.disconnected = []
 
     def peers(self):
@@ -24,6 +26,16 @@ class FakeFipsctl:
 
     def links(self):
         return self._links
+
+    def acl(self):
+        if self.store is None:
+            return {"allow_entries": [], "deny_entries": [], "deny_all": False}
+        allow, deny = self.store.entries()
+        return {
+            "allow_entries": allow,
+            "deny_entries": deny,
+            "deny_all": "ALL" in deny,
+        }
 
     def disconnect(self, peer):
         self.disconnected.append(peer)
@@ -49,7 +61,7 @@ class GateTest(unittest.TestCase):
         for path in (self.allow, self.deny):
             open(path, "w").close()
         self.store = FileAclStore(self.allow, self.deny)
-        self.fips = FakeFipsctl(PEERS, LINKS)
+        self.fips = FakeFipsctl(PEERS, LINKS, self.store)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -97,8 +109,32 @@ class GateTest(unittest.TestCase):
         gate = FipsGate(self.fips, self.store, allow_disconnect=True)
         result = gate.pause("npub1aaa")
         self.assertFalse(result.paused)
-        self.assertEqual(result.mode, "disconnect")
+        self.assertEqual(result.mode, "deny+disconnect")
         self.assertIn("payment lane", result.warning)
+        self.assertTrue(self.store.denied("npub1aaa"))
+        self.assertEqual(self.fips.disconnected, ["npub1aaa"])
+
+    def test_durable_evict_requires_an_acl_store(self):
+        gate = FipsGate(self.fips)
+        with self.assertRaises(GateError):
+            gate.evict("npub1aaa")
+
+    def test_non_durable_evict_only_disconnects(self):
+        gate = FipsGate(self.fips, self.store)
+        result = gate.evict("npub1aaa", durable=False)
+        self.assertEqual(result.mode, "disconnect")
+        self.assertIsNone(result.acl_wait_ms)
+        self.assertFalse(self.store.denied("npub1aaa"))
+        self.assertEqual(self.fips.disconnected, ["npub1aaa"])
+
+    def test_durable_evict_denies_before_disconnecting(self):
+        gate = FipsGate(self.fips, self.store)
+        gate.admit("npub1aaa")
+        result = gate.evict("npub1aaa", durable=True)
+        self.assertEqual(result.mode, "deny+disconnect")
+        self.assertIsNotNone(result.acl_wait_ms)
+        self.assertFalse(self.store.allowed("npub1aaa"))
+        self.assertTrue(self.store.denied("npub1aaa"))
         self.assertEqual(self.fips.disconnected, ["npub1aaa"])
 
     def test_meter_uses_previous_snapshot(self):

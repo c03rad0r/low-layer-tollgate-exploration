@@ -40,6 +40,28 @@ class LocalRunner:
         return Result(list(argv), proc.returncode, proc.stdout, proc.stderr)
 
 
+class DockerRunner:
+    """Run a command inside a running container with `docker exec`.
+
+    Used by the lab harness to talk to a node's control socket from the host.
+    """
+
+    def __init__(self, container: str, timeout: float = 15.0, docker: str = "docker"):
+        self.container = container
+        self.timeout = timeout
+        self.docker = docker
+
+    def run(self, argv: Sequence[str], stdin: Optional[str] = None) -> Result:
+        proc = subprocess.run(
+            [self.docker, "exec", "-i", self.container, *argv],
+            input=stdin,
+            capture_output=True,
+            text=True,
+            timeout=self.timeout,
+        )
+        return Result(list(argv), proc.returncode, proc.stdout, proc.stderr)
+
+
 class SSHRunner:
     """Run a command on `host` through ssh with BatchMode.
 
