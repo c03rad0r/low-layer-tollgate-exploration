@@ -1,0 +1,35 @@
+# FIPS node L — Exp PRICE diamond.
+# TEST IDENTITY ONLY. Derived from "low-layer-tollgate-exp-price".
+# Role assignment is by NodeAddr = SHA256(xonly)[:16]; the root role
+# holds the smallest address so the diamond has R as the tree root.
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  udp:
+    bind_addr: "0.0.0.0:2121"
+    mtu: 1472
+
+peers:
+  - npub: "npub179t6ax8u8z7j20hute92jl6dcaua76mu08s8n39atctp9m90quuq5chc9z"
+    alias: "p1"
+    addresses:
+      - transport: udp
+        addr: "p1:2121"
+    connect_policy: auto_connect
+  - npub: "npub15lpp3edr7ckt4zyvrw3dcccyhheqp36s5h9aqu8vt3lxdvtd7aws4jqh6r"
+    alias: "p2"
+    addresses:
+      - transport: udp
+        addr: "p2:2121"
+    connect_policy: auto_connect

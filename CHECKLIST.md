@@ -71,7 +71,8 @@ to the bottom with a date.
 - [x] (b) per-peer forwarding role — local patch + lab pass
       (`patches/0001-per-peer-forwarding.patch`, `PB-2026-11-03-per-peer-forwarding.md`)
 - [x] `drop_policy_blocked_{packets,bytes}` + `fipsctl set-forwarding`
-- [ ] (c) price in `link_cost` with hysteresis
+- [x] (c) price in `link_cost` with hysteresis
+      (`results/PRICE-2026-11-03-local-cost.md`; 351–513 ms soft switch, 3/3)
 - [ ] **Exp D** — refused-initiator cost
 - [x] Re-run with (b): pause with real payment, no disconnect
       (`results/PD-2026-11-03-pause-payment.md`)

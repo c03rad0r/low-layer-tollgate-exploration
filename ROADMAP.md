@@ -85,15 +85,18 @@ accepted after a receiver restart; exposure never exceeds the cap.
 
 - (a) runtime admission mutation over the control socket — **implemented**
 - (b) per-peer forwarding role — **the pause enabler**, implemented
-- (c) price input into `link_cost`, with hysteresis
+- (c) price input into `link_cost`, with hysteresis — **implemented**
 
 Status: (b) is implemented locally and passes an A–B–C chain test
 (`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`): transit from
 a blocked peer is dropped while its link, Noise session and local path stay.
 (a) is implemented too: runtime admission saves 0.86–1.40 s per re-admission
-(`results/A2-2026-11-03-runtime-admission.md`). (c) is not started. The sidecar's `FipsGate.pause()`/`resume()` use
-`set_forwarding` via `UnixControl` and were validated against the patched
-seller. The capstone (`results/PD-2026-11-03-pause-payment.md`) runs unpaid → paid →
+(`results/A2-2026-11-03-runtime-admission.md`). (c) is implemented as a local
+`set_price` multiplier: a 1.0 penalty moved a diamond leaf's parent in
+351–513 ms with routing intact, while 0.05 stayed inside hysteresis
+(`results/PRICE-2026-11-03-local-cost.md`). The sidecar's
+`FipsGate.pause()`/`resume()` use `set_forwarding` via `UnixControl` and were
+validated against the patched seller. The capstone (`results/PD-2026-11-03-pause-payment.md`) runs unpaid → paid →
 exhaust → pause → renew on the patched chain with real ecash and no disconnect:
 A→C is blocked while A→B and the link survive; the link id is preserved. Six
 runs (3 UDP, 3 TCP) all preserve the link and resume on it, and policy-dropped

@@ -29,6 +29,7 @@ harness/
 │   ├── exp_c.py
 │   ├── repeat.sh
 │   └── run-exp-c.sh
+├── exp-price/                 # diamond: local price vs parent choice
 ├── pause-tcp/                 # same chain and capstone over TCP :443
 ├── pause/                    # patch (b) A-B-C transit-block test
 │   ├── configs/
@@ -147,6 +148,12 @@ Notes on using the upstream FIPS `testing/static` Docker lab as the two-node
 pair for Exp C/H. It gives real `fipsd` processes and control sockets; it does
 not give an Ethernet pair, a captive portal or a mint. See
 `harness/fips-lab/README.md`.
+
+## `exp-price/`
+
+`harness/exp-price/` runs a four-node diamond where a leaf has two equal-depth
+candidate parents; a `set_price` penalty moves the parent in 351–513 ms.
+Result: `results/PRICE-2026-11-03-local-cost.md`.
 
 ## `pause/`
 

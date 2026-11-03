@@ -33,7 +33,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 | 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | **C, H and real-payment demo done; pause still missing** |
 | 2 | TCP, Ethernet, BLE, Tor demos behind one gate interface | TCP cut/re-admit done; others pending |
 | 3 | Local mint + receiver spent journal (F, G) | mint + offline verify + durable replay; session/Exp G pending |
-| 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | (a) and (b) local patches + lab results; (c) pending |
+| 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | all three local patches + lab results |
 | 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P4) | drafts updated with PB/PD evidence; no PRs opened |
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | not started |
 | 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | nft correctness confirmed; rate/AP tests pending |

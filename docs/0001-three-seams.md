@@ -60,3 +60,5 @@ The missing piece was a **per-peer forwarding role** consulted on the data
 path. Patch (b) implements it locally: transit from a blocked peer is dropped
 while local delivery, the link and the Noise session stay. Upstream still has
 only `disconnect`, which also kills the payment lane. See `0004` and `PB-2026-11-03`.
+Patch (c) adds a local price multiplier to `link_cost`, so price can steer
+parent choice softly; see `PRICE-2026-11-03-local-cost.md`.

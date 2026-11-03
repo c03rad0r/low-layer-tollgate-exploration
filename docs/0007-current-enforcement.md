@@ -16,7 +16,7 @@ phase that relies on it is wrong.
 | Per-transport metering | **yes, aggregate** | `show transports`, `transport_type` | chargeable/non-chargeable split missing |
 | Cut an established peer | **yes, but only durably with ACL deny** | `peers.deny` then `fipsctl disconnect` | a bare `disconnect` is undone by `auto_connect` in ~6.6 s |
 | Pause one peer's forwarding, keep the link | **no upstream; yes with local patch (b)** | `set_forwarding` drop | patch unmerged; per-peer drop counters + sidecar pause done |
-| Price-aware parent selection | **no policy, but ACL-deny re-parents** | deny parent, disconnect | 109 ms re-parent, 1.6 s re-admit; no price signal (Exp H) |
+| Price-aware parent selection | **no upstream; local patch (c) applies a price to `link_cost`** | `set_price` cost multiplier | 351–513 ms soft switch, routing intact (PRICE) |
 | Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
 | Runtime admission without touching a file | **no upstream; yes with local patch (a)** | `set_admission` override | 0.86–1.40 s saved per re-admit (A2) |
 
@@ -201,8 +201,10 @@ choice is sticky. That stickiness is the argument for patch (c) — a price chan
 needs an explicit re-evaluation, not just an ACL change. See
 `results/H-2026-11-03-reparent.md`.
 
-**Not tested:** a chain with no alternate peer (expected to split), price-driven
-re-parenting, and Ethernet.
+**Not tested:** a chain with no alternate peer (expected to split) and Ethernet.
+Price-driven re-parenting is a separate result: `PRICE-2026-11-03-local-cost.md`
+shows a 1.0 cost penalty moving a diamond leaf in 351–513 ms while a 0.05
+penalty stays inside hysteresis.
 
 ## Exp E — the captive portal (blocked)
 

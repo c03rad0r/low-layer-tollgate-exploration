@@ -1,0 +1,54 @@
+name: low-layer-tollgate-exp-price
+
+services:
+  r:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-price-r
+    hostname: r
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/r.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [fips-net]
+    restart: "no"
+
+  p1:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-price-p1
+    hostname: p1
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/p1.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [fips-net]
+    restart: "no"
+
+  p2:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-price-p2
+    hostname: p2
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/p2.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [fips-net]
+    restart: "no"
+
+  l:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-price-l
+    hostname: l
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes: ["./configs/l.yaml:/etc/fips/fips.yaml:ro"]
+    networks: [fips-net]
+    restart: "no"
+
+networks:
+  fips-net:
+    driver: bridge
