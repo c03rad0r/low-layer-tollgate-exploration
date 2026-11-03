@@ -98,6 +98,16 @@ the keyset active and accepts the spend, so the seller predicate is the only
 guard. The script restores `final_expiry = NULL`. Result:
 `results/G-2026-11-03-final-expiry.md`.
 
+## Settlement
+
+```sh
+harness/mint/run-settle-demo.sh
+```
+
+Verify → `PaymentGate.accept` (RESERVED, exposure) → redeem with the seller key
+→ journal SETTLED + exposure 0 → replay refused → NUT-07 inputs SPENT. Result:
+`results/SETTLE-2026-11-03-redeem.md`.
+
 ## Stop / reset
 
 ```sh

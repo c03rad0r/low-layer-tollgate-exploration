@@ -49,6 +49,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `exposure.py` | per-payer/mint/unit exposure cap, reserved before the journal row |
 | `payment.py` | `PaymentGate`: verifier → exposure → journal, receipt/settle/reject |
 | `controller.py` | `SellerController`: session state → admit/pause/resume/evict + meter |
+| `settlement.py` | `SettlementWorker`: redeem → journal SETTLED → exposure release |
 | `control.py` | Unix control-socket client for the patched `set_admission` / `set_forwarding` commands |
 | `cli.py` | `status`, `meter`, `simulate`, `pause-check`, `admit`, `deny` |
 
@@ -82,13 +83,13 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-87 tests: counter merge/delta/reset/direction, the four-state machine,
+93 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
 verifier, pause/resume through a fake forwarding control, per-peer policy-drop
-attribution in the meter, runtime admission over a fake control, and the seller
-controller loop.
+attribution in the meter, runtime admission over a fake control, the seller controller loop, and
+settlement (redeem, release, reconcile a double spend).
 
 ## Not implemented
 

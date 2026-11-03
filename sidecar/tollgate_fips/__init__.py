@@ -44,6 +44,12 @@ from .payment import (
     VerificationFailed,
     Verifier,
 )
+from .settlement import (
+    Redeemer,
+    SettlementError,
+    SettlementResult,
+    SettlementWorker,
+)
 from .meter import (
     LABEL_ALL_FRAMES,
     LinkCounters,
@@ -61,6 +67,10 @@ __all__ = [
     "FipsctlError",
     "ExposureLedger",
     "SellerController",
+    "SettlementWorker",
+    "SettlementResult",
+    "SettlementError",
+    "Redeemer",
     "ControllerConfig",
     "ControllerResult",
     "ControllerError",
