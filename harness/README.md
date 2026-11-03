@@ -29,6 +29,11 @@ harness/
 │   ├── exp_c.py
 │   ├── repeat.sh
 │   └── run-exp-c.sh
+├── mint/                     # Nutshell FakeWallet mint + offline verifier
+│   ├── run-mint.sh
+│   ├── mint-token.sh
+│   ├── verify_token.py
+│   └── verify-offline.sh
 ├── exp-h/                    # three-node re-parenting triangle
 │   ├── docker-compose.yaml
 │   ├── configs/

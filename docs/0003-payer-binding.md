@@ -14,7 +14,16 @@ bearer token is paper: whoever holds it can spend it.
    npub — FIPS IK requires the responder's static key to dial. ECDH to it. No
    one on the path can read the token.
 2. **Lock the proof to the seller.** NUT-11 P2PK with `data` = seller pubkey and
-   `sigflag` = `SIG_ALL`. Even if the ciphertext leaks, only the seller can
+   `sigflag` = `SIG_ALL`.
+
+### Implementation note: compressed, not x-only
+
+NUT-11 needs the **33-byte compressed** pubkey (`02`/`03` + x). A FIPS npub is
+x-only; Nutshell rejects an x-only lock as a malformed compressed key (Exp F).
+The seller derives the compressed key from its nsec (the parity bit is not in
+the npub). A sidecar that sees only the npub cannot build the lock. The
+advertisement or the payment preamble MUST carry enough to recover the
+compressed key, or the seller MUST run with access to its own key. Even if the ciphertext leaks, only the seller can
    redeem.
 3. **Sign with the payer's static key** over a payload containing:
    token, seller npub, payer npub, transport type, **the msg1 ephemeral public
@@ -71,3 +80,4 @@ replay case.
 - Implemented in `sidecar/tollgate_fips/journal.py`; semantics in `docs/0009`.
 - Exposure cap implemented in `sidecar/tollgate_fips/exposure.py`; semantics in
   `docs/0010`.
+- Real DLEQ/P2PK verification with the mint stopped: `results/F-2026-11-03-offline-verify.md`.

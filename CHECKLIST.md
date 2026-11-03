@@ -47,15 +47,17 @@ to the bottom with a date.
 
 ## Phase 3 — mint + journal
 
-- [ ] Local test mint in `harness/`
+- [x] Local test mint: Nutshell 0.21.0 + FakeWallet (`harness/mint/`)
 - [x] Durable nullifier journal, fsync before credit
       (`sidecar/tollgate_fips/journal.py`, 13 journal tests; `docs/0009`)
-- [ ] P2PK-to-seller path
+- [~] P2PK-to-seller path: real lock verified offline in `harness/mint/`;
+      not yet wired to `PaymentGate`
 - [x] Exposure cap core (`sidecar/tollgate_fips/exposure.py`, 10 tests; `docs/0010`)
 - [x] Payment gate ordering: verifier → exposure → journal
       (`sidecar/tollgate_fips/payment.py`, 8 tests; `docs/0011`)
 - [ ] Batch settlement
-- [ ] **Exp F** — mint stopped mid-session
+- [~] **Exp F** — offline verification with the mint stopped passes
+      (`results/F-2026-11-03-offline-verify.md`); session continuity/journal wiring pending
 - [ ] **Exp G** — post-`final_expiry` behaviour
 - [ ] Draft `spec-drafts/05-payer-binding.md`
 

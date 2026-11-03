@@ -65,7 +65,10 @@ implemented (`sidecar/tollgate_fips/exposure.py`, 10 tests, `docs/0010`): per
 payer/mint/unit, reserved before the journal row so a crash overstates rather
 than understates. `PaymentGate` orders verifier → exposure → journal and
 returns a receipt (`sidecar/tollgate_fips/payment.py`, 8 tests, `docs/0011`).
-No mint or real verifier yet.
+A real Nutshell 0.21.0 `FakeWallet` mint runs in `harness/mint/`; a 50 sat
+P2PK+DLEQ token verifies offline with the mint stopped
+(`results/F-2026-11-03-offline-verify.md`). The verifier is a lab script, not
+yet wired to `PaymentGate`; session continuity and Exp G remain.
 
 - **F** — keep paying with the mint stopped.
 - **G** — what happens after keyset `final_expiry`?

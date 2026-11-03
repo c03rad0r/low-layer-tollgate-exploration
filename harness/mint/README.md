@@ -1,0 +1,79 @@
+# Local Cashu test mint
+
+A real Nutshell mint (`cashubtc/nutshell:0.21.0`) with the `FakeWallet`
+Lightning backend. No real funds, no Lightning node, no mainnet. The mint
+supports NUT-11 P2PK, NUT-12 DLEQ and NUT-07; it is the target for Exp F/G.
+
+## Start
+
+```sh
+harness/mint/run-mint.sh
+```
+
+- network `lt-mint-net`
+- container `lt-mint`, published at `127.0.0.1:3338`
+- data volume `lt-mint-data` (`MINT_DATABASE=/data/mint`)
+- wallet volume `lt-wallet-data` (`CASHU_DIR=/data`)
+- fixed test private key; not a secret, not for production
+
+The in-network URL for wallets is `http://lt-mint:3338`; the token records that
+URL, so verify it with `--mint http://lt-mint:3338`.
+
+## Mint a P2PK token
+
+```sh
+harness/mint/mint-token.sh 50 <seller-compressed-pubkey> /tmp/opencode/token.txt
+```
+
+The pubkey must be the **33-byte compressed** form (`02`/`03` + 32 bytes). An
+x-only npub is not enough for NUT-11: Nutshell rejects it as a malformed
+compressed public key. The seller derives the compressed key from its FIPS
+nsec. For the Exp C/H test seller this is:
+
+```
+REPLACE_WITH_HEX_SEEDa4
+```
+
+The script mints via a FakeWallet invoice (auto-paid), then `send -d -l
+P2PK:<pubkey>` and writes the token. It prints `cashuB...` test ecash; treat it
+as a bearer instrument even though it is worthless.
+
+## Verify
+
+First run online to cache the keyset public keys:
+
+```sh
+docker run --rm -e PYTHONPATH=/app --network lt-mint-net \
+  -v /tmp/opencode:/data -v "$PWD/harness/mint:/mint:ro" \
+  cashubtc/nutshell:latest \
+  python3 /mint/verify_token.py /data/token.txt \
+    --keys-file /data/keys.json \
+    --seller-pubkey REPLACE_WITH_HEX_SEEDa4 \
+    --mint http://lt-mint:3338
+```
+
+Then with the mint stopped:
+
+```sh
+docker stop lt-mint
+harness/mint/verify-offline.sh /tmp/opencode/token.txt /tmp/opencode/keys.json \
+  REPLACE_WITH_HEX_SEEDa4
+docker start lt-mint
+```
+
+The verifier checks DLEQ against the cached keyset key, the P2PK lock, the
+locktime window and the amount sum. It does **not** check spentness; that is the
+journal's job. `final_expiry` for the default keyset is null; Exp G needs a
+rotated keyset with a short expiry (management RPC).
+
+## Stop / reset
+
+```sh
+docker stop lt-mint
+docker rm -f lt-mint
+docker volume rm lt-mint-data lt-wallet-data   # destroys test ecash
+```
+
+## Result
+
+`results/F-2026-11-03-offline-verify.md`
