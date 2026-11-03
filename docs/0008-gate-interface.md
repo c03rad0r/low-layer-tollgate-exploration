@@ -38,6 +38,11 @@ Notice:
 `cost_msat` uses `Decimal`, not float. A rate is **bytes per millisat**; a
 smaller rate means a higher price per byte. See P3.
 
+The frame that crosses the exhaustion boundary may push `used_msat` past
+`allotment_msat` by up to one frame. The seller absorbs that overshoot. It is
+the unavoidable cost of not being able to pause mid-frame, and it should be
+stated in the offer rather than discovered at settlement.
+
 ## Pause is not implemented by FIPS
 
 FIPS 0.5.x and 0.6.x offer only:

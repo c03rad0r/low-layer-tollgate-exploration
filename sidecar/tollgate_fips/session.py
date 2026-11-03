@@ -113,6 +113,10 @@ class Session:
 
         Only `paid` forwards, so only `paid` can be charged. Bytes offered in
         `unpaid` or `grace` are not forwarded and are not billed.
+
+        The frame that crosses the boundary may push `used_msat` past
+        `allotment_msat` by up to one frame. The seller absorbs that overshoot;
+        it is the cost of not being able to pause mid-frame.
         """
         if nbytes < 0:
             raise SessionError("nbytes must be non-negative")
@@ -171,7 +175,7 @@ class Session:
         if self.state is State.UNPAID:
             code, level = "payment-required", "info"
             retry_after = 10
-            top_up = max(1, math.ceil(self.rate_bytes_per_msat))
+            top_up = max(1, math.ceil(self.allotment_msat))
         elif self.state is State.GRACE:
             code, level = "session-exhausted", "error"
             if self.grace_deadline_mono is not None:
