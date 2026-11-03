@@ -107,7 +107,8 @@ They also include frames the forwarding policy drops: a paused peer's transit
 still reaches the link and increments the receiver's counter. A gate MUST freeze
 its meter when it pauses, or subtract a policy-drop counter, or it bills for
 bytes it refused to forward. Patch (b) exposes `drop_policy_blocked_{packets,bytes}`
-node-wide; per-peer attribution is still needed.
+node-wide plus per-peer `policy_blocked_by_peer`, and `meter.delta` accepts a
+before/after pair so a paused peer's refused transit is billed at zero.
 
 ## Failure policy
 

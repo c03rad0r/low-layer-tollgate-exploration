@@ -35,7 +35,9 @@ from tollgate_fips.meter import delta, snapshot  # noqa: E402
 from tollgate_fips.runner import DockerRunner  # noqa: E402
 from tollgate_fips.session import Session, State  # noqa: E402
 
-A, B, C = "lt-pause-a", "lt-pause-b", "lt-pause-c"
+A = os.environ.get("PAUSE_A", "lt-pause-a")
+B = os.environ.get("PAUSE_B", "lt-pause-b")
+C = os.environ.get("PAUSE_C", "lt-pause-c")
 SELLER_PUBKEY = "REPLACE_WITH_HEX_SEEDff"
 MINT_URL = "http://lt-mint:3338"
 WORK = Path(os.environ.get("PAUSE_WORK", "/tmp/opencode/pause-pay"))
@@ -120,14 +122,33 @@ def mint_start() -> None:
     raise RuntimeError("mint did not restart")
 
 
-def traffic(b: Fipsctl, a_npub: str, c_addr: str) -> tuple:
+def traffic(b: Fipsctl, a_npub: str, c_addr: str, count: int = 1) -> dict:
+    """Ping C and price the window, excluding policy-dropped transit.
+
+    The link counters include frames B refused to forward, so the policy
+    counters are snapshotted over the same window and subtracted. `wire` is
+    what the link saw; `billable` is what a gate may charge.
+    """
     before = snapshot(b.peers(), b.links())
-    result = exp_c.ping6(A, c_addr, count=1, size=1200)
+    policy_before = b.policy_blocked_for(a_npub)["bytes"]
+    result = exp_c.ping6(A, c_addr, count=count, size=1200)
     time.sleep(0.05)
     after = snapshot(b.peers(), b.links())
-    readings = delta(before, after, Decimal("1"), "both")
+    policy_after = b.policy_blocked_for(a_npub)["bytes"]
+    readings = delta(
+        before, after, Decimal("1"), "both",
+        policy_previous={a_npub: policy_before},
+        policy_current={a_npub: policy_after},
+    )
     reading = next((r for r in readings if r.npub == a_npub), None)
-    return (reading.billable_bytes if reading else 0), result["ok"]
+    return {
+        "wire": reading.wire_bytes if reading else 0,
+        "in": reading.bytes_in if reading else 0,
+        "out": reading.bytes_out if reading else 0,
+        "dropped": reading.policy_dropped_bytes if reading else 0,
+        "billable": reading.billable_bytes if reading else 0,
+        "ok": result["ok"],
+    }
 
 
 def ensure_transit(c_npub: str, c_addr: str) -> dict:
@@ -209,16 +230,16 @@ def main() -> int:
     total = 0
     pings = 0
     while session.state is State.PAID:
-        n, ok = traffic(b, a_npub, c_addr)
-        if not ok:
+        step = traffic(b, a_npub, c_addr)
+        if not step["ok"]:
             raise RuntimeError("transit failed during the paid session")
-        if n == 0:
+        if step["billable"] == 0:
             pings += 1
             if pings > 100:
                 raise RuntimeError("no metered transit bytes")
             continue
-        total += n
-        session.charge(n)
+        total += step["billable"]
+        session.charge(step["billable"])
         pings += 1
         if pings > 100:
             raise RuntimeError("session did not exhaust")
@@ -235,6 +256,12 @@ def main() -> int:
     link_id_paused = exp_c.peer_for(b, a_npub).get("link_id")
     print(f"pause: a->c={pause_ac['ok']} a->b={pause_ab['ok']} "
           f"link={link_id_paused} (pre={link_id_pre_pause}, {pause_ms:.0f} ms)")
+
+    # While paused, the link counter still sees the frames B refuses to
+    # forward. Attribute them to A and confirm none of them are billable.
+    blocked = traffic(b, a_npub, c_addr, count=5)
+    print(f"blocked burst: wire={blocked['wire']} dropped={blocked['dropped']} "
+          f"billable={blocked['billable']}")
 
     # 6. Second payment, allow again.
     token2 = mint_token(50, "token2.txt")
@@ -271,7 +298,8 @@ def main() -> int:
                   "pause_ms": round(pause_ms),
                   "link_id": link_id_paused,
                   "link_id_pre_pause": link_id_pre_pause,
-                  "link_preserved": link_id_paused == link_id_pre_pause},
+                  "link_preserved": link_id_paused == link_id_pre_pause,
+                  "blocked_burst": blocked},
         "payment_2": {k: gate2[k] for k in
                       ("offline", "accepted", "amount",
                        "replay_before_settle", "replay_after_settle")},
@@ -286,7 +314,10 @@ def main() -> int:
           and paid_ac["ok"]
           and not pause_ac["ok"] and pause_ab["ok"]
           and resume_ac["ok"]
-          and link_id_paused == link_id_pre_pause == link_id_after)
+          and link_id_paused == link_id_pre_pause == link_id_after
+          and blocked["dropped"] > 0
+          and blocked["billable"] == max(0, blocked["in"] - blocked["dropped"])
+          + blocked["out"])
     return 0 if ok else 1
 
 

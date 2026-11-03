@@ -29,6 +29,7 @@ harness/
 │   ├── exp_c.py
 │   ├── repeat.sh
 │   └── run-exp-c.sh
+├── pause-tcp/                 # same chain and capstone over TCP :443
 ├── pause/                    # patch (b) A-B-C transit-block test
 │   ├── configs/
 │   ├── control.py
@@ -153,7 +154,8 @@ not give an Ethernet pair, a captive portal or a mint. See
 via `set_forwarding`, while checking A→B and the A–B link survive. Result:
 `results/PB-2026-11-03-per-peer-forwarding.md`. `run-pay-demo.sh` adds real
 offline ecash and the full unpaid → paid → pause → renew loop
-(`results/PD-2026-11-03-pause-payment.md`).
+(`results/PD-2026-11-03-pause-payment.md`). `repeat-pay-demo.sh` runs it N
+times; `harness/pause-tcp/` repeats it over TCP.
 
 ## `demo/`
 

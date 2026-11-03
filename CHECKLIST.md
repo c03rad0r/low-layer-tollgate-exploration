@@ -23,7 +23,7 @@ to the bottom with a date.
 - [x] Gate interface spec: `admit / deny / meter / pause / evict`
       (`docs/0008-gate-interface.md`)
 - [x] `tollgate-fips` control-socket client (`fipsctl` plus raw `set_forwarding`)
-- [x] Metering arithmetic + unit tests (69 tests across meter/session/journal/exposure/payment, `sidecar/tests/`)
+- [x] Metering arithmetic + unit tests (74 tests across meter/session/journal/exposure/payment, `sidecar/tests/`)
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
@@ -75,6 +75,8 @@ to the bottom with a date.
 - [ ] **Exp D** — refused-initiator cost
 - [x] Re-run with (b): pause with real payment, no disconnect
       (`results/PD-2026-11-03-pause-payment.md`)
+- [x] Repeat capstone: 3/3 UDP and 3/3 TCP, link preserved every run
+      (`harness/pause/repeat-pay-demo.sh`, `harness/pause-tcp/`)
 - [x] `patches/README.md` marks every patch unmerged; patch (b) added
 - [ ] Prepare Signal write-up (do not send); PB is reproducible but one run
 

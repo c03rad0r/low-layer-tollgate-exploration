@@ -75,6 +75,9 @@ payment 2: offline=True accepted=3 amount=50 sat; a->c=True link=4
 
 ## Measurements
 
+Run 1 is the capture below; the repeat/TCP table later in this file is from the
+current code with per-peer metering subtraction.
+
 | Phase | Result |
 |---|---|
 | Unpaid, transit blocked | A→C **fail**, A→B **pass** |
@@ -86,7 +89,7 @@ payment 2: offline=True accepted=3 amount=50 sat; a->c=True link=4
 | Exhaustion | `paid → grace` |
 | Pause | A→C **fail**, A→B **pass** |
 | **A–B link during pause** | **preserved, id 4** |
-| Pause command + checks | 3,609 ms |
+| Pause command + checks | 3,609 ms (run 1) |
 | Payment 2 | 3 proofs accepted offline, 50 sat |
 | Resume | A→C **pass**, link id 4 preserved |
 | Disconnect at any point | **none** |
@@ -105,17 +108,48 @@ payment 2: offline=True accepted=3 amount=50 sat; a->c=True link=4
 4. **The link id changed during setup, not during the pause.** It went 2 → 4
    while the chain/path warmed; the pause compared 4 → 4. The result is about
    the pause, not startup churn.
-5. **Metering must freeze when forwarding is blocked.** B's per-link counter
-   still counts frames it refuses to forward. A real gate must not bill those:
-   snapshot at the policy change, or subtract a policy-drop counter. Patch (b)
-   now exposes node-wide `drop_policy_blocked_{packets,bytes}` (16 packets /
-   2,063 bytes in the PB check); per-peer attribution is still missing. The demo
-   avoids the issue by only metering while A→C works.
+5. **Metering subtracts the paused peer's drops.** B's per-link counter still
+   counts frames it refuses to forward. Patch (b) now attributes those drops
+   per peer (`forwarding.policy_blocked_by_peer`), and `meter.delta` takes the
+   before/after policy counters and subtracts the inbound delta. In the blocked
+   burst the drop is 7,690–7,761 B and `billable` excludes it; the residual
+   ~6.3–6.9 KB is outbound acks plus non-transit control frames, not the blocked
+   pings. Subtraction is inbound-only because the drop site only sees datagrams
+   the peer sent to a third party.
 6. **The overshoot is one measurement step.** 12.8 % for one ping step; the spec
    must state the step and keep it small.
 7. **This is the design's `grace` shape.** Forwarding blocked, link and payment
    lane open, renewal possible without a new handshake. The remaining work is
    productionising the hook, not proving the concept.
+
+## Repeatability and TCP (n=3 each)
+
+`harness/pause/repeat-pay-demo.sh 3` (UDP) and the same script with `--tcp`
+run the whole capstone from a clean compose project. Every run in both
+transports preserves the link and resumes on it.
+
+| Transport | Run | Pause+checks | Link kept | Resume link kept | Blocked wire | Blocked dropped | Billable |
+|---|---|---|---|---|---|---|---|
+| UDP | 1 | 3,560 | yes | yes | 14,335 | 7,761 | 6,574 |
+| UDP | 2 | 3,567 | yes | yes | 14,693 | 7,761 | 6,932 |
+| UDP | 3 | 3,550 | yes | yes | 14,053 | 7,761 | 6,292 |
+| TCP | 1 | 3,774 | yes | yes | 14,073 | 7,690 | 6,383 |
+| TCP | 2 | 3,639 | yes | yes | 14,397 | 7,690 | 6,707 |
+| TCP | 3 | 3,583 | yes | yes | 14,172 | 7,761 | 6,411 |
+
+| Metric | UDP (n=3) | TCP (n=3) |
+|---|---|---|
+| Pause command + checks | 3,550–3,567 ms | 3,583–3,774 ms |
+| Blocked transit excluded | 7,761 B every run | 7,690–7,761 B |
+| Link id preserved | 3/3 | 3/3 |
+| Resume on same link | 3/3 | 3/3 |
+| Flow `unpaid→paid→pause→resume` | 3/3 | 3/3 |
+
+The `blocked wire` is larger than `dropped` because the link still carries
+heartbeats, MMP and the peer's local-delivery frames. The blocked pings
+themselves are entirely in `dropped`; the residual `billable` is control
+traffic, and a paused session is not charged at all. The TCP chain uses `:443`
+instead of `:2121` with the same identities.
 
 ## Caveats
 

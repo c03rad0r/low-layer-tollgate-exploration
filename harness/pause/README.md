@@ -36,6 +36,27 @@ print(g.pause('<A npub>'))
 `pause()` returns `mode='transit-blocked'` without disconnecting; `resume()`
 clears it.
 
+## Repeat
+
+```sh
+harness/pause/repeat-pay-demo.sh 3          # UDP, 3 clean runs, ranges
+harness/pause/repeat-pay-demo.sh 3 /tmp/opencode/pd-tcp --tcp
+```
+
+The summary checks the flow (`unpaid a->c` false, `paid` true, `pause` false,
+`resume` true), that the link id is preserved, and that the blocked burst is
+`billable = 0` with a positive `dropped`.
+
+## TCP
+
+`harness/pause-tcp/` is the same chain over TCP (`:443` instead of UDP `:2121`)
+with the same identities. It reuses `pay_demo.py` via `PAUSE_A/B/C` and mounts
+`../pause` for the control client.
+
+```sh
+harness/pause-tcp/run-pay-demo.sh
+```
+
 ## Capstone: pause with payment
 
 ```sh

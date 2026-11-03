@@ -18,7 +18,7 @@ This experiment implements and tests that hook.
 
 ## Patch
 
-`patches/0001-per-peer-forwarding.patch` (146 added lines, 13 files):
+`patches/0001-per-peer-forwarding.patch` (244 added lines, 13 files):
 
 - `Node.forwarding_blocked: HashSet<NodeAddr>`;
 - control command `set_forwarding {"npub": ..., "allow": bool}` and CLI
@@ -29,7 +29,9 @@ This experiment implements and tests that hook.
   keeps its link, Noise session and a path to the seller;
 - the set is independent of the peer table, so the block survives a
   disconnect/reconnect until an explicit allow;
-- `drop_policy_blocked_{packets,bytes}` counters, shown in `show routing`.
+- `drop_policy_blocked_{packets,bytes}` counters, shown in `show routing`;
+- `policy_blocked_by_peer` attribution, so the drop is filed against the peer
+  that sent the transit.
 
 The patch is local and unmerged. It is not submitted to `jmcorgan/fips`; any
 upstream conversation goes out of band via Signal after reproducible results.
@@ -84,6 +86,27 @@ allowed: a->c=True a->b=True
 }
 ```
 
+### Per-peer attribution
+
+The node-wide counters answer "did the policy drop anything"; the gate needs
+"whose bytes". `forwarding.policy_blocked_by_peer` carries that:
+
+```
+$ docker exec lt-pause-b fipsctl show routing | jq .forwarding.policy_blocked_by_peer
+[
+  {
+    "peer": "edc60ce11628233dce5a346e174da5e3",
+    "packets": 15,
+    "bytes": 2068
+  }
+]
+```
+
+One row, A only, for five blocked pings. The NodeAddr is the key because the
+metrics registry does not hold npubs; the sidecar resolves npub → NodeAddr from
+`show peers` (`Fipsctl.policy_blocked_for`). A Rust unit test asserts that the
+per-peer rows sum to the node-wide totals.
+
 ### CLI and policy counter
 
 ```
@@ -133,7 +156,8 @@ The sidecar path is covered by 5 unit tests with a fake control client.
 | A→B after allow | pass |
 | Sidecar `FipsGate.pause()` | `transit-blocked`, no disconnect |
 | Sidecar `FipsGate.resume()` | `forwarding: allowed` |
-| Policy-blocked counter after 5 blocked pings | **14 packets / 2,063 bytes** |
+| Policy-blocked counter after 5 blocked pings | **14 packets / 2,063 bytes** (node-wide) |
+| Per-peer attribution | **15 packets / 2,068 bytes, one row (A)** |
 | Patch size | 146 lines, 13 files |
 
 ## Interpretation
@@ -177,7 +201,7 @@ The sidecar path is covered by 5 unit tests with a fake control client.
 - [x] Patch (b): per-peer transit forwarding policy.
 - [x] Add `drop_policy_blocked_{packets,bytes}` metrics.
 - [x] Add `fipsctl set-forwarding` so the sidecar does not need a raw socket.
-- [ ] Per-peer policy-drop attribution.
+- [x] Per-peer policy-drop attribution.
 - [x] Wire `FipsGate.pause`/`resume` to `set_forwarding` via `UnixControl`
       (5 tests); validated against the patched seller container.
 - [x] Re-run the payment demo on a chain with a service behind the seller;

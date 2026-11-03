@@ -81,11 +81,12 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-69 tests: counter merge/delta/reset/direction, the four-state machine,
+74 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
-verifier, and pause/resume through a fake forwarding control.
+verifier, pause/resume through a fake forwarding control, and per-peer
+policy-drop attribution in the meter.
 
 ## Not implemented
 

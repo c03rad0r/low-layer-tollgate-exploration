@@ -1,0 +1,27 @@
+# Exp PAUSE-over-TCP node A — tests whether B blocks A's transit while keeping A's link.
+# TEST IDENTITY ONLY. Derived from "low-layer-tollgate-exp-pause".
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  tcp:
+    bind_addr: "0.0.0.0:443"
+    mtu: 1400
+
+peers:
+  - npub: "npub1thgwcxk5x45r9vusqzksmxnewfkgzhrdf4dlnc75ky96g6swnhlszjzgrw"
+    alias: "b"
+    addresses:
+      - transport: tcp
+        addr: "b:443"
+    connect_policy: auto_connect

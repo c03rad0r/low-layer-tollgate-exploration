@@ -43,6 +43,12 @@ class MeterReading:
     direction: str
     rate_bytes_per_msat: Optional[Decimal]
     cost_msat: Optional[Decimal]
+    # Raw FMP bytes the link counters saw, before policy subtraction.
+    wire_bytes: int = 0
+    # Bytes the seller refused to forward for this peer in the same window.
+    # They increment the link counters (the drop is after the counter) but are
+    # not transit, so they are never revenue.
+    policy_dropped_bytes: int = 0
     label: str = LABEL_ALL_FRAMES
 
 
@@ -110,7 +116,17 @@ def delta(
     current: Dict[Tuple[str, int], LinkCounters],
     rate_bytes_per_msat: Optional[Decimal] = None,
     direction: str = "both",
+    policy_previous: Optional[Dict[str, int]] = None,
+    policy_current: Optional[Dict[str, int]] = None,
 ) -> List[MeterReading]:
+    """Price the link-counter delta, subtracting policy-dropped bytes.
+
+    `policy_previous` / `policy_current` map npub to the cumulative
+    `drop_policy_blocked_bytes` for that peer. Supplying them makes a paused
+    peer's refused transit free: the wire bytes are still reported in
+    `wire_bytes`, but `billable_bytes` never includes them. Omit both for the
+    old all-frames behaviour.
+    """
     if direction not in ("both", "in", "out"):
         raise MeterError(f"direction must be both|in|out, got {direction!r}")
     rate = _rate(rate_bytes_per_msat) if rate_bytes_per_msat is not None else None
@@ -140,12 +156,26 @@ def delta(
 
     readings: List[MeterReading] = []
     for npub, agg in sorted(per_npub.items()):
+        dropped = 0
+        if policy_previous is not None or policy_current is not None:
+            dropped = counter_delta(
+                _int((policy_previous or {}).get(npub)),
+                _int((policy_current or {}).get(npub)),
+            )
+
+        # Policy drops are inbound transit only (datagrams this peer sent to a
+        # third party). Subtract them from the inbound component, never from
+        # the outbound side, which carries heartbeats and acks for the peer's
+        # own link and is not transit.
         if direction == "in":
-            billable = agg["bytes_in"]
+            wire = agg["bytes_in"]
+            billable = max(0, agg["bytes_in"] - dropped)
         elif direction == "out":
+            wire = agg["bytes_out"]
             billable = agg["bytes_out"]
         else:
-            billable = agg["bytes_in"] + agg["bytes_out"]
+            wire = agg["bytes_in"] + agg["bytes_out"]
+            billable = max(0, agg["bytes_in"] - dropped) + agg["bytes_out"]
         cost = (Decimal(billable) / rate) if rate else None
         readings.append(MeterReading(
             npub=npub,
@@ -158,6 +188,8 @@ def delta(
             direction=direction,
             rate_bytes_per_msat=rate,
             cost_msat=cost,
+            wire_bytes=wire,
+            policy_dropped_bytes=dropped,
         ))
     return readings
 

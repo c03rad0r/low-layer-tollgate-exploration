@@ -84,9 +84,9 @@ explicitly, e.g. `["overhead","udp",48]`. Default: not charged.
 - rekey frames
 - frames dropped by the seller's own forwarding policy (a paused peer). They
   consume link bytes but deliver no transit; the gate MUST freeze/subtract them
-  and never bill them as revenue. Patch (b) exposes a node-wide
-  `drop_policy_blocked_{packets,bytes}` counter; per-peer attribution is required
-  before a multi-peer seller can subtract each peer's blocked bytes.
+  and never bill them as revenue. Patch (b) exposes a node-wide `drop_policy_blocked_{packets,bytes}` counter
+  with per-peer `policy_blocked_by_peer` attribution, and the reference meter
+  subtracts the window delta so paused frames are billed at zero.
 
 Rationale: a customer does not pay for the seller's routing chatter, and does
 not pay for the control traffic that keeps the seller's own mesh alive.

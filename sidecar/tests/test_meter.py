@@ -93,6 +93,63 @@ class MeterTest(unittest.TestCase):
         reading = delta(prev, cur, Decimal("1"), "both")[0]
         self.assertEqual(reading.billable_bytes, 100)
 
+    def test_policy_dropped_bytes_are_not_billable(self):
+        previous = snapshot(PEERS)
+        current = snapshot([dict(peer, stats=dict(peer["stats"]))
+                            for peer in PEERS])
+        for peer in current.values():
+            if peer.npub == "npub1aaa":
+                object.__setattr__(peer, "bytes_recv", peer.bytes_recv + 200)
+                object.__setattr__(peer, "bytes_sent", peer.bytes_sent + 100)
+        reading = next(r for r in delta(
+            previous, current, policy_previous={"npub1aaa": 10},
+            policy_current={"npub1aaa": 250},
+        ) if r.npub == "npub1aaa")
+        # npub1aaa has two links; both moved by +200 recv / +100 sent.
+        self.assertEqual(reading.wire_bytes, 600)
+        self.assertEqual(reading.policy_dropped_bytes, 240)
+        self.assertEqual(reading.billable_bytes, 360)
+
+    def test_policy_subtraction_is_inbound_only(self):
+        previous = snapshot(PEERS)
+        current = snapshot(PEERS)
+        out = next(r for r in delta(
+            previous, current, direction="out",
+            policy_previous={"npub1aaa": 0}, policy_current={"npub1aaa": 999},
+        ) if r.npub == "npub1aaa")
+        # Identical snapshots, so the window delta is zero on both sides;
+        # the point is that an outbound reading never subtracts a policy drop.
+        self.assertEqual(out.wire_bytes, 0)
+        self.assertEqual(out.billable_bytes, 0)
+        self.assertEqual(out.policy_dropped_bytes, 999)
+
+    def test_policy_subtraction_clamps_at_zero(self):
+        previous = snapshot(PEERS)
+        current = snapshot(PEERS)
+        reading = next(r for r in delta(
+            previous, current, policy_previous={"npub1aaa": 0},
+            policy_current={"npub1aaa": 999},
+        ) if r.npub == "npub1aaa")
+        self.assertEqual(reading.wire_bytes, 0)
+        self.assertEqual(reading.billable_bytes, 0)
+
+    def test_policy_counter_reset_uses_current_value(self):
+        previous = snapshot(PEERS)
+        current = snapshot(PEERS)
+        reading = next(r for r in delta(
+            previous, current, policy_previous={"npub1aaa": 500},
+            policy_current={"npub1aaa": 40},
+        ) if r.npub == "npub1aaa")
+        self.assertEqual(reading.policy_dropped_bytes, 40)
+
+    def test_policy_omitted_keeps_all_frames(self):
+        previous = snapshot(PEERS)
+        current = snapshot(PEERS)
+        reading = next(r for r in delta(previous, current)
+                       if r.npub == "npub1aaa")
+        self.assertEqual(reading.policy_dropped_bytes, 0)
+        self.assertEqual(reading.billable_bytes, reading.wire_bytes)
+
     def test_invalid_direction_and_rate(self):
         with self.assertRaises(MeterError):
             delta({}, {}, Decimal("1"), "sideways")

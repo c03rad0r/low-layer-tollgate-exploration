@@ -158,8 +158,16 @@ class FipsGate:
         return snapshot(self.fipsctl.peers(), self.fipsctl.links())
 
     def policy_blocked(self) -> dict:
-        """Node-wide policy-dropped counters (per-peer attribution is future)."""
+        """Node-wide policy-dropped counters."""
         return self.fipsctl.policy_blocked()
+
+    def policy_blocked_for(self, npub: str) -> dict:
+        """Cumulative policy-dropped bytes attributed to one peer.
+
+        Pass this (as a before/after pair) to `meter.delta` so a paused peer's
+        refused transit is never billed.
+        """
+        return self.fipsctl.policy_blocked_for(npub)
 
     def meter(
         self,

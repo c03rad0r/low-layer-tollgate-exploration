@@ -91,6 +91,25 @@ def main() -> int:
     print(f"blocked: a->c={ac_blocked['ok']} a->b={ab_still['ok']} "
           f"link_a_b={link_ab_after}")
 
+    # Per-peer attribution: the drop must be filed under A, not node-wide only.
+    routing = b.routing()
+    by_peer = (routing.get("forwarding", {}) or {}).get(
+        "policy_blocked_by_peer", []) or []
+    name_of_addr = {}
+    for peer in b.peers():
+        name_of_addr[peer.get("node_addr")] = peer.get("npub")
+    attributed = [
+        {
+            "npub": name_of_addr.get(row.get("peer"), row.get("peer")),
+            "peer": row.get("peer"),
+            "packets": row.get("packets"),
+            "bytes": row.get("bytes"),
+        }
+        for row in by_peer
+    ]
+    a_row = next((row for row in attributed if row["npub"] == a_npub), None)
+    print(f"policy_blocked_by_peer: {json.dumps(attributed)}")
+
     allow = control(a_npub, allow=True)
     time.sleep(0.5)
     ac_after = exp_c.ping6(A, c_addr, count=3)
@@ -111,6 +130,9 @@ def main() -> int:
             "a_to_c": ac_blocked["ok"],
             "a_to_b": ab_still["ok"],
             "link_a_b_preserved": link_ab_after,
+            "policy_blocked_by_peer": attributed,
+            "a_attributed_packets": a_row["packets"] if a_row else 0,
+            "a_attributed_bytes": a_row["bytes"] if a_row else 0,
         },
         "allow": {
             "response": allow,
@@ -121,7 +143,9 @@ def main() -> int:
     print()
     print(json.dumps(summary, indent=2))
     ok = (not ac_blocked["ok"] and ab_still["ok"] and link_ab_after
-          and ac_after["ok"] and ab_after["ok"])
+          and ac_after["ok"] and ab_after["ok"]
+          and a_row is not None and a_row["packets"] > 0 and a_row["bytes"] > 0
+          and len(attributed) == 1)
     return 0 if ok else 1
 
 

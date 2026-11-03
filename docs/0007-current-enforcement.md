@@ -15,7 +15,7 @@ phase that relies on it is wrong.
 | Per-npub metering | **yes, aggregate** | `fipsctl show links` / `show peers` | per-frame-class split missing |
 | Per-transport metering | **yes, aggregate** | `show transports`, `transport_type` | chargeable/non-chargeable split missing |
 | Cut an established peer | **yes, but only durably with ACL deny** | `peers.deny` then `fipsctl disconnect` | a bare `disconnect` is undone by `auto_connect` in ~6.6 s |
-| Pause one peer's forwarding, keep the link | **no upstream; yes with local patch (b)** | `set_forwarding` drop | patch is unmerged; sidecar integration pending |
+| Pause one peer's forwarding, keep the link | **no upstream; yes with local patch (b)** | `set_forwarding` drop | patch unmerged; per-peer drop counters + sidecar pause done |
 | Price-aware parent selection | **no policy, but ACL-deny re-parents** | deny parent, disconnect | 109 ms re-parent, 1.6 s re-admit; no price signal (Exp H) |
 | Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
 | Runtime admission without touching a file | **no** | ACL is file-based | patch (a) |
@@ -136,6 +136,11 @@ A local patch adds `Node.forwarding_blocked` and the control command
 fail while A→B and the A–B link stayed; allow restored A→C. That is the pause
 shape: transit blocked, link and local path kept. The patch is unmerged and not
 submitted; result `PB-2026-11-03-per-peer-forwarding.md`.
+
+It also exposes `drop_policy_blocked_{packets,bytes}` node-wide plus
+`policy_blocked_by_peer` attribution (15 packets / 2,068 bytes on A after five
+blocked pings). The reference meter subtracts the inbound delta, so a paused
+peer's refused transit is billed at zero while its link and local path stay.
 
 ## Phase 1 demo — unpaid, pay, cut, re-admit
 

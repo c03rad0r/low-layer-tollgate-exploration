@@ -29,7 +29,10 @@ forward because the peer is paused consumed link bytes but delivered no
 transit. The link counter still includes it (the drop is after the counter), so
 a gate MUST freeze its meter at the policy change or subtract a
 `drop_policy_blocked_*` counter. Those bytes are rate/abuse control, never
-revenue. Patch (b) exposes `drop_policy_blocked_{packets,bytes}` node-wide; per-peer attribution is still needed.
+revenue. Patch (b) exposes `drop_policy_blocked_{packets,bytes}` node-wide plus
+`policy_blocked_by_peer` attribution, so a gate can subtract exactly the paused
+peer's bytes. Subtract the window delta (`meter.delta(policy_previous=...,
+policy_current=...)`), never the cumulative total.
 
 ## Why wire bytes and not payload bytes
 
