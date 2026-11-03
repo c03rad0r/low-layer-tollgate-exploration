@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Any, Dict, Iterable, Optional, Tuple
 
+from .control import ControlError
 from .fipsctl import Fipsctl
 from .meter import LinkCounters, MeterReading, delta, snapshot
 from .runner import RunnerError
@@ -132,10 +133,12 @@ class FipsGate:
         fipsctl: Optional[Fipsctl] = None,
         acl: Optional[FileAclStore] = None,
         allow_disconnect: bool = False,
+        control=None,
     ):
         self.fipsctl = fipsctl or Fipsctl()
         self.acl = acl
         self.allow_disconnect = allow_disconnect
+        self.control = control
 
     # -- admission -------------------------------------------------------
 
@@ -173,6 +176,25 @@ class FipsGate:
     # -- pause / evict ---------------------------------------------------
 
     def pause(self, npub: str) -> PauseResult:
+        # Patched FIPS: block transit, keep the link and local delivery.
+        if self.control is not None:
+            try:
+                self.control.set_forwarding(npub, allow=False)
+                return PauseResult(
+                    paused=True,
+                    mode="transit-blocked",
+                    warning=(
+                        "transit blocked; the link, Noise session and local "
+                        "delivery are preserved"
+                    ),
+                )
+            except (ControlError, OSError) as exc:
+                if not self.allow_disconnect:
+                    raise PauseUnsupported(
+                        "set_forwarding failed and allow_disconnect is off: "
+                        f"{exc}"
+                    ) from exc
+
         if not self.allow_disconnect:
             raise PauseUnsupported(
                 "FIPS has no per-peer forwarding role. The link can only be "
@@ -191,6 +213,15 @@ class FipsGate:
             ),
             acl_wait_ms=result.acl_wait_ms,
         )
+
+    def resume(self, npub: str) -> Any:
+        """Clear a transit block. Requires the patched control command."""
+        if self.control is None:
+            raise GateError("no control client; cannot resume forwarding")
+        try:
+            return self.control.set_forwarding(npub, allow=True)
+        except (ControlError, OSError) as exc:
+            raise GateError(f"resume failed: {exc}") from exc
 
     def evict(self, npub: str, durable: bool = True) -> EvictResult:
         """Close the link, durably by default.

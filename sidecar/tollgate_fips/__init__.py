@@ -1,5 +1,6 @@
 """Phase 1 sidecar: a link gate over the FIPS control socket."""
 
+from .control import ControlError, UnixControl
 from .exposure import (
     ExposureExceeded,
     ExposureKey,
@@ -52,6 +53,8 @@ __all__ = [
     "Fipsctl",
     "FipsctlError",
     "ExposureLedger",
+    "ControlError",
+    "UnixControl",
     "ExposureKey",
     "ExposureExceeded",
     "UnknownExposure",

@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from decimal import Decimal
 
+from tollgate_fips.control import ControlError
 from tollgate_fips.gate import (
     AclError,
     FipsGate,
@@ -12,6 +13,18 @@ from tollgate_fips.gate import (
     PeerNotFound,
 )
 from tollgate_fips.meter import snapshot
+
+
+class FakeControl:
+    def __init__(self, fail=False):
+        self.fail = fail
+        self.calls = []
+
+    def set_forwarding(self, npub, allow):
+        self.calls.append((npub, allow))
+        if self.fail:
+            raise ControlError("unknown command: set_forwarding")
+        return {"npub": npub, "forwarding": "allowed" if allow else "blocked"}
 
 
 class FakeFipsctl:
@@ -136,6 +149,40 @@ class GateTest(unittest.TestCase):
         self.assertFalse(self.store.allowed("npub1aaa"))
         self.assertTrue(self.store.denied("npub1aaa"))
         self.assertEqual(self.fips.disconnected, ["npub1aaa"])
+
+    def test_pause_uses_patched_control_without_disconnect(self):
+        control = FakeControl()
+        gate = FipsGate(self.fips, self.store, control=control)
+        result = gate.pause("npub1aaa")
+        self.assertTrue(result.paused)
+        self.assertEqual(result.mode, "transit-blocked")
+        self.assertEqual(control.calls, [("npub1aaa", False)])
+        self.assertEqual(self.fips.disconnected, [])
+
+    def test_resume_uses_patched_control(self):
+        control = FakeControl()
+        gate = FipsGate(self.fips, self.store, control=control)
+        gate.resume("npub1aaa")
+        self.assertEqual(control.calls, [("npub1aaa", True)])
+
+    def test_control_failure_strict_mode_raises(self):
+        gate = FipsGate(self.fips, self.store, control=FakeControl(fail=True))
+        with self.assertRaises(PauseUnsupported):
+            gate.pause("npub1aaa")
+        self.assertEqual(self.fips.disconnected, [])
+
+    def test_control_failure_crude_mode_evicts(self):
+        gate = FipsGate(self.fips, self.store, allow_disconnect=True,
+                        control=FakeControl(fail=True))
+        result = gate.pause("npub1aaa")
+        self.assertEqual(result.mode, "deny+disconnect")
+        self.assertTrue(self.store.denied("npub1aaa"))
+        self.assertEqual(self.fips.disconnected, ["npub1aaa"])
+
+    def test_resume_without_control_raises(self):
+        gate = FipsGate(self.fips, self.store)
+        with self.assertRaises(GateError):
+            gate.resume("npub1aaa")
 
     def test_meter_uses_previous_snapshot(self):
         gate = FipsGate(self.fips, self.store)

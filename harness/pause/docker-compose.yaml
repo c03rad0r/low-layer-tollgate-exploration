@@ -25,6 +25,7 @@ services:
     volumes:
       - ./configs/b.yaml:/etc/fips/fips.yaml:ro
       - .:/pause:ro
+      - ../../sidecar:/sidecar:ro
     networks: [fips-net]
     restart: "no"
 

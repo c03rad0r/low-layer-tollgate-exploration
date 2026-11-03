@@ -1,4 +1,4 @@
-# 0008 — The gate interface: `admit / deny / meter / pause / evict`
+# 0008 — The gate interface: `admit / deny / meter / pause / resume / evict`
 
 Status: Phase 1 interface. Implemented in `sidecar/tollgate_fips/`.
 
@@ -12,7 +12,8 @@ small, and it is written so that the one missing FIPS hook cannot be hidden.
 | `admit(npub)` | allow this peer to join the link | session is `unpaid` or `evicted` | peer is in the ACL; session `unpaid`; payment lane open |
 | `deny(npub)` | refuse this peer at admission | — | peer is denied; no link is registered |
 | `meter(npub)` | read the seller's counters for this peer | link exists | `MeterReading` with in/out/total FMP frame bytes |
-| `pause(npub)` | stop chargeable forwarding, keep link and Noise session | session is `paid` or `grace` | forwarding blocked; payment lane open |
+| `pause(npub)` | stop chargeable forwarding, keep link and Noise session | session is `paid` or `grace` | transit blocked; link, local delivery and payment lane open |
+| `resume(npub)` | clear a transit block | session is `paid` | transit restored |
 | `evict(npub)` | deny the npub, wait for the ACL, close the link | session is `grace` and its deadline passed | npub denied; link closed; session `evicted` |
 
 `admit` and `deny` are idempotent. `meter` is read-only and monotonic per link.
@@ -55,14 +56,15 @@ Upstream FIPS 0.5.x and 0.6.x offer only:
 There is no per-peer forwarding role upstream, so `pause` cannot be honoured
 there. A local patch (b) adds one (`patches/0001-per-peer-forwarding.patch`):
 transit from a blocked peer is dropped, local delivery and the link stay. The
-lab result is `PB-2026-11-03`; the sidecar still needs a control client for the
-new command. The interface therefore has three paths:
+lab result is `PB-2026-11-03`. `UnixControl` implements the client;
+`FipsGate(control=...)` uses it for `pause()`/`resume()`. The interface therefore
+has three paths:
 
 - **strict (default):** `pause()` raises `PauseUnsupported`. The caller must
   decide whether to `evict` or to keep serving unpaid.
 - **patched (b):** `pause()` sets the peer's transit policy to blocked. The
   link, Noise session and local delivery stay; only transit stops. This is the
-  intended `grace` shape; the sidecar integration is the next step.
+  intended `grace` shape. `resume()` clears it.
 - **crude (`--allow-disconnect`):** `pause()` is implemented as a **durable**
   `evict()` (deny, wait, disconnect), and the caller is told that the payment
   lane died. This is the Phase 1 fallback on unpatched FIPS, and its failure is

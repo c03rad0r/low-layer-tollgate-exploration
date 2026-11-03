@@ -82,6 +82,23 @@ allowed: a->c=True a->b=True
 }
 ```
 
+### Sidecar validation (patched seller)
+
+The sidecar's own `FipsGate.pause()`/`resume()` were run inside the patched
+seller container, not just the lab's raw control client:
+
+```
+PauseResult(paused=True, mode='transit-blocked',
+            warning='transit blocked; the link, Noise session and local delivery are preserved',
+            acl_wait_ms=None)
+a->c: 2 transmitted, 0 received, 100% packet loss
+a->b: 1 transmitted, 1 received, 0% packet loss
+resume: {'forwarding': 'allowed', ...}
+a->c: 2 transmitted, 2 received, 0% packet loss
+```
+
+The sidecar path is covered by 5 unit tests with a fake control client.
+
 ## Measurements
 
 | Metric | Value |
@@ -96,13 +113,17 @@ allowed: a->c=True a->b=True
 | Allow command | `status: ok`, `forwarding: allowed` |
 | A→C after allow | pass |
 | A→B after allow | pass |
+| Sidecar `FipsGate.pause()` | `transit-blocked`, no disconnect |
+| Sidecar `FipsGate.resume()` | `forwarding: allowed` |
 | Patch size | 90 lines, 4 files |
 
 ## Interpretation
 
-1. **Patch (b) makes pause implementable.** A peer can be stopped from using
-   this node as transit while its link, Noise session and local path remain.
-   That is the shape `grace` needs: forwarding blocked, payment lane open.
+1. **Patch (b) makes pause implementable, and the sidecar uses it.** A peer can
+   be stopped from using this node as transit while its link, Noise session and
+   local path remain. `FipsGate.pause()` returns `transit-blocked` and does not
+   disconnect; `resume()` restores transit. That is the shape `grace` needs:
+   forwarding blocked, payment lane open.
 2. **Local delivery is the payment lane.** A→B still works while A→C is
    blocked. The seller can keep serving the buyer, and the buyer can keep paying
    over a path that terminates at the seller, without being able to use the
@@ -135,8 +156,10 @@ allowed: a->c=True a->b=True
 - [x] Patch (b): per-peer transit forwarding policy.
 - [ ] Add `drop_policy_blocked_{packets,bytes}` metrics.
 - [ ] Add `fipsctl set-forwarding` so the sidecar does not need a raw socket.
-- [ ] Wire `FipsGate.pause` to `set_forwarding`; re-run the Phase 1 demo as
-      `unpaid → paid` **without** a cut.
+- [x] Wire `FipsGate.pause`/`resume` to `set_forwarding` via `UnixControl`
+      (5 tests); validated against the patched seller container.
+- [ ] Re-run the Phase 1 payment demo on a chain with a service behind the
+      seller, so pause replaces the cut end-to-end.
 - [ ] Repeat the pause test with payment traffic and over TCP/Ethernet.
 - [ ] Prepare the out-of-band Signal write-up (do not send until the result is
       reproducible).

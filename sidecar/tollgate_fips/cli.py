@@ -12,6 +12,7 @@ import sys
 import time
 from decimal import Decimal
 
+from .control import UnixControl
 from .fipsctl import Fipsctl
 from .gate import AclError, FipsGate, FileAclStore, PauseUnsupported
 from .meter import delta, format_msat
@@ -111,9 +112,12 @@ def _cmd_simulate(args) -> int:
 
 
 def _cmd_pause_check(args) -> int:
+    control = (UnixControl(args.control_socket)
+               if args.control_socket else None)
     gate = FipsGate(
         fipsctl=_fipsctl(args),
         allow_disconnect=args.allow_disconnect,
+        control=control,
     )
     try:
         result = gate.pause(args.peer)
@@ -169,6 +173,8 @@ def build_parser() -> argparse.ArgumentParser:
     pause.add_argument("--peer", required=True)
     pause.add_argument("--allow-disconnect", action="store_true",
                        help="degrade pause to disconnect (destructive)")
+    pause.add_argument("--control-socket", default=None,
+                       help="send set_forwarding to this FIPS control socket")
     pause.set_defaults(func=_cmd_pause_check)
 
     adm = sub.add_parser("admit", help="append an npub to peers.allow")

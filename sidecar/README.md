@@ -44,10 +44,11 @@ entry, so the two files cannot contradict each other for the same npub.
 | `fipsctl.py` | typed `show status/links/peers/transports`, `disconnect` |
 | `meter.py` | merge peers+links on `link_id`, per-link delta, reset rule, bytes/msat |
 | `session.py` | `unpaid → paid → grace → evicted`, deadlines, notices |
-| `gate.py` | `admit / deny / meter / pause / evict`, `FileAclStore` |
+| `gate.py` | `admit / deny / meter / pause / resume / evict`, `FileAclStore` |
 | `journal.py` | durable nullifier journal (`RESERVED → SETTLED | SPENT`), keyset admission predicate |
 | `exposure.py` | per-payer/mint/unit exposure cap, reserved before the journal row |
 | `payment.py` | `PaymentGate`: verifier → exposure → journal, receipt/settle/reject |
+| `control.py` | Unix control-socket client for the patched `set_forwarding` command |
 | `cli.py` | `status`, `meter`, `simulate`, `pause-check`, `admit`, `deny` |
 
 The gate contract is in `docs/0008-gate-interface.md`.
@@ -67,10 +68,12 @@ The gate contract is in `docs/0008-gate-interface.md`.
 
 ## Pause
 
-FIPS 0.5.x and 0.6.x have no per-peer forwarding role. `pause-check` therefore
-exits 1 with `PAUSE UNSUPPORTED`. `--allow-disconnect` degrades pause to
-`disconnect` and says that the payment lane died; that is the Phase 1 demo, and
-its failure is the evidence for FIPS patch (b) and spec PR P4.
+Upstream FIPS 0.5.x and 0.6.x have no per-peer forwarding role. If a
+`UnixControl` is supplied, `pause()` sends the local patch's `set_forwarding`
+command and returns `mode="transit-blocked"`: the link, Noise session and local
+delivery stay. `resume()` clears it. On unpatched FIPS the command is unknown,
+so strict mode raises `PAUSE UNSUPPORTED`; `--allow-disconnect` degrades to a
+durable eviction and says the payment lane died.
 
 ## Tests
 
@@ -78,18 +81,18 @@ its failure is the evidence for FIPS patch (b) and spec PR P4.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-63 tests: counter merge/delta/reset/direction, the four-state machine,
+68 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
-admission), exposure cap enforcement, and the payment-gate ordering with a
-stub verifier.
+admission), exposure cap enforcement, the payment-gate ordering with a stub
+verifier, and pause/resume through a fake forwarding control.
 
 ## Not implemented
 
 - Payment verification and mint interaction (Phase 3). The spent journal core
   is implemented; it is not yet fed by a verifier.
-- A raw control-socket client. The sidecar shells out to `fipsctl`, which is the
-  supported interface in 0.5.x. A raw socket client is a possible later change.
+- A raw control-socket client covers only `set_forwarding` (the local patch).
+  Read queries and connect/disconnect still go through `fipsctl`.
 - Per-frame-class counters.
 - The buyer-exhausts demo and Exp C. Those need a lab pair and a test mint.
 - Resale (two instances, one paying and one selling; `docs/0005`).

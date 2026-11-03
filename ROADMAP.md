@@ -90,7 +90,9 @@ accepted after a receiver restart; exposure never exceeds the cap.
 Status: (b) is implemented locally and passes an A–B–C chain test
 (`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`): transit from
 a blocked peer is dropped while its link, Noise session and local path stay.
-(a) and (c) are not started. The patch is unmerged; no public FIPS interaction.
+(a) and (c) are not started. The sidecar's `FipsGate.pause()`/`resume()` use
+`set_forwarding` via `UnixControl` and were validated against the patched
+seller. The patch is unmerged; no public FIPS interaction.
 
 **Exit:** patches that make `grace` implementable; Exp C and H evidence
 attached; a Signal write-up prepared, not sent.
