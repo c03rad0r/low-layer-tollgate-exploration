@@ -23,7 +23,7 @@ to the bottom with a date.
 - [x] Gate interface spec: `admit / deny / meter / pause / evict`
       (`docs/0008-gate-interface.md`)
 - [x] `tollgate-fips` control-socket client (`fipsctl` plus raw `set_forwarding`)
-- [x] Metering arithmetic + unit tests (79 tests across meter/session/journal/exposure/payment, `sidecar/tests/`)
+- [x] Metering arithmetic + unit tests (87 tests across meter/session/journal/exposure/payment, `sidecar/tests/`)
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
@@ -33,6 +33,8 @@ to the bottom with a date.
 - [x] Durable eviction: deny → wait for ACL → disconnect (Exp C)
 - [x] Pause via patched `set_forwarding` (`control.py`, 5 tests; validated
       against the PB seller container)
+- [x] Seller controller: session state → pause/resume/evict + meter
+      (`controller.py`, 8 tests; `results/CTRL-2026-11-03-seller-controller.md`)
 - [x] Two-node Exp C lab and three-node Exp H triangle (`harness/exp-c`, `harness/exp-h`)
 - [x] Buyer-exhausts demo with real offline ecash
       (`results/DEMO-2026-11-03-buyer-exhausts.md`): unpaid 14,274 B for 0 msat,

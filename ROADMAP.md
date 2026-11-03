@@ -99,7 +99,9 @@ a blocked peer is dropped while its link, Noise session and local path stay.
 351–513 ms with routing intact, while 0.05 stayed inside hysteresis
 (`results/PRICE-2026-11-03-local-cost.md`). The sidecar's
 `FipsGate.pause()`/`resume()` use `set_forwarding` via `UnixControl` and were
-validated against the patched seller. The capstone (`results/PD-2026-11-03-pause-payment.md`) runs unpaid → paid →
+validated against the patched seller. A seller controller now drives the loop from session state
+(`sidecar/tollgate_fips/controller.py`, `results/CTRL-2026-11-03-seller-controller.md`).
+The capstone (`results/PD-2026-11-03-pause-payment.md`) runs unpaid → paid →
 exhaust → pause → renew on the patched chain with real ecash and no disconnect:
 A→C is blocked while A→B and the link survive; the link id is preserved. Six
 runs (3 UDP, 3 TCP) all preserve the link and resume on it, and policy-dropped

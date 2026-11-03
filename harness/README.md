@@ -171,7 +171,9 @@ via `set_forwarding`, while checking A→B and the A–B link survive. Result:
 `results/PB-2026-11-03-per-peer-forwarding.md`. `run-pay-demo.sh` adds real
 offline ecash and the full unpaid → paid → pause → renew loop
 (`results/PD-2026-11-03-pause-payment.md`). `repeat-pay-demo.sh` runs it N
-times; `harness/pause-tcp/` repeats it over TCP.
+times; `harness/pause-tcp/` repeats it over TCP. `run-controller-demo.sh` runs
+the same chain through `SellerController`
+(`results/CTRL-2026-11-03-seller-controller.md`).
 
 ## `demo/`
 
