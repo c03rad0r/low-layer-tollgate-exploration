@@ -87,8 +87,8 @@ must be labelled as rate control.
 
 - **E** — does `ndsctl` deauthorisation stop EtherType `0x2121`? *(blocked: fleet
   has UDP + TCP only; needs a real AP. The nft half is done.)*
-- **E2** — nft `netdev` drop cost at 1k / 10k / 100k pps. *(correctness done on
-  `veth`; throughput not measured)*
+- **E2** — nft `netdev` drop cost at 1k / 10k / 100k pps. Done: lossless at
+  ~99k pps on `veth`; CPU comparison inconclusive.
 - **E3** — does 802.11s association alone pass frames?
 - **E4** — per-MAC token bucket: nft vs tc/eBPF.
 
@@ -111,3 +111,10 @@ Not "the frame gate authorises clients". Instead:
 > This gate is rate and abuse control. It is not authorisation: MAC addresses
 > are spoofable. Authorisation is the FMP link gate, which keys on the proven
 > npub. Implementations MUST NOT treat frame-gate admission as payment.
+
+## Throughput (E2)
+
+An nft `netdev` ingress rule on EtherType `0x2121` was lossless at 1k, 10k and
+~99k pps with 64-byte frames on a veth pair (the counter matched the sender to
+0.01 %). Host-wide CPU (4–8 %) is dominated by the sender and does not
+distinguish the hook from a userspace reader. `results/E2-2026-11-03-frame-gate-throughput.md`.

@@ -109,7 +109,8 @@ to the bottom with a date.
 
 - [x] nft `netdev` chain + MAC set — correctness on `veth`
       (`results/E-nft-2026-11-03.md`)
-- [~] **Exp E2** drop cost — correctness done; pps/CPU not measured
+- [x] **Exp E2** — nft `netdev` lossless at 1k/10k/~99k pps; CPU inconclusive
+      (`results/E2-2026-11-03-frame-gate-throughput.md`)
 - [ ] **Exp E3** association-only bypass (needs a real AP)
 - [ ] **Exp E4** nft vs tc/eBPF
 - [ ] Wire to module alongside `ndsctl`

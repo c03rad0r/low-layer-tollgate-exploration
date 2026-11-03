@@ -142,7 +142,8 @@ gate/no-gate recommendation.
 nft `netdev` chain on `ether type 0x2121` with an authorised-MAC set, wired to
 the module; 802.1X / OWE / per-client VLAN evaluated as the stronger option.
 
-- **E2** drop cost at 1k/10k/100k pps
+- **E2** drop cost at 1k/10k/100k pps — done: lossless at ~99k pps,
+  CPU inconclusive (`results/E2-2026-11-03-frame-gate-throughput.md`)
 - **E3** does 802.11s association alone pass frames?
 - **E4** per-MAC token bucket: nft vs tc/eBPF
 

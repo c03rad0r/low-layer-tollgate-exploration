@@ -62,3 +62,14 @@ The container has `NET_ADMIN`, so a future script can:
 ## Result
 
 `results/E-nft-2026-11-03.md`
+
+## Throughput (E2)
+
+```sh
+harness/ethernet-lab/run-throughput.sh            # 1k,10k,100k x 2 s
+harness/ethernet-lab/run-throughput.sh 1000,10000,100000 2
+```
+
+Builds `low-layer-tollgate-frame-bench` (Alpine + gcc), creates a veth pair, and
+compares nft drop/accept with a C userspace receiver. Result:
+`results/E2-2026-11-03-frame-gate-throughput.md`.

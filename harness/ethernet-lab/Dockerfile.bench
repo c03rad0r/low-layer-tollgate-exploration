@@ -1,0 +1,8 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache iproute2 nftables python3 gcc musl-dev linux-headers
+COPY bench.c /src/bench.c
+RUN gcc -O2 -Wall -o /usr/local/bin/bench /src/bench.c
+COPY throughput-test.py /usr/local/bin/throughput-test.py
+
+ENTRYPOINT ["python3", "/usr/local/bin/throughput-test.py"]
