@@ -31,6 +31,19 @@ class FakeRedeemer:
         return {"ok": False, "error": self.error or "already spent"}
 
 
+class FakeBatchRedeemer(FakeRedeemer):
+    def __init__(self, ok=True, fee_sat=1):
+        super().__init__(ok=ok)
+        self.fee_sat = fee_sat
+        self.batches = []
+
+    def redeem_many(self, tokens):
+        self.batches.append(list(tokens))
+        if not self.ok:
+            return {"ok": False, "error": "batch refused"}
+        return {"ok": True, "tokens": len(tokens), "fee_sat": self.fee_sat}
+
+
 class SettlementTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -139,6 +152,64 @@ class SettlementTest(unittest.TestCase):
             self.assertEqual(result.failed, 3)
             self.assertEqual(len(vault.pending()), 3)
             self.assertEqual(self.exposure.outstanding(self.key), Decimal(50000))
+        finally:
+            vault.close()
+
+    def test_batch_drain_settles_a_multi_token_swap(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            for receipt in self.receipts:
+                r = receipt.reservation
+                vault.put(token="cashuBtoken", payer_npub=PAYER,
+                          mint_url=MINT, unit=UNIT, keyset_id=KEYSET,
+                          nullifier=r.nullifier,
+                          amount_msat=receipt.proof.amount_msat)
+            worker = SettlementWorker(self.journal, self.exposure,
+                                      FakeBatchRedeemer(fee_sat=1))
+            result = worker.settle_vault_batch(vault, batch_size=10)
+            self.assertEqual(result.settled, 3)
+            self.assertEqual(result.batches, 1)
+            self.assertEqual(result.fee_sat, 1)
+            self.assertEqual(len(worker.redeemer.batches), 1)
+            self.assertEqual(vault.pending(), [])
+        finally:
+            vault.close()
+
+    def test_batch_split_respects_batch_size(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            # Two tokens, one row each.
+            for i, nullifier in enumerate(("a" * 64, "b" * 64)):
+                reservation = self.journal.reserve(
+                    mint_url=MINT, unit=UNIT, keyset_id=KEYSET,
+                    nullifier=nullifier, amount_msat=Decimal("1"))
+                self.exposure.reserve(self.key, Decimal(1000), 100000)
+                vault.put(token=f"cashuB{i}", payer_npub=PAYER,
+                          mint_url=MINT, unit=UNIT, keyset_id=KEYSET,
+                          nullifier=nullifier, amount_msat=Decimal("1"))
+            worker = SettlementWorker(self.journal, self.exposure,
+                                      FakeBatchRedeemer(fee_sat=1))
+            result = worker.settle_vault_batch(vault, batch_size=1)
+            self.assertEqual(result.batches, 2)
+            self.assertEqual(len(worker.redeemer.batches), 2)
+        finally:
+            vault.close()
+
+    def test_batch_failure_leaves_rows_pending(self):
+        vault = TokenVault(os.path.join(self.tmp.name, "v.sqlite3"))
+        try:
+            for receipt in self.receipts:
+                r = receipt.reservation
+                vault.put(token="cashuBtoken", payer_npub=PAYER,
+                          mint_url=MINT, unit=UNIT, keyset_id=KEYSET,
+                          nullifier=r.nullifier,
+                          amount_msat=receipt.proof.amount_msat)
+            worker = SettlementWorker(self.journal, self.exposure,
+                                      FakeBatchRedeemer(ok=False))
+            result = worker.settle_vault_batch(vault, batch_size=10)
+            self.assertEqual(result.settled, 0)
+            self.assertEqual(result.failed, 3)
+            self.assertEqual(len(vault.pending()), 3)
         finally:
             vault.close()
 

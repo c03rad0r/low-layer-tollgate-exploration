@@ -64,9 +64,9 @@ Settlement is idempotent: an already-SETTLED row is counted in
 ## Limits
 
 - **One token at a time.** The caller passes the receipts the token backs.
-- **Batching.** Input fees are per proof (`input_fee_ppk`), so batching several
-  tokens into one swap would reduce fees; this module redeems one token per
-  call.
+- **Batching.** `settle_vault_batch(vault, batch_size)` redeems up to N tokens
+  in one swap (`wallet.redeem(all_proofs)`), which saves the per-swap fee
+  rounding. BATCH result: four 10 sat tokens, one swap, 1 sat instead of ~4.
 - **Crash between redeem and settle.** The mint has the value, the journal still
   says RESERVED. Recovery must not re-credit. `recover_stale_reservations`
   remains the conservative fallback; a production worker should record the

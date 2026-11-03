@@ -108,6 +108,17 @@ Verify → `PaymentGate.accept` (RESERVED, exposure) → redeem with the seller 
 → journal SETTLED + exposure 0 → replay refused → NUT-07 inputs SPENT. Result:
 `results/SETTLE-2026-11-03-redeem.md`.
 
+## Batch settlement
+
+```sh
+harness/mint/run-batch-demo.sh
+BATCH_TOKENS=8 harness/mint/run-batch-demo.sh
+```
+
+Four 10 sat tokens, accepted into the vault, then one swap redeems all eight
+inputs. Fee 1 sat versus ~4 for separate swaps. Result:
+`results/BATCH-2026-11-03.md`.
+
 ## Stop / reset
 
 ```sh
