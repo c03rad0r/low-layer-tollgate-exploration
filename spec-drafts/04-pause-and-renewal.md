@@ -168,10 +168,14 @@ buyer, strict ACL.
 | ACL effective | 0.8–1.0 s (Exp B: 756–984 ms, tick-bound) |
 | Re-admission | **2.7–2.9 s** total (n=4) |
 | In-band path during cut | fails; returns on reconnect, without payment |
+| Unpaid link, Phase 1 demo | **14,274 bytes forwarded for 0 msat** |
+| Prepaid re-admit | **≈1.75 s** (677 ms ACL + 1,077 ms link) |
 
 This is why the TIP separates `grace` from `evicted`: the only lever today is
-a durable cut, and it costs the payment lane. Patch (b) is still required to
-make `grace` implementable. The full raw output is in
+a durable cut, and it costs the payment lane. The Phase 1 demo also measured
+the failure directly: with the link up and the session `unpaid`, 14,274 bytes
+were forwarded for 0 msat. Patch (b) is still required to make `grace`
+implementable, and to make `unpaid` enforceable without a cut. The full raw output is in
 `results/C-2026-11-03-cut-readmit.md`.
 
 ## Citation

@@ -29,6 +29,9 @@ harness/
 │   ├── exp_c.py
 │   ├── repeat.sh
 │   └── run-exp-c.sh
+├── demo/                     # Phase 1 pay/admit/exhaust/re-admit demo
+│   ├── demo.py
+│   └── run-demo.sh
 ├── mint/                     # Nutshell FakeWallet mint + offline verifier
 │   ├── run-mint.sh
 │   ├── mint-token.sh
@@ -138,6 +141,12 @@ Notes on using the upstream FIPS `testing/static` Docker lab as the two-node
 pair for Exp C/H. It gives real `fipsd` processes and control sockets; it does
 not give an Ethernet pair, a captive portal or a mint. See
 `harness/fips-lab/README.md`.
+
+## `demo/`
+
+`harness/demo/` runs the Phase 1 story on the Exp C lab with the real Nutshell
+mint: unpaid free ride, offline payment, exhaustion, durable eviction, prepaid
+re-admission. Result: `results/DEMO-2026-11-03-buyer-exhausts.md`.
 
 ## `exp-c/` and `exp-h/`
 

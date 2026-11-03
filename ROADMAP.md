@@ -31,8 +31,11 @@ a two-node lab (`results/C-2026-11-03-cut-readmit.md`): a bare disconnect is
 undone by `auto_connect` in 6.5–6.9 s; deny + wait + disconnect holds, and
 re-admission costs 2.7–2.9 s (n=4). Exp H shows ACL-deny re-parents a
 three-node triangle in 109 ms, with one link of churn and sticky parent choice
-(`results/H-2026-11-03-reparent.md`). The buyer-exhausts demo with a mint is not
-done.
+(`results/H-2026-11-03-reparent.md`). The Phase 1 demo now uses real offline
+ecash: unpaid traffic rode free for 14,274 B, a durable eviction stopped it,
+and a prepaid re-admission cost ≈1.75 s
+(`results/DEMO-2026-11-03-buyer-exhausts.md`). The pause itself is still
+missing; that is patch (b).
 
 - **C** — cost of cut and re-admit; does the payment lane survive?
 - **H** — can ACL-deny force re-parenting, and how much churn?

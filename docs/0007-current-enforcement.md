@@ -129,6 +129,23 @@ reconnect of 7.7–7.9 s and re-admission of 2.8–3.6 s (n=4), against 6.5–6.
 and 2.7–2.9 s for UDP. The gate sequence is identical; TCP is about a second
 slower to auto-reconnect. See `results/01-tcp-2026-11-03.md`.
 
+## Phase 1 demo — unpaid, pay, cut, re-admit
+
+Two-node lab, real Nutshell ecash, payment out-of-band.
+
+| Phase | Result |
+|---|---|
+| Link up, session `unpaid` | **14,274 bytes forwarded for 0 msat** |
+| Real offline payment | 2 × 50 sat P2PK+DLEQ tokens accepted; replay refused |
+| Paid traffic | 55,806 bytes; 5,806 msat overshoot (11.6 %, one step) |
+| Durable evict | deny (786 ms) + disconnect (996 ms); ping fails |
+| Prepaid re-admit | 677 ms ACL + 1,077 ms link = **≈1.75 s**; ping passes |
+
+**Interpretation:** without patch (b), `unpaid` cannot be enforced: FIPS forwards
+the peer's traffic while the session is unpaid. The only lever is a durable cut,
+and re-admission costs a handshake. This is the Phase 1 exit evidence; see
+`results/DEMO-2026-11-03-buyer-exhausts.md`.
+
 ## Exp H — ACL-deny and re-parenting
 
 **Question:** can denying the current parent force a node onto its alternate

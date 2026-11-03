@@ -86,6 +86,11 @@ byte cannot represent sub-sat rates, and step-rounding biases whichever side
 the rounding favours. `step_size` remains a *billing* granularity, never a
 *measurement* granularity.
 
+The **measurement step** (per frame, or the polling interval if counters are
+batched) bounds the overshoot at exhaustion. A batched 40-packet step overshot a
+50 sat token by 2.18× in the Phase 1 demo; per-packet metering reduced it to one
+packet. State the step in the offer.
+
 ## What this means for implementations
 
 A sidecar that reads `fipsctl show links` gets frame bytes for free — but only

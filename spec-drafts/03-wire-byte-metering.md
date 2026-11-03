@@ -116,6 +116,11 @@ The price is expressed as **bytes per millisat**:
 - `step_size` remains a **billing** granularity (how often a balance is
   decremented), never a **measurement** granularity. Frames are counted
   individually; steps are settled in aggregate.
+- The **measurement step** bounds the overshoot at exhaustion: one frame if
+  metering per frame, one polling interval if counters are batched. An
+  implementation MUST state the step in the offer. A batched 40-packet step
+  overshot a 50 sat token by 2.18× in Exp C's demo; a per-packet step reduced
+  it to one packet.
 - Implementations SHOULD carry the remainder across steps rather than rounding
   each frame or each step.
 

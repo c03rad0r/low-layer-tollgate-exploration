@@ -45,6 +45,14 @@ def wait_for(predicate, timeout: float, interval: float = 0.05):
     return None, None
 
 
+def running(fips: Fipsctl):
+    try:
+        status = fips.status()
+    except RunnerError:
+        return None
+    return status if status.get("state") == "running" else None
+
+
 def peer_for(fips: Fipsctl, npub: str) -> Optional[Dict[str, Any]]:
     for peer in fips.peers():
         if peer.get("npub") == npub:

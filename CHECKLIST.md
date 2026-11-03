@@ -32,7 +32,9 @@ to the bottom with a date.
       109 ms re-parent, routing recovered, parent choice sticky
 - [x] Durable eviction: deny → wait for ACL → disconnect (Exp C)
 - [x] Two-node Exp C lab and three-node Exp H triangle (`harness/exp-c`, `harness/exp-h`)
-- [ ] Buyer-exhausts demo (documented failure of pause)
+- [x] Buyer-exhausts demo with real offline ecash
+      (`results/DEMO-2026-11-03-buyer-exhausts.md`): unpaid 14,274 B for 0 msat,
+      durable evict, prepaid re-admit ≈1.75 s
 - [x] `spec-drafts/04-pause-and-renewal.md` cites C's numbers
 
 ## Phase 2 — transports

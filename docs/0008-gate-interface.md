@@ -38,10 +38,12 @@ Notice:
 `cost_msat` uses `Decimal`, not float. A rate is **bytes per millisat**; a
 smaller rate means a higher price per byte. See P3.
 
-The frame that crosses the exhaustion boundary may push `used_msat` past
-`allotment_msat` by up to one frame. The seller absorbs that overshoot. It is
-the unavoidable cost of not being able to pause mid-frame, and it should be
-stated in the offer rather than discovered at settlement.
+The **measurement step** that crosses the exhaustion boundary may push
+`used_msat` past `allotment_msat` by up to one step. If metering per frame, that
+is one frame; if polling counters, that is one polling interval. Keep the step
+small and state it in the offer. The demo's first attempt batched a 40-packet
+burst and overshot a 50 sat token by 2.18×; that is not acceptable. Per-packet
+metering brought the overshoot to one packet.
 
 ## Pause is not implemented by FIPS
 
