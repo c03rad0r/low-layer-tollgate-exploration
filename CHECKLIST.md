@@ -81,11 +81,12 @@ to the bottom with a date.
 ## Phase 5 — spec PRs
 
 - [x] Draft text for P1–P4 (`spec-drafts/01`–`04`)
+- [x] `spec-drafts/README.md` maps titles, branches and evidence
 - [ ] P1 endpoint advertisement + port removal — open PR
 - [ ] P2 scope — open PR
 - [ ] P3 wire-byte metering — open PR
 - [ ] P4 pause and renewal — open PR after Exp C
-- [ ] Each cites experiment IDs
+- [~] Each cites experiment IDs (drafts do; PRs not opened)
 
 ## Phase 6 — channels
 

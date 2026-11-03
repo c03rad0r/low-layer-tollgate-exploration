@@ -4,7 +4,9 @@
 - **Status:** Draft for PR
 - **Depends on:** endpoint advertisement (P1)
 - **Experiment citations:** Exp A (`results/A-2026-11-03-counter-boundary.md`),
-  Exp I (planned), buyer-role design (`docs/0005-buyer-role.md`)
+  PD (`results/PD-2026-11-03-pause-payment.md`), 01-TCP
+  (`results/01-tcp-2026-11-03.md`), Exp I (planned),
+  buyer-role design (`docs/0005-buyer-role.md`)
 
 ## Abstract
 
@@ -118,3 +120,5 @@ wire-byte TIP except to say that it MUST NOT be metered with the link rule.
   `results/A-2026-11-03-counter-boundary.md`, `docs/0002-metering-boundary.md`.
 - Resale and double-charge: `docs/0005-buyer-role.md`.
 - Multi-transport reconciliation: Exp I (planned).
+- Link-scope pause and payment path: `results/PD-2026-11-03-pause-payment.md`.
+- TCP transport: `results/01-tcp-2026-11-03.md`.

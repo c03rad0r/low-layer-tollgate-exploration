@@ -1,11 +1,13 @@
 # TIP: Pause and renewal — the four-state session
 
 - **Target repo:** `OpenTollGate/tollgate`
-- **Status:** Draft for PR. Exp C produced numbers; PR not opened.
+- **Status:** Draft for PR. Exp C, PB and PD produced numbers; PR not opened.
 - **Depends on:** scope (P2), wire-byte metering (P3)
 - **Experiment citations:** Exp C (`results/C-2026-11-03-cut-readmit.md`),
-  Exp B (`results/B-2026-11-03-acl-latency.md`),
-  `docs/0007-current-enforcement.md`, `docs/0004-session-state-machine.md`
+  PB (`results/PB-2026-11-03-per-peer-forwarding.md`), PD
+  (`results/PD-2026-11-03-pause-payment.md`), Exp B
+  (`results/B-2026-11-03-acl-latency.md`), `docs/0007-current-enforcement.md`,
+  `docs/0004-session-state-machine.md`
 - **Prior art:** MONAD (Cashu Spilman channels over onion routing)
 
 ## Abstract
@@ -161,7 +163,7 @@ reversible; a disputed invoice is not.
 - Pausing is not a settlement guarantee. The seller MUST NOT credit a renewal
   it has not verified to its own satisfaction (see the payer-binding TIP).
 
-## Experiment result (Exp C)
+## Experiment results
 
 Two-node UDP lab, FIPS `0.6.0-dev` (`2ba790b`), passive seller, `auto_connect`
 buyer, strict ACL.
@@ -184,10 +186,18 @@ a durable cut, and it costs the payment lane. The Phase 1 demo also measured
 the failure directly: with the link up and the session `unpaid`, 14,274 bytes
 were forwarded for 0 msat. Patch (b) is still required to make `grace`
 implementable, and to make `unpaid` enforceable without a cut. The full raw output is in
-`results/C-2026-11-03-cut-readmit.md`. The pause-with-payment capstone is
-`results/PD-2026-11-03-pause-payment.md`: unpaid blocked, real payment restores
-transit, exhaustion pauses with the link id preserved, and a second payment
-resumes.
+`results/C-2026-11-03-cut-readmit.md`.
+
+Patch (b) (`results/PB-2026-11-03-per-peer-forwarding.md`) implements the
+forwarding role locally: transit from a blocked peer is dropped while local
+delivery and the link stay. The capstone
+(`results/PD-2026-11-03-pause-payment.md`) runs the full sequence on an A–B–C
+chain with real offline ecash: unpaid blocked, payment restores transit,
+exhaustion pauses with the link id preserved, and a second payment resumes. No
+disconnect is issued.
+
+The patch is local and unmerged; the upstream FIPS ask is out of band. The TIP
+can require the role and cite the lab evidence.
 
 ## Citation
 

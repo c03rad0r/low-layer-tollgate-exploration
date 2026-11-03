@@ -4,6 +4,7 @@
 - **Status:** Draft for PR
 - **Depends on:** —
 - **Experiment citations:** Exp A (`results/A-2026-11-03-counter-boundary.md`),
+  01-TCP (`results/01-tcp-2026-11-03.md`, UDP 2121 vs TCP 443),
   Exp I (planned), fleet inventory in `docs/0007-current-enforcement.md`
 
 ## Abstract
@@ -102,3 +103,5 @@ failure.
 - Counter boundary and transport inventory: `docs/0007-current-enforcement.md`,
   `results/A-2026-11-03-counter-boundary.md`.
 - Multi-transport reconciliation: Exp I (planned).
+- TCP and UDP use different ports in the labs (443 vs 2121) with the same
+  identity: `results/01-tcp-2026-11-03.md`.

@@ -4,6 +4,8 @@
 - **Status:** Draft for PR
 - **Depends on:** scope (P2)
 - **Experiment citations:** Exp A (`results/A-2026-11-03-counter-boundary.md`),
+  PD (`results/PD-2026-11-03-pause-payment.md`), PB
+  (`results/PB-2026-11-03-per-peer-forwarding.md`),
   `docs/0002-metering-boundary.md`, `docs/0007-current-enforcement.md`
 
 ## Abstract
@@ -182,6 +184,9 @@ seller MUST NOT claim wire-byte metering.
 
 - Exp A: `results/A-2026-11-03-counter-boundary.md`; source table in
   `docs/0002-metering-boundary.md` and `docs/0007-current-enforcement.md`.
+- Measurement-step overshoot: `results/PD-2026-11-03-pause-payment.md`.
+- Policy-dropped frames and the node-wide counter:
+  `results/PB-2026-11-03-per-peer-forwarding.md`.
 - Fleet sample: 1.62 GB / 2.49 M pkts ≈ 653 B/pkt on `host-a`, consistent with
   frame bytes.
 - MONAD prior art for `bytes_per_millisat`.

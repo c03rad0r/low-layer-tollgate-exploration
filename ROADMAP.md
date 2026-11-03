@@ -105,6 +105,10 @@ attached; a Signal write-up prepared, not sent.
 P1 endpoint advertisement + port removal · P2 scope · P3 wire-byte metering ·
 P4 pause and renewal.
 
+Status: all four drafts are written and cite the latest results; P4 now cites
+PB/PD and the patched forwarding role. No PR has been opened. See
+`spec-drafts/README.md` for branch/title/evidence mapping.
+
 **Exit:** four PRs, each citing experiment IDs and linking its result file.
 
 ## Phase 6 — Channels and fungibility
