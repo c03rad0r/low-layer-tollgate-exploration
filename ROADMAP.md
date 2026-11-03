@@ -9,6 +9,9 @@ commit.
 Confirm F1–F4 from the plan, and run the three experiments that can invalidate
 the design.
 
+Status: A and B are done. The nft half of E is done on `veth`; the `ndsctl` half
+is blocked on a real AP.
+
 - **A** — do FIPS counters count frame bytes or payload bytes?
 - **B** — how fast does a peer ACL change take effect?
 - **E** — does `ndsctl` deauthorisation stop EtherType `0x2121` frames?
@@ -20,6 +23,11 @@ what a gate can enforce today with zero patches.
 
 `tollgate-fips`: a control-socket client that admits (ACL files), meters
 (`fipsctl show links` / `show peers`), and evicts (`disconnect`).
+
+Status: the interface (`docs/0008`), the meter/session core, ACL writes and 29
+unit tests are in `sidecar/`. The meter has run read-only against `host-b`
+(`results/S-2026-11-03-sidecar-meter.md`). The buyer-exhausts demo and Exp C are
+not done.
 
 - **C** — cost of cut and re-admit; does the payment lane survive?
 - **H** — can ACL-deny force re-parenting, and how much churn?

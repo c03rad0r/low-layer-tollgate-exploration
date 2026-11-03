@@ -30,7 +30,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 | Phase | What | Status |
 |---|---|---|
 | 0 | Seams: counter boundary (A), ACL latency (B), captive-portal bypass (E) | **A, B done; E nft half done, ndsctl blocked** |
-| 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | not started |
+| 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | **core + live meter; demo/Exp C pending** |
 | 2 | TCP, Ethernet, BLE, Tor demos behind one gate interface | not started |
 | 3 | Local mint + receiver spent journal (F, G) | not started |
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | not started |
@@ -43,6 +43,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 - `AGENTS.md` — how we work, including the upstream interaction policy.
 - `docs/0001-three-seams.md` — the framing everything else depends on.
 - `docs/0002-metering-boundary.md` — what a byte is, and why.
+- `docs/0008-gate-interface.md` — the five verbs the sidecar exposes.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 

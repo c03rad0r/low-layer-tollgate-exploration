@@ -20,13 +20,17 @@ to the bottom with a date.
 
 ## Phase 1 — sidecar
 
-- [ ] Gate interface spec: `admit / deny / meter / pause / evict`
-- [ ] `tollgate-fips` control-socket client
-- [ ] Metering arithmetic + unit tests
-- [ ] **Exp C** — cut and re-admit cost
+- [x] Gate interface spec: `admit / deny / meter / pause / evict`
+      (`docs/0008-gate-interface.md`)
+- [x] `tollgate-fips` control-socket client (via `fipsctl`; not a raw socket)
+- [x] Metering arithmetic + unit tests (29 tests, `sidecar/tests/`)
+- [x] Live meter smoke test on `host-b`
+      (`results/S-2026-11-03-sidecar-meter.md`)
+- [ ] **Exp C** — cut and re-admit cost (needs a lab pair + test mint)
 - [ ] **Exp H** — ACL-deny re-parenting
 - [ ] Buyer-exhausts demo (documented failure of pause)
-- [ ] Draft `spec-drafts/04-pause-and-renewal.md` with C's numbers
+- [ ] Draft `spec-drafts/04-pause-and-renewal.md` with C's numbers (text exists;
+      numbers pending)
 
 ## Phase 2 — transports
 
