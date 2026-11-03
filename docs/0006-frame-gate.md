@@ -1,6 +1,7 @@
 # 0006 — The frame gate: physical, link, or neither
 
-Status: hypothesis, not confirmed. Exp E is blocked on lab hardware.
+Status: hypothesis. The nft half is confirmed on `veth`
+(`results/E-nft-2026-11-03.md`); the `ndsctl` half is blocked on a real AP.
 
 ## The hypothesis
 
@@ -85,14 +86,21 @@ must be labelled as rate control.
 ## Experiment register
 
 - **E** — does `ndsctl` deauthorisation stop EtherType `0x2121`? *(blocked: fleet
-  has UDP + TCP only; needs an Ethernet-transport lab pair)*
-- **E2** — nft `netdev` drop cost at 1k / 10k / 100k pps.
+  has UDP + TCP only; needs a real AP. The nft half is done.)*
+- **E2** — nft `netdev` drop cost at 1k / 10k / 100k pps. *(correctness done on
+  `veth`; throughput not measured)*
 - **E3** — does 802.11s association alone pass frames?
 - **E4** — per-MAC token bucket: nft vs tc/eBPF.
 
-E2–E4 are Phase 7. E is Phase 0 but cannot run until `harness/` has an
-Ethernet-capable pair (veth is enough for the nft part; a real AP is needed for
-the `ndsctl` part).
+`harness/ethernet-lab/` now builds a `veth` pair and runs the nft rule, set and
+verdict checks: all pass. That confirms the rule shape below is implementable.
+It does **not** answer the `ndsctl` question, and it is not a throughput test.
+A real AP is still needed for E and E3.
+
+Methodological note for anyone repeating this: AF_PACKET taps run **before**
+the netdev ingress hook, so a packet socket sees frames nft already dropped. Use
+nft counters for the `0x2121` verdict, and a handled EtherType (IPv4/UDP) to
+prove real delivery.
 
 ## What we will write in the spec
 

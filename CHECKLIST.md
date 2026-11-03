@@ -14,6 +14,8 @@ to the bottom with a date.
       (fleet has UDP+TCP only)
 - [x] Write `docs/0007-current-enforcement.md`
 - [x] Update roadmap if A/B/E change anything
+- [x] **Exp E (nft half)** — `netdev` gate on `0x2121` + MAC set, on `veth`
+      (`results/E-nft-2026-11-03.md`, `harness/ethernet-lab/`)
 - [ ] Packet-capture confirmation of A on the lab Ethernet pair (Phase 2)
 
 ## Phase 1 — sidecar
@@ -71,12 +73,14 @@ to the bottom with a date.
 
 ## Phase 7 — frame gate
 
-- [ ] **Exp E2** drop cost
-- [ ] **Exp E3** association-only bypass
+- [x] nft `netdev` chain + MAC set — correctness on `veth`
+      (`results/E-nft-2026-11-03.md`)
+- [~] **Exp E2** drop cost — correctness done; pps/CPU not measured
+- [ ] **Exp E3** association-only bypass (needs a real AP)
 - [ ] **Exp E4** nft vs tc/eBPF
-- [ ] nft `netdev` chain + MAC set
 - [ ] Wire to module alongside `ndsctl`
 - [ ] Draft `spec-drafts/06-frame-gate.md`
+- [ ] **Exp E** — `ndsctl` deauth vs `0x2121` (needs a real AP)
 
 ## Cross-cutting
 

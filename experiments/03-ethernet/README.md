@@ -54,6 +54,9 @@ AP (captive portal) ── station A (seller) ── station B (buyer)
 
 ## Exp E note
 
-`veth` answers the nft question but not the `ndsctl` question. If no AP is
-available, record Exp E as blocked and run only the `netdev` part. Do not
-report a veth result as a captive-portal result.
+`veth` answers the nft question but not the `ndsctl` question. The nft half is
+already done in `harness/ethernet-lab/` (`results/E-nft-2026-11-03.md`): the
+rule matches `0x2121`, the MAC set admits and revokes, and a `0x0800` control
+proves the hook blocks real delivery. If no AP is available, record the
+`ndsctl` half as blocked and do not report the veth result as a captive-portal
+result.

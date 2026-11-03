@@ -3,7 +3,9 @@
 **Question:** can an nft `netdev` chain drop EtherType `0x2121` from
 unauthorised MACs at line rate, and is that authorisation or only rate control?
 
-**Status:** not started. Phase 7. Exp E2–E4.
+**Status:** partial. The nft rule/set correctness test passes on `veth`
+(`../../results/E-nft-2026-11-03.md`). Throughput (E2/E4) and the real-AP cases
+(E/E3) are not started.
 
 ## Topology
 
@@ -25,6 +27,16 @@ traffic generator on the unauthorised station.
 3. **E4 — nft vs tc/eBPF.** Same pps ramp, compare ceiling and CPU.
 4. **Correctness.** The set is populated on `paid` and removed on `evicted`.
    A stale MAC must not keep access.
+
+## Harness
+
+```sh
+harness/ethernet-lab/run-frame-gate.sh 200
+```
+
+Builds the `veth` pair and runs the set-semantics test. Use nft counters for
+the `0x2121` verdict; **AF_PACKET taps run before the ingress hook** and will
+report a false pass.
 
 ## nft sketch
 

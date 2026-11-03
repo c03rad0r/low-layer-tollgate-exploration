@@ -17,7 +17,7 @@ phase that relies on it is wrong.
 | Cut an established peer | **yes** | `fipsctl disconnect` | kills the payment lane |
 | Pause one peer's forwarding, keep the link | **no** | — | the load-bearing gap; patch (b) |
 | Price-aware parent selection | **no** | `link_cost` is MMP-only | patch (c) |
-| Frame-level gate on EtherType `0x2121` | **not verified** | nft `netdev` possible; `ndsctl` unknown | Exp E / Phase 7 |
+| Frame-level gate on EtherType `0x2121` | **nft confirmed on `veth`; `ndsctl` unverified** | nft `netdev` + MAC set | Exp E / Phase 7 |
 | Runtime admission without touching a file | **no** | ACL is file-based | patch (a) |
 
 ## Exp A — the counter boundary
@@ -94,14 +94,26 @@ the worst case is one tick plus work.
 
 **Question:** does `ndsctl` deauthorisation stop EtherType `0x2121` frames?
 
-**Status: cannot run on the current fleet.** Every reachable node reports only
-`tcp` and `udp` transports (`fipsctl show transports`); there is no Ethernet
-transport in the fleet, and `ndsctl` needs a real AP with a captive portal.
-`veth` can exercise the nft part but not `ndsctl`.
+**Status: split.** The `ndsctl` half cannot run on the current fleet. Every
+reachable node reports only `tcp` and `udp` transports (`fipsctl show
+transports`); there is no Ethernet transport in the fleet, and `ndsctl` needs a
+real AP with a captive portal.
 
-**What we can say now:** the `ndsctl` hypothesis is unconfirmed. The design in
-`0006` therefore treats the frame gate as **rate control, not authorisation**,
-and does not claim that a captive portal gates a FIPS link sale.
+The **nft half is done** (`results/E-nft-2026-11-03.md`). `harness/ethernet-lab/`
+builds a `veth` pair in a container and checks an nft `netdev` ingress chain on
+EtherType `0x2121` with an `ether_addr` set. All cases pass: empty set drops,
+authorised MAC admits, removal drops again, an unauthorised source MAC drops,
+and a non-`0x2121` EtherType is unaffected. A control rule on `0x0800` blocks
+real IPv4/UDP delivery, which proves the hook is on the receive path.
+
+One trap was found and recorded: AF_PACKET taps run before the ingress hook, so
+a packet socket still sees frames nft has dropped. The test uses nft counters
+for the `0x2121` verdict and UDP delivery for the control.
+
+**What we can say now:** the nft rule shape is implementable and correct on
+`veth`. The `ndsctl` hypothesis remains unconfirmed. The design in `0006`
+therefore treats the frame gate as **rate control, not authorisation**, and does
+not claim that a captive portal gates a FIPS link sale.
 
 ## What this means for the roadmap
 

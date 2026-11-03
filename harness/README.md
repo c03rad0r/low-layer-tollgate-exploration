@@ -17,6 +17,10 @@ harness/
 │   ├── gen-npub.py          # throwaway secp256k1 npub for ACL tests
 │   ├── sample-counters.sh   # two samples of show transports/links, deltas
 │   └── acl-latency.sh       # add/remove a throwaway npub, time the effect
+├── ethernet-lab/
+│   ├── Dockerfile           # alpine + iproute2 + nftables + python3
+│   ├── frame-gate-test.py   # veth + nft netdev correctness test
+│   └── run-frame-gate.sh    # build and run it
 └── README.md
 ```
 
@@ -87,6 +91,28 @@ harness/scripts/acl-latency.sh host-b 3
 
 It always restores the file. Check `restored_lines` in the output against the
 original line count.
+
+## `ethernet-lab/`
+
+A container-based `veth` + `nft` lab, used for the frame-gate correctness test.
+
+```sh
+harness/ethernet-lab/run-frame-gate.sh 200
+```
+
+It needs Docker but not root on the host: the container gets `NET_ADMIN` and
+`NET_RAW`, and no host network. It confirms that nft `netdev` ingress matches
+EtherType `0x2121` and honours an `ether_addr` set.
+
+**Do not count with AF_PACKET.** Packet taps run before the netdev ingress
+hook, so a packet socket still sees frames nft dropped. Use nft counters for
+`0x2121`, and a handled EtherType (IPv4/UDP) to prove real delivery. The first
+version of the test made this mistake and reported a false pass.
+
+Result: `results/E-nft-2026-11-03.md`.
+
+It does **not** test `ndsctl`, real air time or throughput. A real AP is still
+needed for the captive-portal half of Exp E.
 
 ## Planned lab topology
 
