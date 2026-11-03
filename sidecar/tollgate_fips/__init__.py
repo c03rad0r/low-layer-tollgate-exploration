@@ -44,6 +44,7 @@ from .payment import (
     VerificationFailed,
     Verifier,
 )
+from .drain import DrainStats, SettlementDaemon
 from .settlement import (
     Redeemer,
     SettlementError,
@@ -69,6 +70,8 @@ __all__ = [
     "ExposureLedger",
     "SellerController",
     "SettlementWorker",
+    "SettlementDaemon",
+    "DrainStats",
     "TokenVault",
     "VaultEntry",
     "vault_key",

@@ -69,7 +69,9 @@ crash recovery treats old reservations as SPENT, and the keyset admission
 predicate uses `final_expiry` as a settlement deadline. Settlement is implemented: a `SettlementWorker` redeems the accepted P2PK token
 at the mint, then sets the journal SETTLED and releases the exposure
 (`results/SETTLE-2026-11-03-redeem.md`), and four tokens settle in one swap
-(1 sat versus ~4; `results/BATCH-2026-11-03.md`). The exposure cap is
+(1 sat versus ~4; `results/BATCH-2026-11-03.md`). A `SettlementDaemon`
+drains the vault on a timer with exponential backoff
+(`results/DRAIN-2026-11-03-daemon.md`). The exposure cap is
 implemented (`sidecar/tollgate_fips/exposure.py`, 10 tests, `docs/0010`): per
 payer/mint/unit, reserved before the journal row so a crash overstates rather
 than understates. `PaymentGate` orders verifier → exposure → journal and

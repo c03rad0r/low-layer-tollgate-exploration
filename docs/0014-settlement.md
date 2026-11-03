@@ -75,8 +75,8 @@ Settlement is idempotent: an already-SETTLED row is counted in
   is written before the journal row commits (`TokenVault`), so a recovery worker
   can drain `vault.pending()` with `settle_vault()`. The demo closes all
   databases after acceptance and settles from the vault alone.
-- **No NUT-07 polling worker.** This is settle-on-demand; a background poller
-  for pending rows is still open.
+- **Draining.** `SettlementDaemon` polls the vault, calls `settle_vault_batch`,
+  and backs off on refusal (`docs/0016-drain.md`).
 - **The redeemer is lab code.** It runs in the Nutshell image, not in the seller.
 
 ## Tests
