@@ -1,0 +1,26 @@
+# Build output
+target/
+build/
+dist/
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets and keys — never commit
+*.key
+*.pem
+.env
+.env.*
+secrets/
+mint/
+*.sqlite
+*.sqlite3
+
+# Local captures and scratch
+*.pcap
+*.pcapng
+*.log
+tmp/
+.cache/
+.DS_Store
