@@ -52,6 +52,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `settlement.py` | `SettlementWorker`: redeem → journal SETTLED → exposure release |
 | `vault.py` | `TokenVault`: durable bearer token, attempts, dead letter, requeue |
 | `drain.py` | `SettlementDaemon`: poll the vault, settle, back off, dead-letter, `health()` |
+| `frame_gate.py` | `FrameGate`: L0 nft per-MAC rate limit, blocks, optional allow-list |
 | `control.py` | Unix control-socket client for the patched `set_admission` / `set_forwarding` commands |
 | `cli.py` | `status`, `meter`, `simulate`, `pause-check`, `admit`, `deny` |
 
@@ -85,15 +86,16 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-119 tests: counter merge/delta/reset/direction, the four-state machine,
+130 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
 verifier, pause/resume through a fake forwarding control, per-peer policy-drop
 attribution in the meter, runtime admission over a fake control, the seller controller loop, and
 settlement (redeem, release, reconcile a double spend) and the token
-vault (crash recovery, attempts, dead letter) and the drain loop (backoff,
-stop conditions, health).
+vault (crash recovery, attempts, dead letter), the drain loop (backoff,
+stop conditions, health), and the frame-gate command shape/config (nft, faked
+for the unit tests).
 
 ## Not implemented
 

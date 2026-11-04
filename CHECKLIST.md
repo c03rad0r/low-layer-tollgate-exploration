@@ -23,7 +23,7 @@ to the bottom with a date.
 - [x] Gate interface spec: `admit / deny / meter / pause / evict`
       (`docs/0008-gate-interface.md`)
 - [x] `tollgate-fips` control-socket client (`fipsctl` plus raw `set_forwarding`)
-- [x] Metering arithmetic + unit tests (119 tests across meter/session/journal/exposure/payment/controller/settlement/vault, `sidecar/tests/`)
+- [x] Metering arithmetic + unit tests (130 tests across meter/session/journal/exposure/payment/controller/settlement/vault/frame-gate/drain, `sidecar/tests/`)
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
@@ -117,8 +117,13 @@ to the bottom with a date.
 - [ ] **Exp E3** association-only bypass (needs a real AP)
 - [x] **Exp E4** nft vs tc/BPF — per-MAC, identical effect; nft is the
       smallest (`results/E4-2026-11-03-per-mac-token-bucket.md`)
-- [ ] Wire the nft rule/set to session state in the module (with `ndsctl`
-      when the AP result exists)
+- [x] `FrameGate` module over nft: install/uninstall, block/unblock,
+      authorise, bucket reset, `status()`/`buckets()`
+      (`frame_gate.py`, 11 tests, `results/FRAMEGATE-2026-11-03-module.md`)
+- [x] Module demo on real nftables 1.0.9: rate limit, block/unblock, allow-list
+      (`harness/ethernet-lab/run-frame-gate-demo.sh`)
+- [ ] Wire `FrameGate.block`/`unblock` into `SellerController` (§`evicted`)
+- [ ] Wire the `ndsctl` half when the AP result exists
 - [x] Draft `spec-drafts/06-frame-gate.md` (P5; not opened)
 - [ ] **Exp E** — `ndsctl` deauth vs `0x2121` (needs a real AP)
 

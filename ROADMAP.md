@@ -149,6 +149,9 @@ the module; 802.1X / OWE / per-client VLAN evaluated as the stronger option.
 - **E4** per-MAC token bucket: nft vs tc/BPF — done: per-MAC and identical
   in effect; nft is the smallest
   (`results/E4-2026-11-03-per-mac-token-bucket.md`)
+- **FrameGate module** — nft rule/set driven from Python, real-tool demo
+  (`docs/0017-frame-gate-module.md`,
+  `results/FRAMEGATE-2026-11-03-module.md`)
 
 **Exit:** unauthorised MACs cannot put `0x2121` frames on the link at line
 rate, and the doc says plainly that this is rate control, not authorisation.

@@ -15,6 +15,14 @@ from .exposure import (
     UnknownExposure,
 )
 from .fipsctl import Fipsctl, FipsctlError
+from .frame_gate import (
+    FrameGate,
+    FrameGateConfig,
+    FrameGateError,
+    NftControl,
+    SubprocessNft,
+    normalise_mac,
+)
 from .journal import (
     AlreadySettled,
     AlreadySpent,
@@ -66,6 +74,12 @@ from .session import Notice, Session, SessionError, State
 
 __all__ = [
     "Fipsctl",
+    "FrameGate",
+    "FrameGateConfig",
+    "FrameGateError",
+    "NftControl",
+    "SubprocessNft",
+    "normalise_mac",
     "FipsctlError",
     "ExposureLedger",
     "SellerController",

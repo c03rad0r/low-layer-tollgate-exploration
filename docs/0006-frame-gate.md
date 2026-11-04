@@ -148,8 +148,10 @@ the under-rate MAC untouched, 3/3. The difference is operational:
 | Privilege | `NET_ADMIN` | `NET_ADMIN` | `CAP_BPF` + `CAP_PERFMON` (+ `SYS_ADMIN` here) |
 | Per-MAC counters | no (global rule counter) | per filter | needs a map reader |
 
-The nft dynamic set only materialises MACs that exceed the rate; the
-under-rate sender had no element. A timeout bounds idle state.
+The nft dynamic set materialises an element for **every sender** on its first
+frame; the under-rate sender keeps an element but is never dropped. The element
+carries that sender's token state, so its presence means "seen", not "over the
+limit". A timeout bounds idle state.
 
 For the frame gate, nft is the recommendation: smallest rule set, no extra
 privilege, and the same `0x2121` match as the MAC-set sketch above. tc/BPF is

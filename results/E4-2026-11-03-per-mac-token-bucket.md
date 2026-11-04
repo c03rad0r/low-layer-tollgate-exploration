@@ -55,7 +55,10 @@ Modes:
    ```
 
    The `limit rate over` expression is evaluated **per set element**, so the
-   bucket is per MAC. Only MACs that exceed the rate get an element.
+   bucket is per MAC. The dynamic set creates an element for **every sender**
+   the first time its frame hits the rule, whether or not that sender is over
+   the rate. The element holds the sender's token state; the `limit` decides
+   the drop, not the element's existence.
 
 3. **tc** — `clsact` on `s1`, one `flower` filter per source MAC:
 
@@ -96,20 +99,28 @@ A was never touched: 1,500 sent, 1,500 received, in every gated run.
 
 ### State after traffic (nft)
 
+Three senders ran (A under the rate, B and C over it), so all three have an
+element:
+
 ```
 set bucket {
     type ether_addr
     size 65535
     flags dynamic,timeout
     timeout 10m
-    elements = { 02:00:00:00:00:0b limit rate over 1000/second burst 100 packets,
+    elements = { 02:00:00:00:00:0a limit rate over 1000/second burst 100 packets,
+                 02:00:00:00:00:0b limit rate over 1000/second burst 100 packets,
                  02:00:00:00:00:0c limit rate over 1000/second burst 100 packets }
 }
 ```
 
-A (500 pps, under the rate) has **no element**: the dynamic set only
-materialises MACs that are over the limit. Idle elements expire on the 10 min
-timeout.
+A (500 pps, under the rate) **has an element**, but it was never dropped: the
+element keeps A's tokens near full. An element therefore means "this sender has
+been seen", not "this sender is over the limit". The per-MAC receive counts make
+that distinction: A 1,500/1,500, B and C 3,099/15,000.
+
+Idle elements expire on the 10 min timeout. Without a timeout the set would
+grow with every sender ever seen and eventually fill.
 
 ### State after traffic (tc)
 
@@ -129,9 +140,11 @@ not sending in the tc state capture.
    allowance; they did not share one. A was untouched. A global bucket would
    have throttled A and/or halved B and C, so the test discriminates the
    property it claims to measure.
-2. **nft is the smallest implementation.** One rule plus a dynamic set, state
-   created by the data plane on first excess, and no per-client control-plane
-   call. The set only holds over-limit MACs, and a timeout bounds it.
+2. **nft is the smallest implementation.** One rule plus a dynamic set,
+   state created by the data plane on first contact, and no per-client
+   control-plane call. An element exists for every sender that has been seen
+   (A included); only the over-rate ones are dropped, and a timeout bounds
+   the set.
 3. **tc `police` is byte-based, not packet-based.** It accounted ~50 bytes of
    each 64-byte frame (it excludes the 14-byte MAC header), so the nominal
    512 kbit/s setting delivered ~1,334 pps, not 1,000. Calibrating to

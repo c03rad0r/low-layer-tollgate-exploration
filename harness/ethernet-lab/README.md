@@ -90,3 +90,18 @@ tc `police` per MAC, and a tc/BPF classifier with an LRU map. Result:
 The container needs `CAP_BPF`, `CAP_PERFMON` and `CAP_SYS_ADMIN` for the BPF
 mode on this host (`kernel.unprivileged_bpf_disabled=2`); the nft and tc modes
 only need `NET_ADMIN`.
+
+## FrameGate module demo
+
+```sh
+harness/ethernet-lab/run-frame-gate-demo.sh
+```
+
+Runs `sidecar/tollgate_fips/frame_gate.py` against real nftables inside the E4
+image: per-MAC rate limit with three senders, then an explicit block/unblock,
+then the `default_deny` allow-list. Result:
+`results/FRAMEGATE-2026-11-03-module.md`.
+
+Note that the nft dynamic set creates a bucket element for every sender on its
+first frame, including under-rate senders; presence means "seen", not "over the
+limit".

@@ -52,6 +52,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 - `docs/0014-settlement.md` — redeem → SETTLED → exposure release.
 - `docs/0015-token-vault.md` — persist the token before credit.
 - `docs/0016-drain.md` — the background settlement loop.
+- `docs/0017-frame-gate-module.md` — the L0 frame-gate module (nft).
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 
