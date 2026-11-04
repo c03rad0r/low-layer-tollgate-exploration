@@ -101,6 +101,68 @@ class DrainTest(unittest.TestCase):
         stats = daemon.run(stop=stop)
         self.assertGreaterEqual(stats.passes, 1)
 
+    def test_dead_letter_after_max_attempts_then_requeue(self):
+        self.add_token()
+        redeemer = FakeRedeemer(ok=False)
+        daemon = SettlementDaemon(
+            self.vault,
+            SettlementWorker(self.journal, self.exposure, redeemer),
+            poll_seconds=1, max_attempts=3, sleep=lambda _: None)
+
+        for _ in range(3):
+            daemon.run_once()
+        self.assertEqual(redeemer.calls, 3)
+        self.assertEqual(self.vault.pending(), [])
+        self.assertEqual(len(self.vault.dead_lettered()), 1)
+
+        health = daemon.health()
+        self.assertEqual(health.dead_lettered, 1)
+        self.assertEqual(health.pending, 0)
+        self.assertEqual(health.consecutive_failures, 3)
+        self.assertIsNotNone(health.last_error)
+
+        # Dead letters are not retried.
+        daemon.run_once()
+        self.assertEqual(redeemer.calls, 3)
+
+        # After the cause is fixed, requeue and settle.
+        key = daemon.dead_letters()[0].vault_key
+        self.assertTrue(daemon.requeue(key))
+        daemon.worker.redeemer = FakeRedeemer()
+        result = daemon.run_once()
+        self.assertEqual(result.settled, 1)
+        self.assertEqual(daemon.health().dead_lettered, 0)
+        self.assertEqual(daemon.health().pending, 0)
+
+    def test_health_records_last_pass_and_success(self):
+        self.add_token()
+        daemon = SettlementDaemon(
+            self.vault,
+            SettlementWorker(self.journal, self.exposure, FakeRedeemer()),
+            poll_seconds=5, wall_clock=lambda: 1000.0,
+            sleep=lambda _: None)
+        health = daemon.health()
+        self.assertIsNone(health.last_pass_at)
+        self.assertEqual(health.pending, 1)
+
+        daemon.run_once()
+        health = daemon.health()
+        self.assertEqual(health.last_pass_at, 1000.0)
+        self.assertEqual(health.last_success_at, 1000.0)
+        self.assertEqual(health.consecutive_failures, 0)
+        self.assertIsNone(health.last_error)
+        self.assertEqual(health.pending, 0)
+        self.assertEqual(health.settled, 1)
+
+    def test_empty_vault_resets_the_backoff(self):
+        daemon = SettlementDaemon(
+            self.vault,
+            SettlementWorker(self.journal, self.exposure, FakeRedeemer()),
+            poll_seconds=5, max_backoff_seconds=20, sleep=lambda _: None)
+        daemon.backoff = 20
+        daemon.run_once()
+        self.assertEqual(daemon.backoff, 5)
+
     def test_invalid_intervals_are_refused(self):
         worker = SettlementWorker(self.journal, self.exposure, FakeRedeemer())
         with self.assertRaises(ValueError):
@@ -108,6 +170,9 @@ class DrainTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             SettlementDaemon(self.vault, worker, poll_seconds=10,
                              max_backoff_seconds=5)
+        with self.assertRaises(ValueError):
+            SettlementDaemon(self.vault, worker, poll_seconds=10,
+                             max_attempts=0)
 
 
 if __name__ == "__main__":

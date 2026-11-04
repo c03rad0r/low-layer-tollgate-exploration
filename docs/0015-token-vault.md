@@ -65,7 +65,8 @@ It stores bearer tokens. Treat it like a wallet:
 
 - One row per proof, so the token string is duplicated per proof. A normal form
   (payments → receipts) is the next schema step.
-- No expiry/GC policy for rows that never settle (a failed redemption forever).
+- A row that never settles is retried by the drain up to `max_attempts`, then
+  dead-lettered (attempt counter, timestamp, `requeue`). See `docs/0016`.
 - The redeem→settle window inside `settle_vault` is still untested: a crash
   after the mint accepts the swap but before the journal commits leaves a
   pending row whose token is already spent. That must reconcile as SPENT, not

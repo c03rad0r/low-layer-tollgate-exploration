@@ -60,16 +60,17 @@ harness/mint/run-drain-demo.sh
 
 - One token, two proofs, one pass, `FakeWallet`.
 - The crash is simulated by closing databases, not killing a process.
-- The daemon is synchronous; a production seller should run it on its own task
-  and expose its last-pass status for health checks.
+- The daemon is synchronous; a production seller should run it on its own task.
+  `health()` now exposes the last pass/success/error.
 - The redeem→settle window inside a pass is still untested (documented).
 
 ## Follow-ups
 
 - [ ] Run the daemon across a real process restart and a mint outage.
-- [ ] Emit a metric/last-pass timestamp for health checks.
-- [ ] Cap total attempts and surface a dead-letter state for rows that never
-      settle.
+- [x] Emit a metric/last-pass timestamp for health checks — `health()` in
+      `results/DEADLETTER-2026-11-03.md`.
+- [x] Cap total attempts and surface a dead-letter state for rows that never
+      settle — `max_attempts` + dead letter in `results/DEADLETTER-2026-11-03.md`.
 
 ## Artefacts
 

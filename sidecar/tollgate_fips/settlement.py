@@ -45,12 +45,16 @@ class VaultSettlementResult:
     fee_sat: int = 0
     errors: List[str] = None
     redemptions: List[Dict[str, Any]] = None
+    failed_keys: List[str] = None
+    dead_lettered: int = 0
 
     def __post_init__(self):
         if self.errors is None:
             self.errors = []
         if self.redemptions is None:
             self.redemptions = []
+        if self.failed_keys is None:
+            self.failed_keys = []
 
 
 @dataclass
@@ -153,6 +157,7 @@ class SettlementWorker:
                 rows = grouped[token]
                 if not redemption.get("ok"):
                     result.failed += len(rows)
+                    result.failed_keys.extend(row.vault_key for row in rows)
                     result.errors.append(
                         f"{token[:16]}…: "
                         f"{redemption.get('error') or 'redeem failed'}")
@@ -192,6 +197,7 @@ class SettlementWorker:
             result.redemptions.append(redemption)
             if not redemption.get("ok"):
                 result.failed += len(rows)
+                result.failed_keys.extend(row.vault_key for row in rows)
                 result.errors.append(
                     f"{token[:16]}…: {redemption.get('error') or 'redeem failed'}")
                 continue

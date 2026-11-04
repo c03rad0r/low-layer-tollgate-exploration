@@ -23,7 +23,7 @@ to the bottom with a date.
 - [x] Gate interface spec: `admit / deny / meter / pause / evict`
       (`docs/0008-gate-interface.md`)
 - [x] `tollgate-fips` control-socket client (`fipsctl` plus raw `set_forwarding`)
-- [x] Metering arithmetic + unit tests (112 tests across meter/session/journal/exposure/payment/controller/settlement/vault, `sidecar/tests/`)
+- [x] Metering arithmetic + unit tests (119 tests across meter/session/journal/exposure/payment/controller/settlement/vault, `sidecar/tests/`)
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
@@ -67,6 +67,9 @@ to the bottom with a date.
 - [x] Batch settlement: 4 tokens in one swap, 1 sat vs ~4 (`results/BATCH-2026-11-03.md`)
 - [x] Background timer that drains `vault.pending()`
       (`drain.py`, 5 tests, `results/DRAIN-2026-11-03-daemon.md`)
+- [x] Dead-letter after `max_attempts` + `health()` (last pass/success/error,
+      pending/dead counts) and `requeue`
+      (`drain.py`, `vault.py`, 8+10 tests, `results/DEADLETTER-2026-11-03.md`)
 - [~] **Exp F** — offline verification + durable replay refusal pass
       (`results/F-2026-11-03-offline-verify.md`); FIPS session continuity pending
 - [x] **Exp G** — keyset `final_expiry` (`results/G-2026-11-03-final-expiry.md`):

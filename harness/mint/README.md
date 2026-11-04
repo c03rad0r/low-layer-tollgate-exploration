@@ -119,6 +119,17 @@ Four 10 sat tokens, accepted into the vault, then one swap redeems all eight
 inputs. Fee 1 sat versus ~4 for separate swaps. Result:
 `results/BATCH-2026-11-03.md`.
 
+## Dead letter
+
+```sh
+harness/mint/run-deadletter-demo.sh
+```
+
+Accepts a token into the vault, points the drain at an unreachable mint for
+`max_attempts` passes, checks that the rows are parked (exposure unchanged),
+then requeues and settles with the real mint. Result:
+`results/DEADLETTER-2026-11-03.md`.
+
 ## Stop / reset
 
 ```sh
