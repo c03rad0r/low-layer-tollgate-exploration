@@ -145,7 +145,9 @@ the module; 802.1X / OWE / per-client VLAN evaluated as the stronger option.
 - **E2** drop cost at 1k/10k/100k pps — done: lossless at ~99k pps,
   CPU inconclusive (`results/E2-2026-11-03-frame-gate-throughput.md`)
 - **E3** does 802.11s association alone pass frames?
-- **E4** per-MAC token bucket: nft vs tc/eBPF
+- **E4** per-MAC token bucket: nft vs tc/BPF — done: per-MAC and identical
+  in effect; nft is the smallest
+  (`results/E4-2026-11-03-per-mac-token-bucket.md`)
 
 **Exit:** unauthorised MACs cannot put `0x2121` frames on the link at line
 rate, and the doc says plainly that this is rate control, not authorisation.

@@ -36,7 +36,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | all three local patches + lab results |
 | 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P4) | drafts updated with PB/PD evidence; no PRs opened |
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | not started |
-| 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | correctness + E2 throughput done; E3/E4 pending |
+| 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | correctness + E2 throughput + E4 per-MAC bucket done; E3/ndsctl pending |
 
 ## Read this first
 

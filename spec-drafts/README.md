@@ -1,6 +1,6 @@
 # Spec drafts — target `OpenTollGate/tollgate`
 
-Four ready-to-open PRs. None has been opened. The only public surface is
+Five ready-to-open PRs. None has been opened. The only public surface is
 `OpenTollGate/tollgate`; nothing here is opened against `jmcorgan/fips`.
 
 | # | File | Title | Depends on | Evidence |
@@ -9,12 +9,16 @@ Four ready-to-open PRs. None has been opened. The only public surface is
 | P2 | `02-scope.md` | Session scope `link` / `e2e` | P1 | Exp A, PD, 01-TCP |
 | P3 | `03-wire-byte-metering.md` | Wire-byte metering | P2 | Exp A, PD, PB |
 | P4 | `04-pause-and-renewal.md` | Pause and renewal (four states) | P2, P3 | C, PB, PD, B |
+| P5 | `06-frame-gate.md` | Frame-level rate control (not authorisation) | P1, P3 | E-nft, E2, E4 |
 
 Deferred:
 
 - **05 payer binding** — after the Phase 3 verifier and journal evidence are
   connected to a session.
-- **06 frame gate** — after E2/E4 (rate/CPU) and a real-AP `ndsctl` result.
+
+P5's nft rule is fully evidenced by E-nft/E2/E4. The real-AP `ndsctl` result
+(Exp E) remains an open question in the draft, not a blocker for the nft rule;
+it is a caveat, not a missing claim.
 
 ## How to open
 
@@ -29,7 +33,8 @@ gh pr create --title "TIP: endpoint advertisement; remove the port" \
   --body-file <(sed -n '1,120p' spec-drafts/01-endpoint-advertisement.md)
 ```
 
-Repeat with `tip/scope`, `tip/wire-byte-metering`, `tip/pause-and-renewal`.
+Repeat with `tip/scope`, `tip/wire-byte-metering`, `tip/pause-and-renewal`,
+`tip/frame-gate`.
 Update the TIP number and any repo-specific front matter first.
 
 Before opening, check each draft against the repo's current TIP template. These
@@ -45,7 +50,7 @@ unmerged. The FIPS ask is made out of band via Signal, never as a PR or issue.
 
 ## Verification status
 
-- 69 sidecar tests pass.
-- Exp A/B/C/E-nft/H/TCP/PB/PD results are in `results/`.
+- 112 sidecar tests pass.
+- Exp A/B/C/E-nft/E2/E4/H/TCP/PB/PD results are in `results/`.
 - No PR or issue has been opened against `OpenTollGate/tollgate` yet.
 - No PR or issue has been opened against `jmcorgan/fips` at any point.

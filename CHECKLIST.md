@@ -112,9 +112,11 @@ to the bottom with a date.
 - [x] **Exp E2** — nft `netdev` lossless at 1k/10k/~99k pps; CPU inconclusive
       (`results/E2-2026-11-03-frame-gate-throughput.md`)
 - [ ] **Exp E3** association-only bypass (needs a real AP)
-- [ ] **Exp E4** nft vs tc/eBPF
-- [ ] Wire to module alongside `ndsctl`
-- [ ] Draft `spec-drafts/06-frame-gate.md`
+- [x] **Exp E4** nft vs tc/BPF — per-MAC, identical effect; nft is the
+      smallest (`results/E4-2026-11-03-per-mac-token-bucket.md`)
+- [ ] Wire the nft rule/set to session state in the module (with `ndsctl`
+      when the AP result exists)
+- [x] Draft `spec-drafts/06-frame-gate.md` (P5; not opened)
 - [ ] **Exp E** — `ndsctl` deauth vs `0x2121` (needs a real AP)
 
 ## Cross-cutting

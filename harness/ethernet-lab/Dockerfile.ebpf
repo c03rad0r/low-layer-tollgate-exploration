@@ -1,0 +1,18 @@
+FROM alpine:3.20
+
+RUN apk add --no-cache iproute2 nftables python3 gcc musl-dev linux-headers \
+    clang llvm libbpf libbpf-dev
+
+# Compile the BPF object at build time so the runtime image needs no toolchain.
+COPY token-bucket.bpf.c /src/token-bucket.bpf.c
+RUN clang -O2 -g -target bpf -D__TARGET_ARCH_x86 \
+      -I/usr/include \
+      -c /src/token-bucket.bpf.c -o /usr/local/lib/token-bucket.o \
+ && llvm-strip -g /usr/local/lib/token-bucket.o
+
+COPY bench.c /src/bench.c
+RUN gcc -O2 -Wall -o /usr/local/bin/bench /src/bench.c
+
+COPY token-bucket-test.py /usr/local/bin/token-bucket-test.py
+
+ENTRYPOINT ["python3", "/usr/local/bin/token-bucket-test.py"]

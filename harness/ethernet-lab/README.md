@@ -73,3 +73,20 @@ harness/ethernet-lab/run-throughput.sh 1000,10000,100000 2
 Builds `low-layer-tollgate-frame-bench` (Alpine + gcc), creates a veth pair, and
 compares nft drop/accept with a C userspace receiver. Result:
 `results/E2-2026-11-03-frame-gate-throughput.md`.
+
+## Per-MAC token bucket (E4)
+
+```sh
+harness/ethernet-lab/run-token-bucket.sh        # 3 repeats, 4 modes
+harness/ethernet-lab/run-token-bucket.sh 1
+```
+
+Builds `low-layer-tollgate-token-bucket` (Alpine + clang + libbpf) and runs
+`token-bucket-test.py`. Three senders (500 / 5,000 / 5,000 pps) cross a bridge;
+the receiver counts survivors per source MAC. Modes: no gate, nft dynamic set,
+tc `police` per MAC, and a tc/BPF classifier with an LRU map. Result:
+`results/E4-2026-11-03-per-mac-token-bucket.md`.
+
+The container needs `CAP_BPF`, `CAP_PERFMON` and `CAP_SYS_ADMIN` for the BPF
+mode on this host (`kernel.unprivileged_bpf_disabled=2`); the nft and tc modes
+only need `NET_ADMIN`.
