@@ -13,8 +13,10 @@ Five ready-to-open PRs. None has been opened. The only public surface is
 
 Deferred:
 
-- **05 payer binding** — after the Phase 3 verifier and journal evidence are
-  connected to a session.
+- **05 payer binding** — P2PK, the journal and exposure are evidenced, but the
+  encrypted preamble and msg1-ephemeral binding are still design
+  (`docs/0003`). Do not draft normative text for them until a lab exercises the
+  binding.
 
 P5's nft rule is fully evidenced by E-nft/E2/E4. The real-AP `ndsctl` result
 (Exp E) remains an open question in the draft, not a blocker for the nft rule;

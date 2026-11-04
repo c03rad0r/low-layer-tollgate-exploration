@@ -107,8 +107,9 @@ to the bottom with a date.
 ## Phase 6 — channels
 
 - [ ] `cdk-spilman` behind the gate interface
-- [ ] **Exp J** — cross-mint time-to-admit
-- [ ] Treasury-path write-up
+- [ ] **Exp J** — cross-mint **time-to-pay** (buyer-side, not admission)
+- [x] Treasury-path decision: swaps stay off the gate path
+      (`docs/0018-treasury-plane.md`)
 
 ## Phase 7 — frame gate
 

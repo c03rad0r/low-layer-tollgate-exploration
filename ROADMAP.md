@@ -138,8 +138,12 @@ PB/PD and the patched forwarding role. No PR has been opened. See
 Replace discrete tokens with `cdk-spilman` behind the same interface. Evaluate
 Granola-style cross-mint swaps as a **treasury** path, not a gate path.
 
-**Exit:** channel path working; measured cross-mint time-to-admit, with a
-gate/no-gate recommendation.
+Decision (`docs/0018-treasury-plane.md`): cross-mint swaps stay out of the gate
+path. The gate sees one voucher and one mint; treasury movement is
+asynchronous, after settlement, and cannot pause or evict a session.
+
+**Exit:** channel path working; Exp J measured as a buyer-side time-to-pay
+number, with no swap in admission.
 
 ## Phase 7 — Frame gate
 

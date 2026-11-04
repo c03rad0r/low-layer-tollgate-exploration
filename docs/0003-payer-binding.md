@@ -1,6 +1,19 @@
 # 0003 — Payer binding
 
-Status: design. Evidence pending Phase 3 (Exp F).
+Status: partly implemented. P2PK verification, the journal, the exposure cap
+and settlement are evidenced; the encrypted preamble and the msg1-ephemeral
+binding are still design. A spec draft waits for the latter two.
+
+| Piece | State |
+|---|---|
+| NUT-11 P2PK to the seller (compressed key) | implemented, `results/F-2026-11-03-offline-verify.md` |
+| DLEQ / offline authenticity | implemented, same result |
+| Durable nullifier journal | implemented, `docs/0009` |
+| Exposure cap | implemented, `docs/0010` |
+| Settlement, vault, drain | implemented, `docs/0014`–`0016` |
+| Seller-encrypted preamble | design only |
+| msg1-ephemeral binding | design only; no wire hook exercised |
+| Payer signature over the bound payload | design only |
 
 ## The problem
 

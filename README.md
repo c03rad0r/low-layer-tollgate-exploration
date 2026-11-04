@@ -35,7 +35,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 | 3 | Local mint + receiver spent journal (F, G) | F, G, settlement, batching, drain + dead-letter/health done |
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | all three local patches + lab results |
 | 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P5) | drafts updated with PB/PD/MP/E4 evidence; no PRs opened |
-| 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | not started |
+| 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | treasury boundary decided (out of gate path); channel not started |
 | 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | correctness + E2 throughput + E4 per-MAC bucket done; E3/ndsctl pending |
 
 ## Read this first
@@ -53,6 +53,7 @@ and the Phase 1 demo is designed to fail on it so the evidence exists.
 - `docs/0015-token-vault.md` — persist the token before credit.
 - `docs/0016-drain.md` — the background settlement loop.
 - `docs/0017-frame-gate-module.md` — the L0 frame-gate module (nft).
+- `docs/0018-treasury-plane.md` — why cross-mint swaps stay off the gate path.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 
