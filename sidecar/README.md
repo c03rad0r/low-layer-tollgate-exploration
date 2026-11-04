@@ -48,7 +48,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `journal.py` | durable nullifier journal (`RESERVED → SETTLED | SPENT`), keyset admission predicate |
 | `exposure.py` | per-payer/mint/unit exposure cap, reserved before the journal row |
 | `payment.py` | `PaymentGate`: verifier → exposure → journal, receipt/settle/reject |
-| `controller.py` | `SellerController`: session state → admit/pause/resume/evict + meter |
+| `controller.py` | `SellerController`: session state → admit/pause/resume/evict + meter; optional L0 block |
 | `settlement.py` | `SettlementWorker`: redeem → journal SETTLED → exposure release |
 | `vault.py` | `TokenVault`: durable bearer token, attempts, dead letter, requeue |
 | `drain.py` | `SettlementDaemon`: poll the vault, settle, back off, dead-letter, `health()` |
@@ -86,12 +86,12 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-130 tests: counter merge/delta/reset/direction, the four-state machine,
+135 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
 verifier, pause/resume through a fake forwarding control, per-peer policy-drop
-attribution in the meter, runtime admission over a fake control, the seller controller loop, and
+attribution in the meter, runtime admission over a fake control, the seller controller loop (including L0 block on eviction), and
 settlement (redeem, release, reconcile a double spend) and the token
 vault (crash recovery, attempts, dead letter), the drain loop (backoff,
 stop conditions, health), and the frame-gate command shape/config (nft, faked

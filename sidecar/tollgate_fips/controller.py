@@ -6,7 +6,7 @@ The demos drive the gate step by step. This is the loop a real seller runs:
       session.tick()                 # deadlines / grace / eviction
       paid   -> resume forwarding if paused
       grace  -> pause forwarding (transit blocked, link kept)
-      evicted-> durable evict
+      evicted-> durable evict, then an optional L0 frame block
       paid   -> meter, charge, and pause when the charge crosses the boundary
 
 Metering is frozen while not `paid`: the baseline snapshot is advanced without
@@ -23,6 +23,7 @@ from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
 from .gate import FipsGate, PauseResult
+from .frame_gate import FrameGateError
 from .meter import LinkCounters, delta, snapshot
 from .session import Session, State
 
@@ -46,19 +47,26 @@ class ControllerResult:
     charged_msat: Decimal = Decimal(0)
     paused: bool = False
     evicted: bool = False
+    frame_blocked: bool = False
 
 
 class SellerController:
     def __init__(self, gate: FipsGate, session: Session,
-                 config: Optional[ControllerConfig] = None):
+                 config: Optional[ControllerConfig] = None,
+                 frame_gate=None, mac: Optional[str] = None):
+        if frame_gate is not None and not mac:
+            raise ControllerError("frame_gate requires the session's source MAC")
         self.gate = gate
         self.session = session
+        self.frame_gate = frame_gate
+        self.mac = mac
         self.config = config or ControllerConfig(
             rate_bytes_per_msat=session.rate_bytes_per_msat,
             grace_seconds=session.grace_seconds,
         )
         self.paused = False
         self.evicted = False
+        self.frame_blocked = False
         self._previous: Optional[Dict[Any, LinkCounters]] = None
         self._previous_policy: int = 0
 
@@ -96,6 +104,21 @@ class SellerController:
             result = self.gate.evict(self.session.npub)
             self.evicted = True
             actions.append(f"evict:{result.mode}")
+            # L0 drop follows the durable eviction (deny -> ACL -> disconnect),
+            # never the other way round: the link gate is the authorisation
+            # boundary, and dropping first would destroy the evidence a grace
+            # or unpaid session needs to resume. Only for sellers that opted
+            # into a frame gate with an out-of-band checkout path.
+            if self.frame_gate is not None:
+                try:
+                    self.frame_gate.block(self.mac)
+                except FrameGateError:
+                    # The link eviction already succeeded; L0 is advisory and
+                    # must not make it look like eviction failed.
+                    actions.append("frame-block-failed")
+                else:
+                    self.frame_blocked = True
+                    actions.append("frame-block")
 
         if self._previous is None:
             self._reset_baseline()
@@ -129,6 +152,7 @@ class SellerController:
             charged_msat=charged,
             paused=self.paused,
             evicted=self.evicted,
+            frame_blocked=self.frame_blocked,
         )
 
     # -- events ----------------------------------------------------------
@@ -150,7 +174,23 @@ class SellerController:
             actions=actions,
             paused=self.paused,
             evicted=self.evicted,
+            frame_blocked=self.frame_blocked,
         )
+
+    def unblock_frame(self, mac: Optional[str] = None) -> bool:
+        """Clear the L0 block on re-admission of the same device.
+
+        This does not reset the session: re-admission is a new session, and
+        the caller creates it. The method only removes the frame-gate block so
+        the device can complete a new handshake.
+        """
+        if self.frame_gate is None:
+            return False
+        target = mac or self.mac
+        self.frame_gate.unblock(target)
+        if target == self.mac:
+            self.frame_blocked = False
+        return True
 
 
 def run_until(gate: FipsGate, session: Session, stop, config=None,

@@ -23,7 +23,7 @@ to the bottom with a date.
 - [x] Gate interface spec: `admit / deny / meter / pause / evict`
       (`docs/0008-gate-interface.md`)
 - [x] `tollgate-fips` control-socket client (`fipsctl` plus raw `set_forwarding`)
-- [x] Metering arithmetic + unit tests (130 tests across meter/session/journal/exposure/payment/controller/settlement/vault/frame-gate/drain, `sidecar/tests/`)
+- [x] Metering arithmetic + unit tests (135 tests across meter/session/journal/exposure/payment/controller/settlement/vault/frame-gate/drain, `sidecar/tests/`)
 - [x] Live meter smoke test on `host-b`
       (`results/S-2026-11-03-sidecar-meter.md`)
 - [x] **Exp C** — cut and re-admit cost (`results/C-2026-11-03-cut-readmit.md`);
@@ -122,7 +122,9 @@ to the bottom with a date.
       (`frame_gate.py`, 11 tests, `results/FRAMEGATE-2026-11-03-module.md`)
 - [x] Module demo on real nftables 1.0.9: rate limit, block/unblock, allow-list
       (`harness/ethernet-lab/run-frame-gate-demo.sh`)
-- [ ] Wire `FrameGate.block`/`unblock` into `SellerController` (§`evicted`)
+- [x] Wire `FrameGate.block`/`unblock` into `SellerController` after a
+      durable eviction, with `unblock_frame()` on re-admission
+      (5 controller tests)
 - [ ] Wire the `ndsctl` half when the AP result exists
 - [x] Draft `spec-drafts/06-frame-gate.md` (P5; not opened)
 - [ ] **Exp E** — `ndsctl` deauth vs `0x2121` (needs a real AP)

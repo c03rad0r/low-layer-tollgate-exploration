@@ -97,7 +97,9 @@ caller-supplied value from becoming extra nft syntax.
 - **Gate non-Ethernet transports.** UDP, TCP, Tor and BLE have no pre-FMP
   frame to key on; they rely on the FMP link gate alone.
 - **Manage sessions.** It exposes the levers; `SellerController` decides when
-  to pull them. Wiring `evicted → block` is a follow-up.
+  to pull them. The controller now blocks after a durable eviction when given
+  a gate and the session MAC, and `unblock_frame()` clears it on re-admission
+  (`docs/0013`).
 - **Expose per-MAC drop counters.** nft's `counter` is global to the rule.
   Per-MAC accounting needs element counters or a different design.
 

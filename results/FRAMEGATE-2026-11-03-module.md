@@ -125,6 +125,29 @@ EtherType and a malformed timeout. MACs are normalised (dash/uppercase) and
 validated before any command runs. These are unit tests, but the demo also
 shows the commands are accepted by the real parser.
 
+## Controller wiring (unit evidence)
+
+`SellerController` now takes an optional `frame_gate` and the session's `mac`.
+On the first `evicted` tick it calls `gate.evict()` first and only then
+`frame_gate.block(mac)`, appending `frame-block` to the action list. Later
+ticks do not repeat the block. `unblock_frame()` clears it on re-admission.
+
+Five tests in `sidecar/tests/test_controller.py` cover this:
+
+| Case | Expected |
+|---|---|
+| eviction with a gate + MAC | `evict:…` then `frame-block`; block once |
+| eviction without a gate | no frame-gate call (existing test) |
+| gate without a MAC | `ControllerError` at construction |
+| `block()` raises | `frame-block-failed`; eviction still reported |
+| `unblock_frame()` | calls `unblock(mac)`, clears `frame_blocked` |
+| `unblock_frame()` without a gate | returns `False` |
+
+The eviction ordering is deliberate: `gate.evict` is the authorisation
+boundary (deny → ACL → disconnect), and dropping at L0 first would destroy the
+evidence an `unpaid`/`grace` session needs to resume. A block failure is
+advisory: it is reported, and the durable eviction still stands.
+
 ## Interpretation
 
 1. **The module's command shape is correct against nftables 1.0.9.** The
@@ -159,13 +182,13 @@ shows the commands are accepted by the real parser.
 - The demo does not run `ndsctl` or a real AP; Exp E3 stays open.
 - `default_deny` is tested on the lab bridge, not against a client that must
   first reach a checkout page.
+- The controller wiring is unit-tested against a fake gate, not driven through
+  a live nft table in this run.
 - MAC spoofing, bucket DoS and state exhaustion are argued in
   `spec-drafts/06-frame-gate.md`, not measured here.
 
 ## Follow-ups
 
-- [ ] Wire `FrameGate.block`/`unblock` into `SellerController` transitions so
-      `evicted` (after the ACL write) also drops at L0.
 - [ ] Per-MAC counters (nft element counters or a paired set).
 - [ ] Real AP: combine with the `ndsctl` result (Exp E/E3).
 - [ ] Provisioning-cost comparison at 1,000 MACs.

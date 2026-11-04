@@ -7,6 +7,7 @@ from tollgate_fips.controller import (
     SellerController,
 )
 from tollgate_fips.session import Session
+from tollgate_fips.frame_gate import FrameGateError
 
 
 class FakePeers:
@@ -60,6 +61,21 @@ class FakeGate:
                       "packets_recv": 0, "packets_sent": 0},
         }]
         self.fipsctl.policy = policy
+
+
+class FakeFrameGate:
+    def __init__(self, fail=False):
+        self.blocks = []
+        self.unblocks = []
+        self.fail = fail
+
+    def block(self, mac):
+        if self.fail:
+            raise FrameGateError("nft failed")
+        self.blocks.append(mac)
+
+    def unblock(self, mac):
+        self.unblocks.append(mac)
 
 
 class ControllerTest(unittest.TestCase):
@@ -146,6 +162,59 @@ class ControllerTest(unittest.TestCase):
         self.assertEqual(result.actions, ["evict:runtime+deny+disconnect"])
         self.controller.tick(now=3.0)
         self.assertEqual(len(self.gate.evicts), 1)
+
+    def test_eviction_blocks_the_source_mac_at_l0(self):
+        frame_gate = FakeFrameGate()
+        self.controller = SellerController(
+            self.gate, self.session,
+            ControllerConfig(rate_bytes_per_msat=Decimal("1"), tick_seconds=0),
+            frame_gate=frame_gate, mac="02:00:00:00:00:0a")
+        self.session.grace_seconds = 0.0
+        self.controller.tick(now=0.0)
+        self.session.charge(self.session.allotment_msat, now=1.0)
+        result = self.controller.tick(now=2.0)
+        self.assertEqual(result.actions,
+                         ["evict:runtime+deny+disconnect", "frame-block"])
+        self.assertTrue(result.frame_blocked)
+        self.assertEqual(frame_gate.blocks, ["02:00:00:00:00:0a"])
+
+        # Blocked once, not on every later tick.
+        self.controller.tick(now=3.0)
+        self.assertEqual(frame_gate.blocks, ["02:00:00:00:00:0a"])
+
+    def test_frame_gate_requires_a_mac(self):
+        with self.assertRaises(ControllerError):
+            SellerController(self.gate, self.session,
+                             frame_gate=FakeFrameGate())
+
+    def test_frame_block_failure_does_not_undo_the_eviction(self):
+        frame_gate = FakeFrameGate(fail=True)
+        self.controller = SellerController(
+            self.gate, self.session,
+            ControllerConfig(rate_bytes_per_msat=Decimal("1"), tick_seconds=0),
+            frame_gate=frame_gate, mac="02:00:00:00:00:0a")
+        self.session.grace_seconds = 0.0
+        self.controller.tick(now=0.0)
+        self.session.charge(self.session.allotment_msat, now=1.0)
+        result = self.controller.tick(now=2.0)
+        self.assertEqual(result.actions,
+                         ["evict:runtime+deny+disconnect",
+                          "frame-block-failed"])
+        self.assertTrue(result.evicted)
+        self.assertFalse(result.frame_blocked)
+
+    def test_unblock_frame_clears_the_block_on_re_admission(self):
+        frame_gate = FakeFrameGate()
+        self.controller = SellerController(
+            self.gate, self.session,
+            ControllerConfig(rate_bytes_per_msat=Decimal("1"), tick_seconds=0),
+            frame_gate=frame_gate, mac="02:00:00:00:00:0a")
+        self.assertTrue(self.controller.unblock_frame())
+        self.assertEqual(frame_gate.unblocks, ["02:00:00:00:00:0a"])
+        self.assertFalse(self.controller.frame_blocked)
+
+    def test_unblock_frame_without_a_gate_is_a_no_op(self):
+        self.assertFalse(self.controller.unblock_frame())
 
     def test_payment_after_eviction_is_refused(self):
         self.session._evict("test", 0.0)
