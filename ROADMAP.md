@@ -101,6 +101,9 @@ accepted after a receiver restart; exposure never exceeds the cap.
 Status: (b) is implemented locally and passes an A–B–C chain test
 (`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`): transit from
 a blocked peer is dropped while its link, Noise session and local path stay.
+A four-node star now shows the block is isolated to one client: A→D fails while
+C→D, A→B and the A–B link stay up, and drops are filed under A only, n=3
+(`results/MP-2026-11-03-multi-peer-isolation.md`).
 (a) is implemented too: runtime admission saves 0.86–1.40 s per re-admission
 (`results/A2-2026-11-03-runtime-admission.md`). (c) is implemented as a local
 `set_price` multiplier: a 1.0 penalty moved a diamond leaf's parent in

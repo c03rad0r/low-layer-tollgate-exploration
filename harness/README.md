@@ -6,8 +6,9 @@ keys, or results — those go in `results/`.
 
 ## Status
 
-Phase 0 scripts exist and work against the fleet. The lab topology (Ethernet
-`veth` pair, local mint) is not built yet; it is Phase 1–3 work.
+Phase 0 scripts and the Phase 1–7 labs exist. The Ethernet `veth` pair, the
+patched-FIPS chains/stars and the local Nutshell mint all run in Docker; no
+fleet node has Ethernet or BLE.
 
 ## Layout
 
@@ -38,6 +39,10 @@ harness/
 │   ├── control.py
 │   ├── pause.py
 │   └── run-pause.sh
+├── exp-multipeer/            # four-node star: block A, C unaffected
+│   ├── configs/
+│   ├── multipeer.py
+│   └── run-multipeer.sh
 ├── demo/                     # Phase 1 pay/admit/exhaust/re-admit demo
 │   ├── demo.py
 │   └── run-demo.sh
@@ -174,6 +179,11 @@ offline ecash and the full unpaid → paid → pause → renew loop
 times; `harness/pause-tcp/` repeats it over TCP. `run-controller-demo.sh` runs
 the same chain through `SellerController`
 (`results/CTRL-2026-11-03-seller-controller.md`).
+
+`harness/exp-multipeer/` is the multi-peer version: a four-node star where B is
+root and A, C and D are its children. Blocking A drops A→D while C→D, A→B and
+the A–B link stay up; drops are filed under A only, n=3. Result:
+`results/MP-2026-11-03-multi-peer-isolation.md`.
 
 ## `demo/`
 

@@ -1,11 +1,13 @@
 # TIP: Pause and renewal — the four-state session
 
 - **Target repo:** `OpenTollGate/tollgate`
-- **Status:** Draft for PR. Exp C, PB and PD produced numbers; PR not opened.
+- **Status:** Draft for PR. Exp C, PB, PD and MP produced numbers; PR not
+  opened.
 - **Depends on:** scope (P2), wire-byte metering (P3)
 - **Experiment citations:** Exp C (`results/C-2026-11-03-cut-readmit.md`),
   PB (`results/PB-2026-11-03-per-peer-forwarding.md`), PD
-  (`results/PD-2026-11-03-pause-payment.md`), Exp B
+  (`results/PD-2026-11-03-pause-payment.md`), MP
+  (`results/MP-2026-11-03-multi-peer-isolation.md`), Exp B
   (`results/B-2026-11-03-acl-latency.md`), `docs/0007-current-enforcement.md`,
   `docs/0004-session-state-machine.md`
 - **Prior art:** MONAD (Cashu Spilman channels over onion routing)
@@ -198,6 +200,12 @@ delivery and the link stay. The capstone
 chain with real offline ecash: unpaid blocked, payment restores transit,
 exhaustion pauses with the link id preserved, and a second payment resumes. No
 disconnect is issued.
+
+MP repeats the block on a four-node star where B has three peers. Blocking A
+drops A→D while C→D, A→B and the A–B link stay up, and `policy_blocked_by_peer`
+grows under A only, n=3 (`results/MP-2026-11-03-multi-peer-isolation.md`). A
+single-client test could not distinguish a per-peer block from a node-wide one;
+this one can.
 
 The patch is local and unmerged; the upstream FIPS ask is out of band. The TIP
 can require the role and cite the lab evidence.

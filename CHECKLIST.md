@@ -78,10 +78,12 @@ to the bottom with a date.
 
 ## Phase 4 — FIPS patches
 
-- [ ] (a) runtime admission mutation
+- [x] (a) runtime admission mutation (`results/A2-2026-11-03-runtime-admission.md`)
 - [x] (b) per-peer forwarding role — local patch + lab pass
       (`patches/0001-per-peer-forwarding.patch`, `PB-2026-11-03-per-peer-forwarding.md`)
 - [x] `drop_policy_blocked_{packets,bytes}` + `fipsctl set-forwarding`
+- [x] Multi-peer isolation: block A at B; C→D, A→B and the A–B link unaffected;
+      drops filed under A only, n=3 (`results/MP-2026-11-03-multi-peer-isolation.md`)
 - [x] (c) price in `link_cost` with hysteresis
       (`results/PRICE-2026-11-03-local-cost.md`; 351–513 ms soft switch, 3/3)
 - [ ] **Exp D** — refused-initiator cost
@@ -90,7 +92,7 @@ to the bottom with a date.
 - [x] Repeat capstone: 3/3 UDP and 3/3 TCP, link preserved every run
       (`harness/pause/repeat-pay-demo.sh`, `harness/pause-tcp/`)
 - [x] `patches/README.md` marks every patch unmerged; patch (b) added
-- [ ] Prepare Signal write-up (do not send); PB is reproducible but one run
+- [x] Prepare Signal write-up (`patches/SIGNAL-DRAFT.md`; not sent)
 
 ## Phase 5 — spec PRs
 

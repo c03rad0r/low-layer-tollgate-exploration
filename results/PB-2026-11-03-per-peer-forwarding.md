@@ -206,6 +206,8 @@ The sidecar path is covered by 5 unit tests with a fake control client.
       (5 tests); validated against the patched seller container.
 - [x] Re-run the payment demo on a chain with a service behind the seller;
       pause replaces the cut end-to-end (`PD-2026-11-03-pause-payment.md`).
+- [x] Repeat with multiple peers behind one seller: blocking A leaves C
+      untouched, n=3 (`results/MP-2026-11-03-multi-peer-isolation.md`).
 - [ ] Repeat the pause test with payment traffic and over TCP/Ethernet.
 - [ ] Prepare the out-of-band Signal write-up (do not send until the result is
       reproducible).

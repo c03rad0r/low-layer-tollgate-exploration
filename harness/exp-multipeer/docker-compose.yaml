@@ -1,0 +1,62 @@
+name: low-layer-tollgate-exp-multipeer
+
+# Star: A (root), B (transit seller), C and D (clients behind B).
+# A->D and C->D both transit B; blocking A at B must not touch C.
+services:
+  a:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-mp-a
+    hostname: a
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/a.yaml:/etc/fips/fips.yaml:ro
+    networks: [fips-net]
+    restart: "no"
+
+  b:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-mp-b
+    hostname: b
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/b.yaml:/etc/fips/fips.yaml:ro
+      - ../pause:/pause:ro
+      - ../../sidecar:/sidecar:ro
+    networks: [fips-net]
+    restart: "no"
+
+  c:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-mp-c
+    hostname: c
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/c.yaml:/etc/fips/fips.yaml:ro
+    networks: [fips-net]
+    restart: "no"
+
+  d:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-mp-d
+    hostname: d
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/d.yaml:/etc/fips/fips.yaml:ro
+    networks: [fips-net]
+    restart: "no"
+
+networks:
+  fips-net:
+    driver: bridge
