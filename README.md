@@ -21,16 +21,18 @@ with **per-transport meaning policy scope, not code placement**:
 | **L1** link admission (after msg1 DH) | npub, proven | admit, deny, credit, per-npub limit |
 | **L2** established link data plane | npub + link + counters | meter, pause transit, renew |
 
-Today FIPS gives us L1 and L2 only as *admit* or *disconnect*. It cannot pause
-one peer's forwarding while keeping the link. That gap is the load-bearing one,
-and the Phase 1 demo is designed to fail on it so the evidence exists.
+Upstream FIPS gives us L1 and L2 only as *admit* or *disconnect*. It cannot
+pause one peer's forwarding while keeping the link. That gap is the load-bearing
+one. The Phase 1 demo was built to fail on it, and patch (b) closes it locally:
+one peer's transit is blocked while its link, Noise session and local path stay
+(`results/PB-2026-11-03`, `results/PD-2026-11-03`). The patch is unmerged.
 
 ## Status
 
 | Phase | What | Status |
 |---|---|---|
 | 0 | Seams: counter boundary (A), ACL latency (B), captive-portal bypass (E) | **A, B done; E nft + E2 throughput done, ndsctl blocked** |
-| 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | **C, H and real-payment demo done; pause still missing** |
+| 1 | Sidecar gate over the control socket, zero FIPS changes (C, H) | **C, H, real-payment demo and durable eviction/re-admit done; pause via local patch (b)** |
 | 2 | TCP, Ethernet, BLE, Tor demos behind one gate interface | TCP + Ethernet done (incl. Ethernet pause); BLE/Tor pending |
 | 3 | Local mint + receiver spent journal (F, G) | F, G, settlement, batching, drain + dead-letter/health done |
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | all three local patches + lab results |

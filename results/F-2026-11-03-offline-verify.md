@@ -10,7 +10,7 @@
 - **TollGate commit:** n/a
 - **Repo commit:** mint harness commit
 - **Status:** **partial** — real DLEQ/P2PK verification and durable replay refusal
-  pass offline; FIPS session continuity and Exp G are not done
+  pass offline; FIPS session continuity is still open (Exp G is done)
 
 ## Question
 
@@ -194,8 +194,12 @@ the replay; the refusal is durable, not in-memory.
 ## Caveats
 
 - One mint, two tokens, one keyset.
-- No session, no journal, no exposure cap in this run. Those are unit-tested but
-  not connected to a real proof yet.
+- This run is verification only. Later results connect the verifier to a real
+  session and the journal: `DEMO-2026-11-03-buyer-exhausts.md`,
+  `DEADLETTER-2026-11-03.md`, `SETTLE-2026-11-03-redeem.md` and
+  `BATCH-2026-11-03.md`. The remaining gap is a single run where the seller's
+  FIPS session stays paid from the journal while the mint is down, then the
+  seller restarts and refuses a replay.
 - No NUT-07 spentness check (deliberately: this is the offline case). The
   journal is the local substitute; cross-seller double spend remains.
 - `verify_token.py` runs inside the Nutshell image because it needs the `cashu`
@@ -208,11 +212,13 @@ the replay; the refusal is durable, not in-memory.
       (`harness/mint/gate_token.py`); replay refused across a restart.
 - [ ] Run Exp F end-to-end on a FIPS link: keep a session paid from the journal
       while the mint is stopped; restart the seller; confirm no replay and the
-      session continues.
-- [ ] Exp G: rotate a keyset with `final_expiry` and test the admission
-      predicate.
-- [ ] Add NUT-07 settlement and a batched worker.
-- [ ] Record the compressed-pubkey requirement in the payer-binding TIP.
+      session continues. The pieces exist (DEMO, DEADLETTER); they are not yet
+      combined in one run.
+- [x] Exp G: pin a keyset `final_expiry` and test the admission predicate
+      (`results/G-2026-11-03-final-expiry.md`).
+- [x] Add NUT-07 settlement and a batched worker
+      (`results/SETTLE-2026-11-03-redeem.md`, `results/BATCH-2026-11-03.md`).
+- [x] Record the compressed-pubkey requirement in `docs/0003`.
 
 ## Artefacts
 
