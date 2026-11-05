@@ -98,13 +98,16 @@ to the bottom with a date.
 
 - [x] Draft text for P1–P5 (`spec-drafts/01`–`04`, `06`)
 - [x] `spec-drafts/README.md` maps titles, branches and evidence
-- [ ] P1 endpoint advertisement + port removal — ready, PR not opened
-- [ ] P2 scope — ready, PR not opened
-- [ ] P3 wire-byte metering — ready, PR not opened
-- [ ] P4 pause and renewal — ready, PR not opened
-- [ ] P5 frame gate — ready, PR not opened
+- [x] P1 endpoint advertisement + port removal → TIP-08, PR #51
+      (`tip/08-endpoint-advertisement`)
+- [x] P2 scope → TIP-09, PR #52 (`tip/09-session-scope`)
+- [x] P3 wire-byte metering → TIP-10, PR #53 (`tip/10-wire-byte-metering`)
+- [x] P4 pause and renewal → TIP-11, PR #54 (`tip/11-pause-renewal`)
+- [x] P5 frame gate → `ETH-01`, PR #55 (`eth/01-frame-gate`; medium spec,
+      matching `WIFI-01`)
 - [x] No PR opened without explicit operator approval
-- [~] Each cites experiment IDs (drafts do; PRs not opened)
+- [x] Each cites experiment IDs in the PR body and the TIP text
+- [x] No README index change in any PR, to avoid cross-PR conflicts
 
 ## Phase 6 — channels
 
@@ -131,7 +134,7 @@ to the bottom with a date.
       durable eviction, with `unblock_frame()` on re-admission
       (5 controller tests)
 - [ ] Wire the `ndsctl` half when the AP result exists
-- [x] Draft `spec-drafts/06-frame-gate.md` (P5; not opened)
+- [x] Draft `spec-drafts/06-frame-gate.md` (P5; opened as `ETH-01`, PR #55)
 - [ ] **Exp E** — `ndsctl` deauth vs `0x2121` (needs a real AP)
 
 ## Cross-cutting
