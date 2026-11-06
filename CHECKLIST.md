@@ -109,6 +109,11 @@ to the bottom with a date.
 - [x] No PR opened without explicit operator approval
 - [x] Each cites experiment IDs in the PR body and the TIP text
 - [x] No README index change in any PR, to avoid cross-PR conflicts
+- [x] Patches split into the private `low-layer-tollgate-patches` repo;
+      `patches/` removed from this repo's history
+- [x] Repo published; PRs #51–#55 link the public result files
+- [x] Amperstrand and felixfelix-bot invited (`write`; GitHub does not allow
+      `admin`/`maintain` on personal-account repos)
 
 ## Phase 6 — channels
 
