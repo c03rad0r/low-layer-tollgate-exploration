@@ -54,7 +54,7 @@ Upstream FIPS 0.5.x and 0.6.x offer only:
 - `fipsctl disconnect` at L2.
 
 There is no per-peer forwarding role upstream, so `pause` cannot be honoured
-there. A local patch (b) adds one (`patches/0001-per-peer-forwarding.patch`):
+there. A local patch (b) adds one (`0001-per-peer-forwarding.patch` in the private patches repo):
 transit from a blocked peer is dropped, local delivery and the link stay. The
 lab result is `PB-2026-11-03`. `UnixControl` implements the client;
 `FipsGate(control=...)` uses it for `pause()`/`resume()`. The interface therefore

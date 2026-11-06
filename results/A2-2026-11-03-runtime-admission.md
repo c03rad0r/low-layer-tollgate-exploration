@@ -112,7 +112,7 @@ when `fipsctl admission allow` returns.
 
 ## Artefacts
 
-- `patches/0001-per-peer-forwarding.patch`
+- `0001-per-peer-forwarding.patch` (private patches repo, not published)
 - `harness/exp-c/admission.py`
 - `harness/exp-c/run-admission.sh`
 - `docs/0012-runtime-admission.md`

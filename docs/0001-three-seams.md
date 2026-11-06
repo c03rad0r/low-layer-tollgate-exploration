@@ -53,7 +53,7 @@ is exactly what the FIPS design refuses to do.
   role.
 - **L2** upstream has the counters but no policy hook. A peer either is a peer,
   with full transit rights, or is gone. A local patch (b) adds a per-peer transit
-  policy (`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`); it
+  policy (`0001-per-peer-forwarding.patch` in the private patches repo, result `PB-2026-11-03`); it
   is not upstream.
 
 The missing piece was a **per-peer forwarding role** consulted on the data

@@ -18,7 +18,7 @@ This experiment implements and tests that hook.
 
 ## Patch
 
-`patches/0001-per-peer-forwarding.patch` (244 added lines, 13 files):
+`0001-per-peer-forwarding.patch` (private patches repo, not published) (244 added lines, 13 files):
 
 - `Node.forwarding_blocked: HashSet<NodeAddr>`;
 - control command `set_forwarding {"npub": ..., "allow": bool}` and CLI
@@ -214,6 +214,6 @@ The sidecar path is covered by 5 unit tests with a fake control client.
 
 ## Artefacts
 
-- `patches/0001-per-peer-forwarding.patch`
+- `0001-per-peer-forwarding.patch` (private patches repo, not published)
 - `harness/pause/` (compose, configs, control client, orchestrator)
 - `harness/pause/control.py`

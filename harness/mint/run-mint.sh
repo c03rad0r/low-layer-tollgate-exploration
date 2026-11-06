@@ -18,6 +18,7 @@ else
     -e MINT_BACKEND_BOLT11_SAT=FakeWallet \
     -e MINT_LISTEN_HOST=0.0.0.0 \
     -e MINT_LISTEN_PORT=3338 \
+    # Fixed test key for the local FakeWallet mint; holds no value.
     -e MINT_PRIVATE_KEY=0000000000000000000000000000000000000000000000000000000000000001 \
     -e MINT_DATABASE=/data/mint \
     -e MINT_INFO_NAME="TollGate test mint" \

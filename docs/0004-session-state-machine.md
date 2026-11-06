@@ -78,7 +78,7 @@ exceed `final_expiry − settlement_window`.
 `grace` requires blocking forwarding for one peer while keeping the link.
 Upstream FIPS 0.6.0-dev has no such hook: the only levers are admit/deny at L1
 and `disconnect` at L2. Patch (b) adds a per-peer transit policy locally
-(`patches/0001-per-peer-forwarding.patch`) and the lab result shows transit
+(`0001-per-peer-forwarding.patch` in the private patches repo) and the lab result shows transit
 blocked while the link and local path stay (`PB-2026-11-03`). Upstream still
 needs the hook; this is not a merged FIPS change.
 

@@ -10,6 +10,10 @@ Phase 0 scripts and the Phase 1–7 labs exist. The Ethernet `veth` pair, the
 patched-FIPS chains/stars and the local Nutshell mint all run in Docker; no
 fleet node has Ethernet or BLE.
 
+Lab configs ship with `nsec: "REPLACE_WITH_HEX_SEED"`. Substitute any 32-byte
+hex seed before running. The original runs used per-lab throwaway keys that
+held no value.
+
 ## Layout
 
 ```

@@ -45,7 +45,7 @@ it is a caveat, not a missing claim.
 ## P4 caveat
 
 P4 requires a per-peer forwarding role. Upstream FIPS 0.6.0-dev does not have
-one; the local patch (b) does (`patches/0001-per-peer-forwarding.patch`,
+one; the local patch (b) does (`0001-per-peer-forwarding.patch` in the private patches repo,
 `results/PB-2026-11-03-per-peer-forwarding.md`) and the capstone
 (`results/PD-2026-11-03-pause-payment.md`) proves the shape. The patch is
 unmerged and is not part of any PR. The FIPS ask is made out of band via

@@ -99,7 +99,7 @@ accepted after a receiver restart; exposure never exceeds the cap.
 - (c) price input into `link_cost`, with hysteresis — **implemented**
 
 Status: (b) is implemented locally and passes an A–B–C chain test
-(`patches/0001-per-peer-forwarding.patch`, result `PB-2026-11-03`): transit from
+(`0001-per-peer-forwarding.patch` in the private patches repo, result `PB-2026-11-03`): transit from
 a blocked peer is dropped while its link, Noise session and local path stay.
 A four-node star now shows the block is isolated to one client: A→D fails while
 C→D, A→B and the A–B link stay up, and drops are filed under A only, n=3

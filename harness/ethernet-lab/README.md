@@ -57,7 +57,7 @@ The container has `NET_ADMIN`, so a future script can:
 3. install the `netdev` gate in the receiver namespace;
 4. wire the MAC set to the session state machine.
 
-`fipsd` is not built here yet. See `patches/README.md` and the Phase 2 plan.
+`fipsd` is not built here yet. See the private patches repo (not published) and the Phase 2 plan.
 
 ## Result
 

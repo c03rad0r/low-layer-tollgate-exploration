@@ -178,7 +178,7 @@ instead of `:2121` with the same identities.
 
 - `harness/pause/pay_demo.py`
 - `harness/pause/run-pay-demo.sh`
-- `patches/0001-per-peer-forwarding.patch`
+- `0001-per-peer-forwarding.patch` (private patches repo, not published)
 - `harness/mint/` (real test ecash + offline verifier)
 - `results/PB-2026-11-03-per-peer-forwarding.md`
 - `results/F-2026-11-03-offline-verify.md`

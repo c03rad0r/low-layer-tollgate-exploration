@@ -1,6 +1,6 @@
 # 0012 — Runtime admission (patch a)
 
-Status: implemented locally in `patches/0001-per-peer-forwarding.patch`; Rust
+Status: implemented locally in `0001-per-peer-forwarding.patch` (private patches repo, not published); Rust
 unit test plus four sidecar tests. Lab measurement: `results/A2-2026-11-03-runtime-admission.md`.
 
 ## The gap

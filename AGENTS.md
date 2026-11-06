@@ -11,7 +11,8 @@
   issue — we do **not** file it publicly. We write it up in `results/`,
   and the operator raises it out of band via Signal, only after the
   experiment backing it is complete and reproducible.
-- Local FIPS changes live in `patches/` as unmerged patch files. Never push
+- Local FIPS changes live in the private `low-layer-tollgate-patches` repo as
+  unmerged patch files; they are never copied into this repository. Never push
   them to a public fork, never open a PR with them.
 
 ## Experiment hygiene

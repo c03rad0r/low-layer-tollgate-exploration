@@ -127,7 +127,7 @@ a **settlement deadline**:
 `grace` requires blocking forwarding for one peer while keeping its link.
 Upstream FIPS 0.6.0-dev has no such hook. This TIP therefore depends on a
 **per-peer forwarding role** consulted on the data path. A local, unmerged
-patch demonstrates the hook (`patches/0001-per-peer-forwarding.patch`, result
+patch demonstrates the hook (`0001-per-peer-forwarding.patch` in the private patches repo, result
 `PB-2026-11-03`): transit from the peer is dropped while local delivery, the
 link and the Noise session stay.
 

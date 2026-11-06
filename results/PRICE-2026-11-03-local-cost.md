@@ -135,5 +135,5 @@ harness/exp-price/run-price.sh
 ## Artefacts
 
 - `harness/exp-price/` (compose, four configs, orchestrator, runner)
-- `patches/0001-per-peer-forwarding.patch` (patches a, b and c are one file)
+- `0001-per-peer-forwarding.patch` (private patches repo, not published) (patches a, b and c are one file)
 - `docs/0012-runtime-admission.md` (sibling patch)

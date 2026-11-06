@@ -7,6 +7,18 @@ This repo holds the experiments, the notes, and the spec drafts. It is not a
 product repo. Nothing here is merged upstream, and nothing here runs on
 mainnet funds.
 
+## What is and is not here
+
+This is the public evidence base for the five spec PRs. The unmerged FIPS
+patches and the unsent out-of-band write-up are deliberately **not** in this
+repository; they live in a private side repo, per `AGENTS.md`. The results
+describe what the patches made measurable, not how they are implemented.
+
+Fleet hostnames and lab identity seeds in the results and harness configs have
+been replaced with placeholders (`host-a`, `gateway`,
+`REPLACE_WITH_HEX_SEED`) before publication. Counts, timings and raw output are
+otherwise unchanged; the original logs are available on request.
+
 ## The short version
 
 FIPS transports are deliberately identity-blind: they move bytes between
@@ -36,7 +48,7 @@ one peer's transit is blocked while its link, Noise session and local path stay
 | 2 | TCP, Ethernet, BLE, Tor demos behind one gate interface | TCP + Ethernet done (incl. Ethernet pause); BLE/Tor pending |
 | 3 | Local mint + receiver spent journal (F, G) | F, G, settlement, batching, drain + dead-letter/health done |
 | 4 | FIPS patches (a) runtime admission, (b) per-peer forwarding, (c) price in `link_cost` | all three local patches + lab results |
-| 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P5) | drafts updated with PB/PD/MP/E4 evidence; no PRs opened |
+| 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P5) | **five discussion-draft PRs open: #51–#55** |
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | treasury boundary decided (out of gate path); channel not started |
 | 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | correctness + E2 throughput + E4 per-MAC bucket done; E3/ndsctl pending |
 
@@ -66,9 +78,11 @@ docs/          design notes, numbered
 spec-drafts/   ready-to-PR text for OpenTollGate/tollgate
 experiments/   one directory per experiment
 harness/       lab topology, scripts, compose file
-patches/       local unmerged FIPS patches
 results/       one file per run; raw output first
 ```
+
+The unmerged FIPS patches are deliberately **not** in this repository. They live
+in the private `low-layer-tollgate-patches` repo, per `AGENTS.md`.
 
 ## Running things
 
