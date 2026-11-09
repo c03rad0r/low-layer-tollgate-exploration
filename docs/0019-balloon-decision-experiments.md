@@ -17,7 +17,12 @@ Related material:
 - `results/F-2026-11-03-offline-verify.md` — P2PK + DLEQ with the mint stopped.
 - `results/G-2026-11-03-final-expiry.md` — `final_expiry` is not enforced by
   Nutshell 0.21.0.
-- `results/SETTLE`, `BATCH`, `DRAIN`, `DEADLETTER`, `PD`, `MP`, `PE`.
+- Settlement and pause evidence: `results/SETTLE-2026-11-03-redeem.md`,
+  `results/BATCH-2026-11-03.md`, `results/DRAIN-2026-11-03-daemon.md`,
+  `results/DEADLETTER-2026-11-03.md`,
+  `results/PD-2026-11-03-pause-payment.md`,
+  `results/MP-2026-11-03-multi-peer-isolation.md`,
+  `results/PE-2026-11-03-pause-ethernet.md`.
 - `balloon-fresh`: `docs/adr/100-tollgate-over-fips-mesh-udp.md`,
   `docs/adr/110-tollgate-over-lr2021.md`,
   `docs/adr/014-bent-pipe-fpga-bridging.md`,
