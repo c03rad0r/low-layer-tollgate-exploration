@@ -68,6 +68,8 @@ one peer's transit is blocked while its link, Noise session and local path stay
 - `docs/0016-drain.md` — the background settlement loop.
 - `docs/0017-frame-gate-module.md` — the L0 frame-gate module (nft).
 - `docs/0018-treasury-plane.md` — why cross-mint swaps stay off the gate path.
+- `docs/0019-balloon-decision-experiments.md` — balloon decisions, experiments
+  and tracking checklist.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 

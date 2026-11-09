@@ -143,6 +143,19 @@ to the bottom with a date.
 - [x] Draft `spec-drafts/06-frame-gate.md` (P5; opened as `ETH-01`, PR #55)
 - [ ] **Exp E** — `ndsctl` deauth vs `0x2121` (needs a real AP)
 
+## Phase 8 — balloon decision experiments
+
+Plan and per-experiment checkboxes: `docs/0019-balloon-decision-experiments.md`.
+
+- [ ] D1 forwarding surface — E-BYPASS, E-SELECTOR
+- [ ] D2 key model — E-TWOKEY
+- [ ] D3 offline policy — E-CRASH, E-EXPIRY, E-OUTAGE
+- [ ] D4 R2 vs R3 — E-LORA (plus external E-MINT)
+- [ ] D5 FIPS implementation — E-FEATURES (plus external E-MICROFIPS)
+- [ ] E-INTERMITTENT — credit across a contact gap
+- [ ] E-BIND — payment bound to the FIPS session
+- [ ] Record the five decisions in `docs/0019`
+
 ## Cross-cutting
 
 - [ ] Every result file has version, rev, commands, raw output
