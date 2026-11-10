@@ -147,14 +147,29 @@ to the bottom with a date.
 
 Plan and per-experiment checkboxes: `docs/0019-balloon-decision-experiments.md`.
 
-- [ ] D1 forwarding surface — E-BYPASS, E-SELECTOR
-- [ ] D2 key model — E-TWOKEY
-- [ ] D3 offline policy — E-CRASH, E-EXPIRY, E-OUTAGE
-- [ ] D4 R2 vs R3 — E-LORA (plus external E-MINT)
-- [ ] D5 FIPS implementation — E-FEATURES (plus external E-MICROFIPS)
-- [ ] E-INTERMITTENT — credit across a contact gap
-- [ ] E-BIND — payment bound to the FIPS session
-- [ ] Record the five decisions in `docs/0019`
+- [~] D1 forwarding surface — BYPASS and SELECTOR complete; L2 is effective
+      only at a verified cut vertex (BYPASS n=3); L0 allow-list needs an
+      out-of-band rebind path (SELECTOR n=3). Deliberate E laundering and
+      actual MAC spoof/roaming follow.
+- [~] D2 key model — per-balloon compressed P2PK key validated offline;
+      shared acceptors both credit, one loses on redemption (TWOKEY). More
+      token samples and fleet sync remain.
+- [~] D3 offline policy — correct crash ordering 0/20 double credit;
+      expiry guard vs permissive mint; 30 s outage settles exactly
+      (CRASH/EXPIRY/OUTAGE). Long outages, rotation and power cut remain.
+- [~] D4 R2 vs R3 — R2 fits multi-minute contacts in the 255 B/30% loss
+      model; use npub accounts rather than a short link deadline
+      (LORA/INTERMITTENT). Actual RF/Wirehair scheduler remains.
+- [x] D5 FIPS implementation — initial service gates at the full Rust ground
+      daemon; current microfips is leaf-only, balloon-router cost is external.
+- [x] E-INTERMITTENT — 60 s model evicted after deadline/grace; 7,200 s
+      account survives; link ids change (n=1 per model)
+- [x] E-BIND — FIPS source maps to npub; cross-peer token replay refused
+- [x] Decisions D1–D5 and evidence links recorded in `docs/0019`
+
+Remaining follow-ups: varied token/expiry series, long outage windows,
+transit-laundering, MAC spoof/rebind, hardware LR2021/Wirehair runs, and
+on-device flash/power-loss tests.
 
 ## Cross-cutting
 

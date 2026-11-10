@@ -1,0 +1,30 @@
+# FIPS node BUYER — Exp C test topology.
+#
+# TEST IDENTITY ONLY. Derived from the test mesh name
+# "low-layer-tollgate-exp-c" with the upstream derive_keys.py. Not a secret and
+# not for production.
+
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+
+dns:
+  enabled: true
+
+transports:
+  udp:
+    bind_addr: "0.0.0.0:2222"
+    mtu: 1472
+
+peers:
+  - npub: "npub16pdakpwe28famj7j392f5xkqxc35zhal4g3k2yna049wcxn58wjqsjm9wu"
+    alias: "seller"
+    addresses:
+      - transport: udp
+        addr: "seller:2121"
+    connect_policy: auto_connect
