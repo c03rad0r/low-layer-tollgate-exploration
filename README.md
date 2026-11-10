@@ -52,6 +52,7 @@ one peer's transit is blocked while its link, Noise session and local path stay
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | treasury boundary decided (out of gate path); channel not started |
 | 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | correctness + E2 throughput + E4 per-MAC bucket done; E3/ndsctl pending |
 | 8 | Balloon decision experiments (BYPASS, SELECTOR, TWOKEY, CRASH, EXPIRY, OUTAGE, LORA, INTERMITTENT, BIND, FEATURES) | **initial measurements and decisions done in `docs/0019`; hardware/long-window follow-ups remain** |
+| 9 | Production direction (account, strict offline P2PK, CRC journal) | **host-side prototypes and tests done; controller/hardware/release gates open in `docs/0020`** |
 
 ## Read this first
 
@@ -71,6 +72,8 @@ one peer's transit is blocked while its link, Noise session and local path stay
 - `docs/0018-treasury-plane.md` — why cross-mint swaps stay off the gate path.
 - `docs/0019-balloon-decision-experiments.md` — balloon decisions, experiments
   and tracking checklist.
+- `docs/0020-balloon-production-readiness.md` — the production checklist.
+- `docs/0021-npub-prepaid-accounts.md` — account, P2PK-policy and log APIs.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 

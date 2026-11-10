@@ -171,6 +171,39 @@ Remaining follow-ups: varied token/expiry series, long outage windows,
 transit-laundering, MAC spoof/rebind, hardware LR2021/Wirehair runs, and
 on-device flash/power-loss tests.
 
+## Phase 9 — production readiness
+
+Full plan: `docs/0020-balloon-production-readiness.md`; API notes:
+`docs/0021-npub-prepaid-accounts.md`.
+
+- [x] Narrow deployment contract: single app-relay or verified cut vertex,
+      no per-balloon fleet key and no L0-selector authorization
+- [x] Durable npub prepaid account (`account.py`): DECIMAL credit/use,
+      dormant/contact-gap state, renewal, explicit eviction
+- [x] Offline one-of-one P2PK admission (`nut11.py`): compressed seller key,
+      no refund/locktime/multisig/unknown extension or sig-all
+- [x] Bounded-record CRC append-only journal (`appendlog.py`): torn-tail
+      handling, reopen, compaction, single-key latest pending
+- [x] Cross-process account/payment demo (`harness/exp-account/account_demo.py`)
+- [x] Host result (`results/ACCOUNT-2026-11-10-production-prototype.md`), 174 tests)
+- [ ] Choose controller/router/service and write OFFER/PAY/ACK/status wire schemas
+- [ ] Bind offline verification + reservation into one actual relay's accepted
+      PAY handler; enforce balance on every forwarded/served request
+- [ ] Use exact chargeable-frame metering (exclude policy drops).
+- [ ] Resolve key lifecycle, durable key/offers, account read/write across OS
+      reboot and initial clock expiry selection
+- [ ] Real-mint reclaim vectors, keyset rotation and stale-keyset recovery
+- [ ] End-to-end payer binding through an intermediate relay
+- [ ] Embedded bounded storage: compaction cost/wear, corruption limits,
+      multi-writer policy, and keyset exposure/cap controls
+- [ ] Full process + flash power-cut at reserve / redeem / SETTLED
+- [ ] Device HIL timing/RAM and actual LR2021/Wirehair contact-window timings
+- [ ] Full multi-pass soak, seller restart, mint outage/reconnect and dead-letter
+- [ ] Provisioning, signed release, signed rollback, kill switch, operator
+      recovery runbook, monitored exposure/alarm expiry
+- [ ] Pilot one mint, one relay, conservative capped exposure; publish evidence
+      and review before scaling
+
 ## Cross-cutting
 
 - [ ] Every result file has version, rev, commands, raw output
