@@ -51,6 +51,7 @@ entry, so the two files cannot contradict each other for the same npub.
 | `account.py` | npub prepaid accounts (dormant interval, exact persistent balance), not a forwarding controller |
 | `nut11.py` | strict offline one-of-one P2PK condition and keyset-window checks |
 | `appendlog.py` | bounded-record CRC append-only proof journal for embedded-storage design |
+| `relay.py` | npub-bound app request-path payment/forward policy (not a universal mesh gate) |
 | `controller.py` | `SellerController`: session state → admit/pause/resume/evict + meter; optional L0 block |
 | `settlement.py` | `SettlementWorker`: redeem → journal SETTLED → exposure release |
 | `vault.py` | `TokenVault`: durable bearer token, attempts, dead letter, requeue |
@@ -89,7 +90,7 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-174 tests: counter merge/delta/reset/direction, the four-state machine,
+185 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
@@ -100,12 +101,17 @@ vault (crash recovery, attempts, dead letter), the drain loop (backoff,
 stop conditions, health), and the frame-gate command shape/config (nft, faked
 for the unit tests). Newer cases cover durable prepaid npub accounts,
 dormant/rebind state, strict NUT-11 refusal rules, CRC-journal truncation,
-reopen/replay, settling versus pending and compaction.
+reopen/replay, settling versus pending and compaction. `relay.py` then
+integrates account, P2PK and CRC-journal proof handling behind
+`PaymentGate`; tests also verify no-replay request-path credit after
+cross-peer payment, link gap and process reopen.
 
 ## Not implemented
 
 - Integration of the production account/P2PK/journal contract into one actual
-  relay controller's request/forwarding path.
+  relay controller's request/forwarding path is present as a host module.
+  A real FIPS request handler, transport event loop, message mux and a
+  DLEQ-verifying real-mint adapter remain separate work.
 - Payer-binding with the seller-encrypted preamble and msg1-ephemeral. Direct
   FIPS presenter binding is a different, smaller guarantee.
 - A raw control-socket client covers only `set_forwarding` (the local patch).

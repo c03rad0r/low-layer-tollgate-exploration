@@ -105,7 +105,14 @@ This work is directly reusable on the host, but it does **not** establish:
 - no_std compilation or ESP32 flash atomicity;
 - phone/power-loss durability of a particular embedded log format;
 - transaction durability under two concurrent writers;
-- a formal interoperable offer/payment protocol;
+a formal interoperable offer/payment protocol;
+
+`CrcNullifierJournal` adapts the bounded record journal to the existing
+`PaymentGate`/`SettlementWorker` abstraction. `AppRelayController` then adds
+lookup/binding of a caller-authenticated FIPS npub and link to the prepaid
+account, and charges whole FMP frames only when the account is online and in
+`PAID`. Its real FIPS event loop and real DLEQ adapter remain pending work.
+
 - an exact accounting/per-frame-class counter implementation.
 
 The checklist in `docs/0020-balloon-production-readiness.md` tracks those gates

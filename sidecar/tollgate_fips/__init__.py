@@ -84,7 +84,8 @@ from .nut11 import (
     is_compressed_secp256k1,
     require_compressed_lock_key,
 )
-from .appendlog import CorruptJournal, CrcJournal
+from .appendlog import CorruptJournal, CrcJournal, CrcNullifierJournal
+from .relay import AppRelayController, ForwardDecision, RelayError
 
 __all__ = [
     "Fipsctl",
@@ -162,4 +163,8 @@ __all__ = [
     "require_compressed_lock_key",
     "CorruptJournal",
     "CrcJournal",
+    "CrcNullifierJournal",
+    "AppRelayController",
+    "ForwardDecision",
+    "RelayError",
 ]

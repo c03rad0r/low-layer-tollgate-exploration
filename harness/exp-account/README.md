@@ -25,3 +25,15 @@ It reports:
 interpret this host success as evidence of flash-power-loss durability or a
 running balloon relay controller. It is the reference API/proof for a later
 controller integration.
+
+## App-relay integration demo
+
+`harness/exp-account/relay_demo.py` additionally exercises the
+`AppRelayController` directly: unpaid frame refused, credited frame accepted,
+cross-peer payment replay refused, exhaustion → grace, valid renewal and new
+link resumption after closing/reopening the account file.
+
+It is a request-path accounting demonstration using synthetic amounts and a
+structural P2PK verifier. It does not call a mint or re-execute the real DLEQ
+suite. `docs/0022-app-relay-integration.md` tracks integration into a real FIPS
+handler, full verifier and transport/hardware gates.

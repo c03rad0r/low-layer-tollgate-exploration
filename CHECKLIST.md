@@ -204,6 +204,25 @@ Full plan: `docs/0020-balloon-production-readiness.md`; API notes:
 - [ ] Pilot one mint, one relay, conservative capped exposure; publish evidence
       and review before scaling
 
+## Phase 10 — application-relay integration
+
+Plan: `docs/0022-app-relay-integration.md`.
+
+- [x] Adapt the CRC journal to `PaymentGate` via `CrcNullifierJournal`.
+- [x] `AppRelayController`: reserve verified money before credit; unrevised
+      per-peer usage/top-up and `grace` exhaustion enforcement.
+- [x] Support account restart and dormant resumption on new authenticated links.
+- [x] Cross-presenter replay refusal and pending accounting; 185 tests.
+- [x] Request-path demo (`harness/exp-account/relay_demo.py`).
+- [ ] Replace demo verifier with real cached-key DLEQ + NUT-11 verification.
+- [ ] FIPS-native event/input binding for authenticated peer and link id.
+- [ ] Wire schemas and typed rejected/ACK/error outcomes for relay and account.
+- [ ] Correct service-specific FMP-byte boundaries and no billing for policy drops.
+- [ ] Batch/reconcile settlement from the CRC-backed vault; preserve redeem→settle recovery.
+- [ ] Enforce production caps on offline balances/accounts/requests/log size.
+- [ ] Balloon-fresh relay-controller integration and router/ADR reconciliation.
+- [ ] Live traffic acceptance, power-cut, LR2021/Wirehair, release operations.
+
 ## Cross-cutting
 
 - [ ] Every result file has version, rev, commands, raw output
