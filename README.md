@@ -51,6 +51,7 @@ one peer's transit is blocked while its link, Noise session and local path stay
 | 5 | Spec PRs to `OpenTollGate/tollgate` (P1–P5) | **five discussion-draft PRs open: #51–#55** |
 | 6 | Channels (`cdk-spilman`) and treasury swaps (Granola) | treasury boundary decided (out of gate path); channel not started |
 | 7 | Frame gate: nft `netdev` on `ether type 0x2121` (E2–E4) | correctness + E2 throughput + E4 per-MAC bucket done; E3/ndsctl pending |
+| 8 | Balloon decision experiments (BYPASS, SELECTOR, TWOKEY, CRASH, EXPIRY, OUTAGE, LORA, INTERMITTENT, BIND, FEATURES) | **initial measurements and decisions done in `docs/0019`; hardware/long-window follow-ups remain** |
 
 ## Read this first
 

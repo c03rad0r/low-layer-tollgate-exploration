@@ -1,0 +1,33 @@
+# E-BYPASS node C: between B and D.
+node:
+  identity:
+    nsec: "REPLACE_WITH_HEX_SEED"
+tun:
+  enabled: true
+  name: fips0
+  mtu: 1280
+dns:
+  enabled: true
+transports:
+  udp:
+    bind_addr: "0.0.0.0:2121"
+    mtu: 1472
+peers:
+  - npub: "npub1thgwcxk5x45r9vusqzksmxnewfkgzhrdf4dlnc75ky96g6swnhlszjzgrw"
+    alias: "b"
+    addresses:
+      - transport: udp
+        addr: "b:2121"
+    connect_policy: auto_connect
+  - npub: "npub1hs6dzx86tn2c7mt3wntw2tt7m6seyua78pwfhagkk08v2yur9m0smvtmad"
+    alias: "a"
+    addresses:
+      - transport: udp
+        addr: "a:2121"
+    connect_policy: auto_connect
+  - npub: "npub1ca0q6q46qf329r6c750u8j6c4s2z2cuxgk5jky0vqm26qjdczrhqrkhkk3"
+    alias: "d"
+    addresses:
+      - transport: udp
+        addr: "d:2121"
+    connect_policy: auto_connect

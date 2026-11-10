@@ -1,6 +1,6 @@
 # 0019 — Balloon decision experiments
 
-Status: planned, not started
+Status: initial experiment set completed; follow-ups remain
 Date: 2026-11-09
 Owner: c03rad0r
 
@@ -30,16 +30,21 @@ Related material:
 
 ## Decisions this plan is meant to settle
 
-| ID | Decision | Current leaning | Experiments |
+| ID | Decision measured in this round | Result | Evidence |
 |---|---|---|---|
-| D1 | Forwarding surface | FIPS L2 per-peer transit plus an app-level relay; never claim per-packet gating on a transparent pipe | E-BYPASS, E-SELECTOR |
-| D2 | Key model | Per-balloon P2PK key for offline; a fleet key only with a shared journal | E-TWOKEY |
-| D3 | Offline policy | Cap unsettled value; settle before `final_expiry`; allow-list mints and keysets | E-CRASH, E-EXPIRY, E-OUTAGE |
-| D4 | R2 vs R3 | Pre-loaded npub-locked notes on the balloon; a local mint, if any, on the ground side | E-LORA (plus external E-MINT) |
-| D5 | FIPS implementation | Whichever stack can host the per-peer hook at acceptable cost; the Rust lab is the reference | E-FEATURES (plus external E-MICROFIPS) |
+| D1 | **Verified cut vertex only for L2 transit gating.** Every other mesh path must also be gated, or the paid service must terminate at an application relay. An L0 allow-list does not learn rebinds. | E-BYPASS: block only worked when B traversed the route, and re-parent bypassed it (n=3). E-SELECTOR: old rule lost 100% after rebind (n=3). | [BYPASS](../results/BYPASS-2026-11-10-single-node-gate.md), [SELECTOR](../results/SELECTOR-2026-11-10-l0-selector-rebind.md) |
+| D2 | **Per-balloon compressed P2PK key for offline cash.** No independently operated shared fleet key. | S1 and S2 both accepted the same token offline; one redeemed, one lost (50 sat). Correct key rejects; shared journal sync rejects. | [TWOKEY](../results/TWOKEY-2026-11-10-offline-shared-key.md) |
+| D3 | **Reserve before credit; capped offline exposure with deferred settlement.** Decide `final_expiry` using contact windows; mint stays permissive. | Correct ordering: 0/20 duplicate credits; reverse ordering: 20/20. Window 30 s accepted, 3,600 s rejected; 100 sat redeemed after expiry. Offline 10 sat settled exactly. | [CRASH](../results/CRASH-2026-11-10-journal-ordering.md), [EXPIRY](../results/EXPIRY-2026-11-10-p2pk-settlement-window.md), [OUTAGE](../results/OUTAGE-2026-11-10-offline-credit-settle.md) |
+| D4 | **R2 baseline (preloaded npub-locked notes) for multi-minute contact windows.** Use an npub-bound account, not per-link credit; R3 is not justified by token size. | 5 proofs p95 39.46 s at 1 kbps / 30% loss. 90 s gap evicted a 60 s deadline model but preserved a 7,200 s account; FIPS link recovered. | [LORA](../results/LORA-2026-11-10-time-to-pay.md), [INTERMITTENT](../results/INTERMITTENT-2026-11-10-contact-gap.md) |
+| D5 | **Full Rust ground relay for the initial paid service. Balloon-as-router stays open.** microfips is verified as leaf, not as a router with a tariff hook. | Current public microfips advertises a single-upstream leaf with no tree/bloom/transit. No MCU cost measured. | [FEATURES](../results/FEATURES-2026-11-10-fips-implementation-matrix.md) |
 
-The leanings are not conclusions. Each experiment below states what result would
-change the leaning.
+Status notes:
+
+- E-BIND verified FIPS-source → npub binding and replay rejection: [BIND](../results/BIND-2026-11-10-fips-payment-binding.md).
+- These are initial measurements, not complete proof for flight. Remaining variants are the unchecked boxes below: varied token/expiry series, long outages, deliberate transit laundering, MAC roaming/spoofing, actual LR2021 hardware, and on-device flash/power-loss tests.
+
+The initial decisions are above. Each experiment below states how it was tested;
+unchecked boxes are follow-ups beyond the completed first round.
 
 ## Conventions
 
@@ -56,17 +61,17 @@ change the leaning.
 
 ## Status
 
-- [ ] E-BYPASS — is a single gated node enough?
-- [ ] E-SELECTOR — can an L0 allow-list follow a FIPS session?
-- [ ] E-TWOKEY — per-balloon key vs fleet key
-- [ ] E-CRASH — does the journal survive a crash without double-credit?
-- [ ] E-EXPIRY — how long is the safe settlement window?
-- [ ] E-OUTAGE — how much value is at risk in an outage?
-- [ ] E-LORA — does a payment fit in a contact window?
-- [ ] E-INTERMITTENT — does credit survive a contact gap?
-- [ ] E-BIND — is payment bound to the FIPS session?
-- [ ] E-FEATURES — feature matrix for microfips vs the Rust stack
-- [ ] Decisions D1–D5 recorded in the table above
+- [x] E-BYPASS — [measured n=3](../results/BYPASS-2026-11-10-single-node-gate.md)
+- [x] E-SELECTOR — [rebind and recovery, n=3](../results/SELECTOR-2026-11-10-l0-selector-rebind.md)
+- [x] E-TWOKEY — [shared vs per-balloon key](../results/TWOKEY-2026-11-10-offline-shared-key.md)
+- [x] E-CRASH — [ordering, n=20/arm](../results/CRASH-2026-11-10-journal-ordering.md)
+- [x] E-EXPIRY — [single 90-second expiry arm](../results/EXPIRY-2026-11-10-p2pk-settlement-window.md)
+- [x] E-OUTAGE — [30-second settlement arm](../results/OUTAGE-2026-11-10-offline-credit-settle.md)
+- [x] E-LORA — [model results, 1,000 runs/cell](../results/LORA-2026-11-10-time-to-pay.md)
+- [x] E-INTERMITTENT — [90-second gap, two session models](../results/INTERMITTENT-2026-11-10-contact-gap.md)
+- [x] E-BIND — [five-message replay test](../results/BIND-2026-11-10-fips-payment-binding.md)
+- [x] E-FEATURES — [source feature matrix](../results/FEATURES-2026-11-10-fips-implementation-matrix.md)
+- [x] Decisions D1–D5 recorded in the table above
 
 ## E-BYPASS — is a single gated node enough?
 
@@ -92,14 +97,14 @@ the starting point; add a second path.
 
 **Procedure:**
 
-- [ ] Form the diamond and assert the parent tree before measuring.
-- [ ] Baseline A→D: loss, throughput, path, `link_id`s.
-- [ ] Block A at B (`set_forwarding allow=false`); measure A→D and the tree.
-- [ ] Record whether FIPS re-parents around B and how long that takes.
-- [ ] Block A at B and C; measure A→D again.
+- [x] Form the diamond and assert the parent tree before measuring.
+- [x] Baseline A→D: loss, throughput, path, `link_id`s.
+- [x] Block A at B (`set_forwarding allow=false`); measure A→D and the tree.
+- [x] Record whether FIPS re-parents around B and how long that takes.
+- [x] Block A at B and C; measure A→D again.
 - [ ] Transit-laundering arm: admit E, have E forward A's traffic, and measure
       whether A→D works through E.
-- [ ] Write `results/BYPASS-<date>.md` and record the D1 decision.
+- [x] Write `results/BYPASS-<date>.md` and record the D1 decision.
 
 **Measurements:** A→D loss and throughput; parent/path changes; time to bypass;
 `policy_blocked_by_peer` attribution; whether blocked bytes are billed.
@@ -124,14 +129,14 @@ on the selector, driven by the gate's admission state.
 
 **Procedure:**
 
-- [ ] Admit A and pass traffic through the L0 allow-list.
-- [ ] Force a UDP source-port rebind; measure whether the link survives and
+- [x] Admit A and pass traffic through the L0 allow-list.
+- [x] Force a UDP source-port rebind; measure whether the link survives and
       whether the selector changes.
-- [ ] Force a reconnect; measure the allow-list update gap and packet loss.
+- [x] Force a reconnect; measure the allow-list update gap and packet loss.
 - [ ] Repeat on Ethernet with a MAC change.
 - [ ] Spoof A's selector from another host; record that it passes, confirming
       the allow-list is not authorisation.
-- [ ] Write `results/SELECTOR-<date>.md`.
+- [x] Write `results/SELECTOR-<date>.md`.
 
 **Measurements:** selector stability, update latency, packets lost during the
 update, whether a spoofed selector passes.
@@ -159,15 +164,15 @@ separate journals. Three arms:
 
 **Procedure:**
 
-- [ ] Payer swaps into a note locked to the shared key (arm 1) or S1's key
+- [x] Payer swaps into a note locked to the shared key (arm 1) or S1's key
       (arm 2). Stop the mint.
-- [ ] Present the note to S1; confirm acceptance and journal RESERVED.
-- [ ] Present the same note to S2; record accept/reject and why.
-- [ ] Restart the mint and redeem from both; record which succeeds.
-- [ ] Arm 3: sync S1's journal to S2, then present; record the sync window and
+- [x] Present the note to S1; confirm acceptance and journal RESERVED.
+- [x] Present the same note to S2; record accept/reject and why.
+- [x] Restart the mint and redeem from both; record which succeeds.
+- [x] Arm 3: sync S1's journal to S2, then present; record the sync window and
       whether S2 rejects.
 - [ ] Repeat each arm n=10.
-- [ ] Write `results/TWOKEY-<date>.md`.
+- [x] Write `results/TWOKEY-<date>.md`.
 
 **Measurements:** acceptance rate at S2, redemption success, value lost, time to
 detect, sync latency.
@@ -193,13 +198,13 @@ after forwarding, after redeem, after SETTLED. Then a prototype append-only log
 
 **Procedure:**
 
-- [ ] Add a fault-injection hook to the payment path (test build only).
+- [x] Add a fault-injection hook to the payment path (test build only).
 - [ ] `kill -9` at each point; restart; replay the token; record the outcome.
-- [ ] Confirm replay is refused and the note is either credited or available,
+- [x] Confirm replay is refused and the note is either credited or available,
       never both.
-- [ ] Truncate the append-only log at random offsets; boot; record recovery.
-- [ ] Repeat n=20 per injection point.
-- [ ] Write `results/CRASH-<date>.md`.
+- [x] Truncate the append-only log at random offsets; boot; record recovery.
+- [x] Repeat n=20 per injection point.
+- [x] Write `results/CRASH-<date>.md`.
 
 **Measurements:** double-credit count, lost-credit count, recovery time, journal
 truncation tolerance.
@@ -225,13 +230,13 @@ expiry. Add a keyset rotation while offline.
 
 **Procedure:**
 
-- [ ] Set a short `final_expiry` and record it.
-- [ ] Accept notes offline.
-- [ ] Settle before, at, and after expiry; record admission and redemption.
+- [x] Set a short `final_expiry` and record it.
+- [x] Accept notes offline.
+- [x] Settle before, at, and after expiry; record admission and redemption.
 - [ ] Rotate the keyset while the seller is offline; present old- and
       new-keyset notes.
 - [ ] Vary the window across 1 minute, 1 hour and 1 day.
-- [ ] Write `results/EXPIRY-<date>.md`.
+- [x] Write `results/EXPIRY-<date>.md`.
 
 **Measurements:** acceptance/rejection at each point, value lost, stale-keyset
 behaviour, safe offline duration.
@@ -255,12 +260,12 @@ mint reports `SPENT` after the seller accepted offline.
 
 **Procedure:**
 
-- [ ] Define caps (per payer and total) and record them.
+- [x] Define caps (per payer and total) and record them.
 - [ ] Accept notes offline for each duration.
-- [ ] Restart the mint; batch-settle; record fees and time.
+- [x] Restart the mint; batch-settle; record fees and time.
 - [ ] Simulate a mint-side spend and record dead-letter/loss handling.
 - [ ] Model loss against cap and outage length.
-- [ ] Write `results/OUTAGE-<date>.md`.
+- [x] Write `results/OUTAGE-<date>.md`.
 
 **Measurements:** unsettled value, failure rate, fees, settlement time,
 dead-letter count.
@@ -284,11 +289,11 @@ where the payer retries and the seller must dedupe.
 
 **Procedure:**
 
-- [ ] Measure token sizes for each proof count.
-- [ ] Fragment and deliver at each rate; record fragments, retries and
+- [x] Measure token sizes for each proof count.
+- [x] Fragment and deliver at each rate; record fragments, retries and
       time-to-pay.
 - [ ] Drop ACKs and force a PAY retry; confirm no double-credit.
-- [ ] Write `results/LORA-<date>.md`.
+- [x] Write `results/LORA-<date>.md`.
 
 **Measurements:** bytes, fragments, time-to-pay, retry count, failure rate,
 duplicate detection.
@@ -311,11 +316,11 @@ must be the proof, not the message.
 
 **Procedure:**
 
-- [ ] Establish a paid session and pass traffic.
-- [ ] Blackhole the link for the gap; restore it.
-- [ ] Measure credit before/after, re-admission time, and state transitions.
-- [ ] Repeat with `valid_until` shorter and longer than the gap.
-- [ ] Write `results/INTERMITTENT-<date>.md`.
+- [x] Establish a paid session and pass traffic.
+- [x] Blackhole the link for the gap; restore it.
+- [x] Measure credit before/after, re-admission time, and state transitions.
+- [x] Repeat with `valid_until` shorter and longer than the gap.
+- [x] Write `results/INTERMITTENT-<date>.md`.
 
 **Measurements:** credit preserved, link id, re-admission time, false evictions.
 
@@ -338,10 +343,10 @@ Replay the PAY from B; also present A's token from B first.
 
 **Procedure:**
 
-- [ ] Send PAY over A's session; record the credit and the credited npub.
-- [ ] Replay the same PAY from B; record whether it is accepted and credited.
-- [ ] Present the token from B first; record who gets credit.
-- [ ] Write `results/BIND-<date>.md`.
+- [x] Send PAY over A's session; record the credit and the credited npub.
+- [x] Replay the same PAY from B; record whether it is accepted and credited.
+- [x] Present the token from B first; record who gets credit.
+- [x] Write `results/BIND-<date>.md`.
 
 **Measurements:** credited npub, replay acceptance, duplicate detection.
 
@@ -362,13 +367,13 @@ Rust stack on the features the gate needs.
 
 **Procedure:**
 
-- [ ] Per-peer forwarding policy hook.
-- [ ] Per-peer byte counters and policy-drop attribution.
-- [ ] Runtime admission / control API.
-- [ ] Rekey and rebind behaviour.
-- [ ] Multi-hop routing visibility.
+- [x] Per-peer forwarding policy hook.
+- [x] Per-peer byte counters and policy-drop attribution.
+- [x] Runtime admission / control API.
+- [x] Rekey and rebind behaviour.
+- [x] Multi-hop routing visibility.
 - [ ] Resource cost per peer and per packet.
-- [ ] Record the matrix in `docs/0019` or a follow-up note.
+- [x] Record the matrix in `docs/0019` or a follow-up note.
 
 **Decision rule:** if microfips cannot expose the hook or counters without a
 rewrite, the gate belongs at the ground station or in the Rust daemon, and the

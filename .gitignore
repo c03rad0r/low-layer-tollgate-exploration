@@ -25,3 +25,7 @@ wallet-data/
 tmp/
 .cache/
 .DS_Store
+
+# Test-only payment inputs for the exp-bind lab
+harness/exp-bind/token*.txt
+harness/exp-bind/server-output.json
