@@ -86,6 +86,15 @@ from .nut11 import (
 )
 from .appendlog import CorruptJournal, CrcJournal, CrcNullifierJournal
 from .relay import AppRelayController, ForwardDecision, RelayError
+from .identity import FipsPeerIdentity, FipsIdentityResolver, IdentityError
+from .application import RelayApplicationHandler
+from .envelope import (
+    EnvelopeError,
+    ack as relay_ack,
+    decode as decode_envelope,
+    encode as encode_envelope,
+    reject as relay_reject,
+)
 
 __all__ = [
     "Fipsctl",
@@ -167,4 +176,13 @@ __all__ = [
     "AppRelayController",
     "ForwardDecision",
     "RelayError",
+    "FipsPeerIdentity",
+    "FipsIdentityResolver",
+    "IdentityError",
+    "RelayApplicationHandler",
+    "EnvelopeError",
+    "relay_ack",
+    "decode_envelope",
+    "encode_envelope",
+    "relay_reject",
 ]

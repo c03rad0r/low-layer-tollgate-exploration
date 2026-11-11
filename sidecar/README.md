@@ -52,6 +52,9 @@ entry, so the two files cannot contradict each other for the same npub.
 | `nut11.py` | strict offline one-of-one P2PK condition and keyset-window checks |
 | `appendlog.py` | bounded-record CRC append-only proof journal for embedded-storage design |
 | `relay.py` | npub-bound app request-path payment/forward policy (not a universal mesh gate) |
+| `identity.py` | derive npub/link id from authenticated FIPS peer records, not a claimed source |
+| `envelope.py` | lab-local request/proof and ack/nack mappings |
+| `application.py` | datagram request handler binding resolver to relay controller |
 | `controller.py` | `SellerController`: session state → admit/pause/resume/evict + meter; optional L0 block |
 | `settlement.py` | `SettlementWorker`: redeem → journal SETTLED → exposure release |
 | `vault.py` | `TokenVault`: durable bearer token, attempts, dead letter, requeue |
@@ -90,7 +93,7 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-185 tests: counter merge/delta/reset/direction, the four-state machine,
+194 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub

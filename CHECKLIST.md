@@ -223,6 +223,28 @@ Plan: `docs/0022-app-relay-integration.md`.
 - [ ] Balloon-fresh relay-controller integration and router/ADR reconciliation.
 - [ ] Live traffic acceptance, power-cut, LR2021/Wirehair, release operations.
 
+## Phase 11 — live FIPS application service
+
+Result: `results/FIPS-APPLICATION-2026-11-11-account-payment-binding.md`, checklist
+`docs/0023-live-fips-application.md`.
+
+- [x] UDP application handler + internal request/response envelope.
+- [x] Resolve each source datagram through daemon `show peers` (npub + link).
+- [x] Two real FIPS peers pay and forward independently; cross-peer replay
+      produces `reservation_in_flight`.
+- [x] Exhaustion's following request blocked with no charge; valid renewal
+      resumes, explicit dormant event retains credit (2,000 → 1,990).
+- [x] Test application resolver/handler; total sidecar regression 194 tests.
+- [ ] Derive `link_down`/rebind automatically from actual peer lifecycle changes,
+      instead of feeding an explicit link_down request in the harness.
+- [ ] Adapter to actual `cashuB` DLEQ proofs with no-reclaim NUT-11 issuance
+      and mint/keyset allow-list (currently structural/verifier-lab only).
+- [ ] Real service-specific frame class/boundaries and policy-drop subtraction.
+- [ ] Full settlement through this online FIPS handler, with exposure release
+      only after confirmed redeem and visible failed/dead-letter state.
+- [ ] Wire balloon-fresh service mux / actual forwarding caller.
+- [ ] MCU hardware, RF timing, power-loss, key rotation/provisioning and release gates.
+
 ## Cross-cutting
 
 - [ ] Every result file has version, rev, commands, raw output

@@ -1,0 +1,46 @@
+name: low-layer-tollgate-fips-app
+services:
+  a:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-app-a
+    hostname: a
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/a.yaml:/etc/fips/fips.yaml:ro
+      - ./:/app:ro
+    networks: [fips-net]
+    restart: "no"
+  b:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-app-b
+    hostname: b
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/b.yaml:/etc/fips/fips.yaml:ro
+      - ./:/app:ro
+      - ../../sidecar:/sidecar:ro
+      - /tmp/opencode/fips-app-out:/out
+    networks: [fips-net]
+    restart: "no"
+  c:
+    image: ${FIPS_TEST_IMAGE:-fips-test:latest}
+    container_name: lt-app-c
+    hostname: c
+    cap_add: [NET_ADMIN]
+    devices: ["/dev/net/tun:/dev/net/tun"]
+    sysctls: ["net.ipv6.conf.all.disable_ipv6=0"]
+    environment: [RUST_LOG=info]
+    volumes:
+      - ./configs/c.yaml:/etc/fips/fips.yaml:ro
+      - ./:/app:ro
+    networks: [fips-net]
+    restart: "no"
+networks:
+  fips-net:
+    driver: bridge

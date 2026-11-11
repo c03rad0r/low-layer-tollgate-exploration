@@ -54,6 +54,7 @@ one peer's transit is blocked while its link, Noise session and local path stay
 | 8 | Balloon decision experiments (BYPASS, SELECTOR, TWOKEY, CRASH, EXPIRY, OUTAGE, LORA, INTERMITTENT, BIND, FEATURES) | **initial measurements and decisions done in `docs/0019`; hardware/long-window follow-ups remain** |
 | 9 | Production direction (account, strict offline P2PK, CRC journal) | **host-side prototypes and tests done; controller/hardware/release gates open in `docs/0020`** |
 | 10 | App-relay request-path integration (`relay.py` + CRC adapter) | **verified host integration in `docs/0022`; real FIPS/mint/flight work open** |
+| 11 | Live FIPS-local payment/relay app | **two-peer UDP sequence passes (`docs/0023`); peer watch, DLEQ, real RF/embedded work open** |
 
 ## Read this first
 
@@ -76,6 +77,7 @@ one peer's transit is blocked while its link, Noise session and local path stay
 - `docs/0020-balloon-production-readiness.md` — the production checklist.
 - `docs/0021-npub-prepaid-accounts.md` — account, P2PK-policy and log APIs.
 - `docs/0022-app-relay-integration.md` — actual relay integration and next gates.
+- `docs/0023-live-fips-application.md` — live peer application and release gates.
 - `ROADMAP.md` — phases and exit criteria.
 - `CHECKLIST.md` — live tracker.
 
