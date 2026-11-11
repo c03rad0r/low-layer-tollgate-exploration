@@ -48,6 +48,9 @@ entry, so the two files cannot contradict each other for the same npub.
 | `journal.py` | durable nullifier journal (`RESERVED → SETTLED | SPENT`), keyset admission predicate |
 | `exposure.py` | per-payer/mint/unit exposure cap, reserved before the journal row |
 | `payment.py` | `PaymentGate`: verifier → exposure → journal, receipt/settle/reject |
+| `account.py` | npub prepaid accounts (dormant interval, exact persistent balance), not a forwarding controller |
+| `nut11.py` | strict offline one-of-one P2PK condition and keyset-window checks |
+| `appendlog.py` | bounded-record CRC append-only proof journal for embedded-storage design |
 | `controller.py` | `SellerController`: session state → admit/pause/resume/evict + meter; optional L0 block |
 | `settlement.py` | `SettlementWorker`: redeem → journal SETTLED → exposure release |
 | `vault.py` | `TokenVault`: durable bearer token, attempts, dead letter, requeue |
@@ -86,7 +89,7 @@ durable eviction and says the payment lane died.
 PYTHONPATH=sidecar python3 -m unittest discover -s sidecar/tests -v
 ```
 
-135 tests: counter merge/delta/reset/direction, the four-state machine,
+174 tests: counter merge/delta/reset/direction, the four-state machine,
 deadlines, notice rate limiting, idempotent ACL writes, the strict/crude pause
 split, and the nullifier journal (replay, reopen, stale recovery, keyset
 admission), exposure cap enforcement, the payment-gate ordering with a stub
@@ -95,17 +98,22 @@ attribution in the meter, runtime admission over a fake control, the seller cont
 settlement (redeem, release, reconcile a double spend) and the token
 vault (crash recovery, attempts, dead letter), the drain loop (backoff,
 stop conditions, health), and the frame-gate command shape/config (nft, faked
-for the unit tests).
+for the unit tests). Newer cases cover durable prepaid npub accounts,
+dormant/rebind state, strict NUT-11 refusal rules, CRC-journal truncation,
+reopen/replay, settling versus pending and compaction.
 
 ## Not implemented
 
-- Payment verification and mint interaction (Phase 3). The spent journal core
-  is implemented; it is not yet fed by a verifier.
+- Integration of the production account/P2PK/journal contract into one actual
+  relay controller's request/forwarding path.
+- Payer-binding with the seller-encrypted preamble and msg1-ephemeral. Direct
+  FIPS presenter binding is a different, smaller guarantee.
 - A raw control-socket client covers only `set_forwarding` (the local patch).
   Read queries and connect/disconnect still go through `fipsctl`.
 - Per-frame-class counters.
-- The buyer-exhausts demo and Exp C. Those need a lab pair and a test mint.
 - Resale (two instances, one paying and one selling; `docs/0005`).
+- Flight-board validation: real flash atomicity, power-loss recovery, key
+  provisioning, RTC fallback and LR2021/Wirehair acceptance timings.
 
 ## Safety
 

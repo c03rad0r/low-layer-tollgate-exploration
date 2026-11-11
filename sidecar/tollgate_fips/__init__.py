@@ -71,6 +71,20 @@ from .meter import (
     snapshot,
 )
 from .session import Notice, Session, SessionError, State
+from .account import (
+    AccountError,
+    AccountState,
+    IdentityMismatch,
+    PrepaidAccount,
+    PrepaidAccountStore,
+)
+from .nut11 import (
+    OfflineProofRejected,
+    check_offline_condition,
+    is_compressed_secp256k1,
+    require_compressed_lock_key,
+)
+from .appendlog import CorruptJournal, CrcJournal
 
 __all__ = [
     "Fipsctl",
@@ -137,4 +151,15 @@ __all__ = [
     "SessionError",
     "State",
     "Notice",
+    "AccountError",
+    "AccountState",
+    "IdentityMismatch",
+    "PrepaidAccount",
+    "PrepaidAccountStore",
+    "OfflineProofRejected",
+    "check_offline_condition",
+    "is_compressed_secp256k1",
+    "require_compressed_lock_key",
+    "CorruptJournal",
+    "CrcJournal",
 ]
